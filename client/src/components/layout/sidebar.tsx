@@ -302,35 +302,32 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.productivity && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link 
-                    href="/time-analysis"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Análise de tempo
-                  </Link>
-                  <Link 
-                    href="/goals"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Metas
-                  </Link>
-                  <Link 
-                    href="/productivity-reports"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Relatórios
-                  </Link>
+                  {/* Módulo produtividade em desenvolvimento */}
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Análise de tempo</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Metas</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Relatórios</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
                 </div>
               )}
             </div>
 
-            <Link 
-              href="/settings"
-              className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
-            >
-              <Settings className="mr-3 h-5 w-5 text-sidebar-foreground/70 group-hover:text-sidebar-foreground" />
-              Configurações
-            </Link>
+            <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+              <div className="flex items-center">
+                <Settings className="mr-3 h-5 w-5 text-sidebar-foreground/40" />
+                <span>Configurações</span>
+              </div>
+              <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+            </div>
           </nav>
         </div>
 

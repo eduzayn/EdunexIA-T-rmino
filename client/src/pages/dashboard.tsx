@@ -11,11 +11,58 @@ import { AiAssistant } from "@/components/dashboard/ai-assistant";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 
+// Interface para tipagem dos dados do dashboard
+interface DashboardStats {
+  activeStudents: number;
+  activeCourses: number;
+  monthlyRevenue: number;
+  completionRate: number;
+  recentActivity: Array<{
+    id: number;
+    user: {
+      name: string;
+      avatarUrl: string | null;
+    };
+    action: string;
+    time: string;
+    badge: string;
+    badgeColor: "green" | "blue" | "purple" | "yellow" | "red";
+    secondaryBadge?: string;
+    secondaryBadgeColor?: "green" | "blue" | "purple" | "yellow" | "red";
+  }>;
+  popularCourses: Array<{
+    id: number;
+    title: string;
+    studentsCount: number;
+    price: number;
+    rating: string;
+    category?: string;
+  }>;
+  latestEnrollments: Array<{
+    id: number;
+    student: {
+      id: number;
+      name: string;
+      email: string;
+      avatarUrl: string;
+    };
+    course: {
+      id: number;
+      title: string;
+      type: string;
+    };
+    amount: number;
+    status: "active" | "pending" | "completed" | "cancelled";
+    date: string;
+    paymentStatus: "paid" | "pending" | "failed" | "refunded";
+  }>;
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
 
-  const { data: dashboardStats, isLoading } = useQuery({
+  const { data: dashboardStats, isLoading } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard/stats"],
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
