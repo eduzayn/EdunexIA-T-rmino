@@ -2,6 +2,8 @@ import {
   User, InsertUser,
   Tenant, InsertTenant,
   Course, InsertCourse,
+  Module, InsertModule,
+  Lesson, InsertLesson,
   Enrollment, InsertEnrollment,
   Lead, InsertLead
 } from "@shared/schema";
@@ -34,7 +36,11 @@ export interface IStorage {
   updateCourse(id: number, courseData: Partial<InsertCourse>): Promise<Course>;
   
   // Module operations
-  getModulesByCourse(courseId: number): Promise<any[]>;
+  getModulesByCourse(courseId: number): Promise<Module[]>;
+  getModuleById(id: number): Promise<Module | undefined>;
+  createModule(module: InsertModule): Promise<Module>;
+  updateModule(id: number, moduleData: Partial<InsertModule>): Promise<Module>;
+  deleteModule(id: number): Promise<boolean>;
   
   // Enrollment operations
   getEnrollmentsByStudent(studentId: number): Promise<Enrollment[]>;
@@ -215,7 +221,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async getModulesByCourse(courseId: number): Promise<any[]> {
+  async getModulesByCourse(courseId: number): Promise<Module[]> {
     try {
       // Buscar módulos do curso
       const courseModules = await db
@@ -258,10 +264,100 @@ export class DatabaseStorage implements IStorage {
         })
       );
       
-      return modulesWithLessons;
+      return modulesWithLessons as Module[];
     } catch (error) {
       console.error('Erro ao buscar módulos por curso:', error);
       return [];
+    }
+  }
+  
+  async getModuleById(id: number): Promise<Module | undefined> {
+    try {
+      const [module] = await db.select().from(modules).where(eq(modules.id, id));
+      
+      if (module) {
+        // Buscar aulas do módulo
+        const moduleLessons = await db
+          .select()
+          .from(lessons)
+          .where(eq(lessons.moduleId, module.id))
+          .orderBy(lessons.order);
+        
+        return {
+          ...module,
+          lessons: moduleLessons
+        } as Module;
+      }
+      
+      return module;
+    } catch (error) {
+      console.error('Erro ao buscar módulo por ID:', error);
+      return undefined;
+    }
+  }
+
+  async createModule(moduleData: InsertModule): Promise<Module> {
+    try {
+      // Verificar a ordem mais alta atual para os módulos deste curso
+      const result = await db
+        .select({ maxOrder: sql`MAX(${modules.order})` })
+        .from(modules)
+        .where(eq(modules.courseId, moduleData.courseId));
+      
+      // Definir a ordem como a próxima disponível
+      let nextOrder = 1;
+      if (result[0]?.maxOrder) {
+        nextOrder = Number(result[0].maxOrder) + 1;
+      }
+      
+      const [newModule] = await db.insert(modules).values({
+        ...moduleData,
+        order: moduleData.order || nextOrder,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        description: moduleData.description || null
+      }).returning();
+      
+      return newModule;
+    } catch (error) {
+      console.error('Erro ao criar módulo:', error);
+      throw error;
+    }
+  }
+  
+  async updateModule(id: number, moduleData: Partial<InsertModule>): Promise<Module> {
+    try {
+      const [updatedModule] = await db.update(modules)
+        .set({
+          ...moduleData,
+          updatedAt: new Date()
+        })
+        .where(eq(modules.id, id))
+        .returning();
+      
+      if (!updatedModule) {
+        throw new Error('Módulo não encontrado');
+      }
+      
+      return updatedModule;
+    } catch (error) {
+      console.error('Erro ao atualizar módulo:', error);
+      throw error;
+    }
+  }
+  
+  async deleteModule(id: number): Promise<boolean> {
+    try {
+      // Primeiro exclui aulas relacionadas ao módulo
+      await db.delete(lessons).where(eq(lessons.moduleId, id));
+      
+      // Depois exclui o módulo
+      const result = await db.delete(modules).where(eq(modules.id, id)).returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir módulo:', error);
+      return false;
     }
   }
 
