@@ -44,7 +44,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   };
 
   const sidebarClasses = cn(
-    "fixed inset-y-0 left-0 z-50 w-72 bg-sidebar pt-20 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
+    "fixed inset-y-0 left-0 z-50 w-72 pt-20 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
     "transform transition-transform duration-300 ease-in-out lg:translate-x-0",
     isMobileOpen ? "translate-x-0" : "-translate-x-full",
     className
@@ -335,9 +335,9 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
         <div className="border-t border-sidebar-border p-4 mt-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="w-10 h-10 rounded-md bg-secondary-100 flex items-center justify-center">
-                <span className="text-secondary-800 font-bold">
-                  {user?.tenantId === 1 ? 'ED' : 'TS'}
+              <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
+                <span className="text-white font-bold text-lg">
+                  {user?.tenantId === 1 ? 'E' : 'T'}
                 </span>
               </div>
               <div className="ml-3">
