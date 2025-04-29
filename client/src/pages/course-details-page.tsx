@@ -192,8 +192,8 @@ export default function CourseDetailsPage() {
                 className="w-full h-64 object-cover rounded-lg"
               />
             ) : (
-              <div className="w-full h-64 bg-blue-100 rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-20 h-20 text-blue-800" />
+              <div className="w-full h-64 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+                <GraduationCap className="w-24 h-24 text-primary" />
               </div>
             )}
             
@@ -223,7 +223,7 @@ export default function CourseDetailsPage() {
                       <Calendar className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Data de Criação</p>
-                        <p className="font-medium">{new Date(course.createdAt).toLocaleDateString('pt-BR')}</p>
+                        <p className="font-medium">{course.createdAt ? new Date(course.createdAt).toLocaleDateString('pt-BR') : "Data não disponível"}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -384,12 +384,12 @@ export default function CourseDetailsPage() {
                 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Criado em:</span>
-                  <span>{new Date(course.createdAt).toLocaleDateString('pt-BR')}</span>
+                  <span>{course.createdAt ? new Date(course.createdAt).toLocaleDateString('pt-BR') : "Data não disponível"}</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Última atualização:</span>
-                  <span>{new Date(course.updatedAt).toLocaleDateString('pt-BR')}</span>
+                  <span>{course.updatedAt ? new Date(course.updatedAt).toLocaleDateString('pt-BR') : "Data não disponível"}</span>
                 </div>
                 
                 <Separator />
