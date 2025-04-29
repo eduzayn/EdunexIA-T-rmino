@@ -78,16 +78,17 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
           {/* Navigation Menu */}
           <nav className="space-y-1">
-            <Link href="/">
-              <a className={cn(
+            <Link 
+              href="/" 
+              className={cn(
                 "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
                 isActive("/") 
                   ? "bg-sidebar-primary text-sidebar-primary-foreground" 
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )}>
-                <LayoutDashboard className="mr-3 h-5 w-5" />
-                Dashboard
-              </a>
+              )}
+            >
+              <LayoutDashboard className="mr-3 h-5 w-5" />
+              Dashboard
             </Link>
 
             {/* Academic Module */}
@@ -113,40 +114,46 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.academic && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link href="/courses">
-                    <a className={cn(
+                  <Link 
+                    href="/courses"
+                    className={cn(
                       "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
                       isActive("/courses") 
                         ? "bg-sidebar-accent/70 text-sidebar-foreground" 
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    )}>
-                      Cursos
-                    </a>
+                    )}
+                  >
+                    Cursos
                   </Link>
-                  <Link href="/subjects">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Disciplinas
-                    </a>
+                  <Link 
+                    href="/subjects"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Disciplinas
                   </Link>
-                  <Link href="/classes">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Turmas
-                    </a>
+                  <Link 
+                    href="/classes"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Turmas
                   </Link>
-                  <Link href="/students">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Alunos
-                    </a>
+                  <Link 
+                    href="/students"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Alunos
                   </Link>
-                  <Link href="/teachers">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Professores
-                    </a>
+                  <Link 
+                    href="/teachers"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Professores
                   </Link>
-                  <Link href="/assessments">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Avaliações
-                    </a>
+                  <Link 
+                    href="/assessments"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Avaliações
                   </Link>
                 </div>
               )}
@@ -172,25 +179,29 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.commercial && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link href="/leads">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Leads
-                    </a>
+                  <Link 
+                    href="/leads"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Leads
                   </Link>
-                  <Link href="/opportunities">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Oportunidades
-                    </a>
+                  <Link 
+                    href="/opportunities"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Oportunidades
                   </Link>
-                  <Link href="/campaigns">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Campanhas
-                    </a>
+                  <Link 
+                    href="/campaigns"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Campanhas
                   </Link>
-                  <Link href="/automations">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Automações
-                    </a>
+                  <Link 
+                    href="/automations"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Automações
                   </Link>
                 </div>
               )}
@@ -216,25 +227,29 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.financial && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link href="/payments">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Pagamentos
-                    </a>
+                  <Link 
+                    href="/payments"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Pagamentos
                   </Link>
-                  <Link href="/subscriptions">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Assinaturas
-                    </a>
+                  <Link 
+                    href="/subscriptions"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Assinaturas
                   </Link>
-                  <Link href="/billing">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Faturamento
-                    </a>
+                  <Link 
+                    href="/billing"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Faturamento
                   </Link>
-                  <Link href="/financial-reports">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Relatórios
-                    </a>
+                  <Link 
+                    href="/financial-reports"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Relatórios
                   </Link>
                 </div>
               )}
@@ -260,20 +275,23 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.ai && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link href="/ai-assistant">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Assistente IA
-                    </a>
+                  <Link 
+                    href="/ai-assistant"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Assistente IA
                   </Link>
-                  <Link href="/knowledge-base">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Base de conhecimento
-                    </a>
+                  <Link 
+                    href="/knowledge-base"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Base de conhecimento
                   </Link>
-                  <Link href="/ai-settings">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Configurações
-                    </a>
+                  <Link 
+                    href="/ai-settings"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Configurações
                   </Link>
                 </div>
               )}
@@ -299,30 +317,34 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.productivity && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link href="/time-analysis">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Análise de tempo
-                    </a>
+                  <Link 
+                    href="/time-analysis"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Análise de tempo
                   </Link>
-                  <Link href="/goals">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Metas
-                    </a>
+                  <Link 
+                    href="/goals"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Metas
                   </Link>
-                  <Link href="/productivity-reports">
-                    <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                      Relatórios
-                    </a>
+                  <Link 
+                    href="/productivity-reports"
+                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  >
+                    Relatórios
                   </Link>
                 </div>
               )}
             </div>
 
-            <Link href="/settings">
-              <a className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group">
-                <Settings className="mr-3 h-5 w-5 text-sidebar-foreground/70 group-hover:text-sidebar-foreground" />
-                Configurações
-              </a>
+            <Link 
+              href="/settings"
+              className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
+            >
+              <Settings className="mr-3 h-5 w-5 text-sidebar-foreground/70 group-hover:text-sidebar-foreground" />
+              Configurações
             </Link>
           </nav>
         </div>

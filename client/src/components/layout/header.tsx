@@ -67,13 +67,11 @@ export function Header({ onToggleSidebar }: HeaderProps) {
               <Menu className="h-5 w-5" />
             </Button>
             
-            <Link href="/">
-              <a className="flex items-center space-x-2">
-                <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-primary to-purple-600 rounded-md">
-                  <span className="text-white font-bold text-lg">E</span>
-                </div>
-                <span className="text-xl font-bold text-foreground">Edunéxia</span>
-              </a>
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-primary to-purple-600 rounded-md">
+                <span className="text-white font-bold text-lg">E</span>
+              </div>
+              <span className="text-xl font-bold text-foreground">Edunéxia</span>
             </Link>
             
             <span className="hidden md:inline-block bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-xs px-2 py-1 rounded-full ml-2 dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
