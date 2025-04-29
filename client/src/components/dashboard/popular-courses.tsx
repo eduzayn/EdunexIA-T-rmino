@@ -55,8 +55,11 @@ export function PopularCourses({ courses }: PopularCoursesProps) {
     return (
       <div className="flex text-yellow-400">
         {[...Array(5)].map((_, i) => {
-          // Usar courseId no cálculo da chave para garantir que seja única
-          const starKey = `star-${courseId}-${i}`;
+          // Usar uma combinação de courseId, posição e tipo de estrela para garantir chaves únicas
+          const position = i;
+          const starType = i < fullStars ? 'full' : (i === fullStars && hasHalfStar ? 'half' : 'empty');
+          const starKey = `star-${courseId}-${position}-${starType}`;
+          
           return (
             <span key={starKey}>
               {i < fullStars ? (
