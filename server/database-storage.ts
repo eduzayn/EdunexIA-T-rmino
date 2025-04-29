@@ -148,10 +148,33 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Gera um código único para o curso dentro de um tenant
+  private async generateUniqueCourseCode(tenantId: number): Promise<number> {
+    try {
+      // Buscar o maior código de curso existente para o tenant
+      const result = await db
+        .select({ maxCode: sql`MAX(${courses.code})` })
+        .from(courses)
+        .where(eq(courses.tenantId, tenantId));
+      
+      const maxCode = result[0]?.maxCode || 0;
+      // Incrementar o código máximo atual ou começar do 1000 se for o primeiro curso
+      return maxCode ? maxCode + 1 : 1000;
+    } catch (error) {
+      console.error('Erro ao gerar código único para curso:', error);
+      // Fallback para um código aleatório entre 1000 e 9999 em caso de erro
+      return 1000 + Math.floor(Math.random() * 9000);
+    }
+  }
+
   async createCourse(courseData: InsertCourse): Promise<Course> {
     try {
+      // Gerar um código único para o curso
+      const courseCode = await this.generateUniqueCourseCode(courseData.tenantId);
+      
       const [course] = await db.insert(courses).values({
         ...courseData,
+        code: courseCode,
         createdAt: new Date(),
         updatedAt: new Date(),
         description: courseData.description || null,

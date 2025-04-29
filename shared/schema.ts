@@ -58,6 +58,7 @@ export const users = pgTable('users', {
 // Courses
 export const courses = pgTable('courses', {
   id: serial('id').primaryKey(),
+  code: integer('code').notNull(), // código numérico único para o curso
   tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
   shortDescription: text('short_description'),
@@ -70,6 +71,10 @@ export const courses = pgTable('courses', {
   teacherId: integer('teacher_id').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    codeUnique: unique().on(table.code, table.tenantId), // garantir que o código é único por tenant
+  };
 });
 
 // Modules (Sections of a course)
@@ -196,6 +201,7 @@ export const insertTenantSchema = createInsertSchema(tenants).omit({
 
 export const insertCourseSchema = createInsertSchema(courses).omit({
   id: true,
+  code: true, // Omitir o código, pois será gerado pelo sistema
   createdAt: true,
   updatedAt: true
 });
