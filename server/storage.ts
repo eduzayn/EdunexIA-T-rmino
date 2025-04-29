@@ -97,7 +97,7 @@ export class MemStorage implements IStorage {
       id: this.userId++,
       tenantId: demoTenant.id,
       username: "admin",
-      password: "admin", // This would be hashed in real implementation
+      password: "a3c12f4c07f3227038bd80ab2c8c6cea90e14db9e6f68b42ccabb46f8f22480ba5dc8a686b35580a9e3d0319894173e0e6b63b35eedb78f4d5ac44acc94ed241.2e0cb7a8f51d4c55cdbd059ba9eb7ab6", // "password123" hashed
       email: "admin@edunexia.com",
       fullName: "Carlos Silva",
       role: "admin",

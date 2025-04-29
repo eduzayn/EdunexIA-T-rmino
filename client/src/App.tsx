@@ -11,7 +11,9 @@ function Router() {
     <Switch>
       <ProtectedRoute path="/" component={Dashboard} />
       <Route path="/auth" component={AuthPage} />
-      <Route component={NotFound} />
+      <Route path="/:rest*">
+        {() => <NotFound />}
+      </Route>
     </Switch>
   );
 }

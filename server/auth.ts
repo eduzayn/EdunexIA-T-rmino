@@ -23,7 +23,18 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
+  // Verifica se temos uma senha armazenada válida com salt
+  if (!stored || !stored.includes(".")) {
+    return false;
+  }
+  
   const [hashed, salt] = stored.split(".");
+  
+  // Verifica se temos tanto o hash quanto o salt
+  if (!hashed || !salt) {
+    return false;
+  }
+  
   const hashedBuf = Buffer.from(hashed, "hex");
   const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
   return timingSafeEqual(hashedBuf, suppliedBuf);
