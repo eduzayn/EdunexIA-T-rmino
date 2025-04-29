@@ -128,9 +128,9 @@ export default function Dashboard() {
       <Helmet>
         <title>Dashboard | Edunéxia</title>
       </Helmet>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0">
         {/* Page Header */}
-        <div className="pt-2 pb-4">
+        <div className="pt-1 pb-3">
           <h1 className="text-2xl font-semibold">Dashboard Administrativo</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Visão geral do sistema educacional Edunéxia

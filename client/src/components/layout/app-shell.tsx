@@ -39,13 +39,11 @@ export function AppShell({ children, showBreadcrumbs = true }: AppShellProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header onToggleSidebar={toggleSidebar} />
-      
       <div className="flex flex-1 overflow-hidden">
         <Sidebar 
           isMobileOpen={isSidebarOpen}
           onCloseMobile={closeMobileSidebar}
         />
-        
         <main className="flex-1 overflow-auto pb-12 bg-background lg:ml-72">
           {showBreadcrumbs && (
             <div className="border-b">
