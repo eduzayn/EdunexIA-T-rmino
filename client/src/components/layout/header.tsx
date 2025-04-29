@@ -54,95 +54,97 @@ export function Header({ onToggleSidebar }: HeaderProps) {
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-30">
-      <div className="max-w-[2000px] mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-[2000px] mx-auto px-6">
+        <div className="flex justify-between items-center h-20">
           {/* Logo Area */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden text-muted-foreground"
+              className="lg:hidden text-muted-foreground h-10 w-10"
               onClick={onToggleSidebar}
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
             </Button>
             
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-primary to-purple-600 rounded-md">
-                <span className="text-white font-bold text-lg">E</span>
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
+                <span className="text-white font-bold text-xl">E</span>
               </div>
-              <span className="text-xl font-bold text-foreground">Edunéxia</span>
+              <span className="text-2xl font-bold text-foreground">Edunéxia</span>
             </Link>
             
-            <span className="hidden md:inline-block bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-xs px-2 py-1 rounded-full ml-2 dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
+            <span className="hidden md:inline-block bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full ml-2 dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
               NextGen
             </span>
           </div>
           
           {/* Search Bar - Hidden on Mobile */}
-          <div className={`${showMobileSearch ? 'flex absolute left-0 right-0 top-0 bg-background p-4 h-16 z-50' : 'hidden'} lg:relative lg:flex lg:p-0 lg:h-auto lg:z-auto lg:flex-1 lg:max-w-lg lg:ml-8`}>
+          <div className={`${showMobileSearch ? 'flex absolute left-0 right-0 top-0 bg-background p-4 h-20 z-50' : 'hidden'} lg:relative lg:flex lg:p-0 lg:h-auto lg:z-auto lg:flex-1 lg:max-w-xl lg:ml-8`}>
             {showMobileSearch && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="mr-2 lg:hidden"
+                className="mr-2 lg:hidden h-10 w-10"
                 onClick={() => setShowMobileSearch(false)}
               >
-                <ChevronDown className="h-5 w-5" />
+                <ChevronDown className="h-6 w-6" />
               </Button>
             )}
             <div className="relative w-full">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search className="h-4 w-4 text-muted-foreground" />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                <Search className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
                 type="search" 
-                className="w-full pl-10 pr-4 py-2 bg-muted/50 border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-background/70 text-sm" 
+                className="w-full pl-12 pr-4 py-3 bg-muted/50 border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-background/70 text-base" 
                 placeholder="Pesquisar cursos, alunos ou recursos..." 
               />
             </div>
           </div>
           
           {/* Right Side Nav Items */}
-          <div className="flex items-center space-x-1 sm:space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden h-10 w-10"
               onClick={() => setShowMobileSearch(true)}
               aria-label="Pesquisar"
             >
-              <Search className="h-5 w-5 text-muted-foreground" />
+              <Search className="h-6 w-6 text-muted-foreground" />
             </Button>
             
             <Button
               variant="ghost"
               size="icon"
-              className="relative"
+              className="relative h-10 w-10"
               aria-label="Notificações"
             >
-              <Bell className="h-5 w-5 text-muted-foreground" />
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background"></span>
+              <Bell className="h-6 w-6 text-muted-foreground" />
+              <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 rounded-full border-2 border-background"></span>
             </Button>
             
             <Button
               variant="ghost"
               size="icon"
+              className="h-10 w-10"
               aria-label="Ajuda"
             >
-              <HelpCircle className="h-5 w-5 text-muted-foreground" />
+              <HelpCircle className="h-6 w-6 text-muted-foreground" />
             </Button>
             
             <Button
               variant="ghost"
               size="icon"
+              className="h-10 w-10"
               onClick={toggleTheme}
               aria-label={theme === "dark" ? "Modo claro" : "Modo escuro"}
             >
               {theme === "dark" ? (
-                <Sun className="h-5 w-5 text-muted-foreground" />
+                <Sun className="h-6 w-6 text-muted-foreground" />
               ) : (
-                <Moon className="h-5 w-5 text-muted-foreground" />
+                <Moon className="h-6 w-6 text-muted-foreground" />
               )}
             </Button>
             

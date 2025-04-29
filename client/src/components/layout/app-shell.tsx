@@ -46,9 +46,9 @@ export function AppShell({ children, showBreadcrumbs = true }: AppShellProps) {
           onCloseMobile={closeMobileSidebar}
         />
         
-        <main className="flex-1 overflow-auto pt-16 pb-10 bg-background lg:ml-64">
+        <main className="flex-1 overflow-auto pt-20 pb-12 bg-background lg:ml-64">
           {showBreadcrumbs && (
-            <div className="container py-2 border-b">
+            <div className="container py-3 border-b">
               <Breadcrumbs />
             </div>
           )}

@@ -80,8 +80,29 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 16px; /* Aumentando o tamanho base da fonte */
+  }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
+  }
+
+  /* Aumentando o espaço padrão em containers */
+  .container {
+    @apply px-6 py-4;
   }
 }
 
