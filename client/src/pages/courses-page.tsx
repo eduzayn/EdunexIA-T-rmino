@@ -295,7 +295,7 @@ export default function CoursesPage() {
             ) : (
               <div className="space-y-3">
                 {filteredCourses!.map((course) => (
-                  <Link key={course.id} href={`/courses/${course.id}`}>
+                  <Link key={course.id} href={`${currentPortal.baseRoute}/courses/${course.id}`}>
                     <Card className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
                       <div className="flex flex-col md:flex-row">
                         {course.imageUrl ? (
