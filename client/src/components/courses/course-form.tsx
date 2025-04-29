@@ -98,7 +98,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
         description: "O curso foi criado e está disponível para configuração.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
-      navigate("/courses");
+      navigate("/admin/courses");
     },
     onError: (error: Error) => {
       toast({
@@ -122,7 +122,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
       queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId] });
-      navigate(`/courses/${courseId}`);
+      navigate(`/admin/courses/${courseId}`);
     },
     onError: (error: Error) => {
       toast({
@@ -378,7 +378,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate(courseId ? `/courses/${courseId}` : "/courses")}
+                onClick={() => navigate(courseId ? `/admin/courses/${courseId}` : "/admin/courses")}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancelar

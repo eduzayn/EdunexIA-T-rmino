@@ -75,7 +75,7 @@ export default function CourseEditPage() {
         {/* Cabeçalho */}
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
-            <Link href={`/courses/${courseId}`}>
+            <Link href={`/admin/courses/${courseId}`}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
