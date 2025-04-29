@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
-import { storage } from "./storage";
+import { storage } from "./database-storage";
 import { z } from "zod";
 import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema } from "@shared/schema";
 import { testDatabaseConnection } from "./db";
