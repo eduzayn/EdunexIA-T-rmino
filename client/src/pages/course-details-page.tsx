@@ -65,29 +65,40 @@ export default function CourseDetailsPage() {
 
   // Calcular estatísticas a partir dos dados reais
   const computeStats = () => {
-    let totalLessons = 0;
-    let totalModules = 0;
-    let totalDuration = 0;
+    // Valores padrão
+    const stats = {
+      lessonsCount: 0,
+      modulesCount: 0,
+      studentsCount: 42, // Simulado: será substituído por API de matrículas
+      totalDuration: "0min",
+      isFree: true
+    };
 
+    // Se não temos dados do curso ainda, retornamos os valores padrão
+    if (!course) return stats;
+    
+    // Atualizamos o status de curso gratuito/pago
+    stats.isFree = !course.price;
+    
+    // Se temos módulos, calculamos as estatísticas relacionadas
     if (modules && modules.length > 0) {
-      totalModules = modules.length;
+      let totalLessons = 0;
+      stats.modulesCount = modules.length;
+      
       totalLessons = modules.reduce((count, module) => {
         return count + (module.lessons ? module.lessons.length : 0);
       }, 0);
-
+      
+      stats.lessonsCount = totalLessons;
+      
       // Duração aproximada (10 minutos por aula por enquanto)
-      totalDuration = totalLessons * 10;
+      const totalDuration = totalLessons * 10;
+      stats.totalDuration = totalDuration > 60 
+        ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}min` 
+        : `${totalDuration}min`;
     }
 
-    return {
-      lessonsCount: totalLessons,
-      modulesCount: totalModules,
-      studentsCount: 42, // Simulado: será substituído por API de matrículas
-      totalDuration: totalDuration > 60 
-        ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}min` 
-        : `${totalDuration}min`,
-      isFree: !course.price
-    };
+    return stats;
   };
 
   const courseStats = computeStats();
