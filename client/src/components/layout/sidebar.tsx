@@ -96,7 +96,10 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
                 <span className="text-white font-bold text-xl">E</span>
               </div>
-              <span className="text-2xl font-bold text-sidebar-foreground">Edunéxia</span>
+              <div className="flex flex-col ml-2">
+                <span className="text-xs text-sidebar-foreground/70">Intelligent Education</span>
+                <span className="text-2xl font-bold text-sidebar-foreground">Edunéx<span className="text-primary font-black">IA</span></span>
+              </div>
             </div>
           </div>
         </div>
@@ -425,7 +428,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-sidebar-foreground">
-                  {user?.tenantId === 1 ? 'Edunéxia Demo' : 'Tenant Secundário'}
+                  {user?.tenantId === 1 ? 'EdunéxIA Demo' : 'Tenant Secundário'}
                 </p>
                 <p className="text-xs text-sidebar-foreground/60">Plano Empresarial</p>
               </div>
