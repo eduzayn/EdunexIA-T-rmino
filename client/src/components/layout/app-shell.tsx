@@ -46,7 +46,7 @@ export function AppShell({ children, showBreadcrumbs = true }: AppShellProps) {
         />
         <main className="flex-1 overflow-auto pb-12 bg-background lg:ml-72">
           {showBreadcrumbs && (
-            <div className="border-b">
+            <div className="border-b px-6 py-1">
               <Breadcrumbs />
             </div>
           )}
