@@ -429,13 +429,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Dados recebidos:", req.body);
       console.log("Usuário atual:", req.user?.id, req.user?.tenantId);
 
-      // Gerar código temporário para validação
-      // O código final será gerado no método createSubject
-      const randomCode = `TEMP-${Date.now().toString().substring(8, 13)}`;
-      
       const subjectData = insertSubjectSchema.parse({
         ...req.body,
-        code: randomCode,
         tenantId: req.user.tenantId || 1
       });
 
