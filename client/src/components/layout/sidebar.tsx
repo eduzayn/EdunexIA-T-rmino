@@ -97,7 +97,6 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                 <span className="text-white font-bold text-xl">E</span>
               </div>
               <div className="flex flex-col ml-3">
-
                 <span className="text-2xl font-bold text-sidebar-foreground leading-none">Edunéx<span className="text-primary font-black">IA</span></span>
               </div>
             </div>
