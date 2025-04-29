@@ -44,7 +44,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   };
 
   const sidebarClasses = cn(
-    "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar pt-16 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
+    "fixed inset-y-0 left-0 z-50 w-72 bg-sidebar pt-20 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
     "transform transition-transform duration-300 ease-in-out lg:translate-x-0",
     isMobileOpen ? "translate-x-0" : "-translate-x-full",
     className
@@ -61,13 +61,13 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
       )}
       
       <aside className={sidebarClasses}>
-        <div className="p-4 flex-1 overflow-y-auto">
+        <div className="p-6 flex-1 overflow-y-auto">
           {/* Portal Selector */}
-          <div className="mb-6">
-            <label className="block text-xs font-medium text-muted-foreground mb-2">
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Portal
             </label>
-            <select className="block w-full px-3 py-2 text-sm rounded-md border border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
+            <select className="block w-full px-4 py-2.5 text-base rounded-md border border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
               <option>Portal Administrativo</option>
               <option>Portal do Aluno</option>
               <option>Portal do Professor</option>
@@ -77,17 +77,17 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
           </div>
 
           {/* Navigation Menu */}
-          <nav className="space-y-1">
+          <nav className="space-y-2">
             <Link 
               href="/" 
               className={cn(
-                "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
                 isActive("/") 
                   ? "bg-sidebar-primary text-sidebar-primary-foreground" 
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
-              <LayoutDashboard className="mr-3 h-5 w-5" />
+              <LayoutDashboard className="mr-4 h-5 w-5" />
               Dashboard
             </Link>
 
@@ -95,13 +95,13 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             <div className="nav-group">
               <button 
                 className={cn(
-                  "flex items-center justify-between w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                  "flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-md transition-colors",
                   "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )} 
                 onClick={() => toggleGroup('academic')}
               >
                 <div className="flex items-center">
-                  <BookOpen className="mr-3 h-5 w-5 text-sidebar-foreground/70" />
+                  <BookOpen className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
                   Acadêmico
                 </div>
                 <ChevronDown 
@@ -113,11 +113,11 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </button>
 
               {openGroups.academic && (
-                <div className="pl-9 space-y-1 mt-1">
+                <div className="pl-12 space-y-2 mt-2">
                   <Link 
                     href="/courses"
                     className={cn(
-                      "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                      "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
                       isActive("/courses") 
                         ? "bg-sidebar-accent/70 text-sidebar-foreground" 
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
@@ -127,29 +127,29 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                   </Link>
                   
                   {/* Páginas em desenvolvimento - desabilitadas mas visíveis */}
-                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                  <div className="flex items-center justify-between px-3 py-2.5 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                     <span>Disciplinas</span>
-                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    <span className="text-sm bg-secondary/20 px-2 py-0.5 rounded text-muted-foreground">Em breve</span>
                   </div>
                   
-                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                  <div className="flex items-center justify-between px-3 py-2.5 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                     <span>Turmas</span>
-                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    <span className="text-sm bg-secondary/20 px-2 py-0.5 rounded text-muted-foreground">Em breve</span>
                   </div>
                   
-                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                  <div className="flex items-center justify-between px-3 py-2.5 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                     <span>Alunos</span>
-                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    <span className="text-sm bg-secondary/20 px-2 py-0.5 rounded text-muted-foreground">Em breve</span>
                   </div>
                   
-                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                  <div className="flex items-center justify-between px-3 py-2.5 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                     <span>Professores</span>
-                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    <span className="text-sm bg-secondary/20 px-2 py-0.5 rounded text-muted-foreground">Em breve</span>
                   </div>
                   
-                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                  <div className="flex items-center justify-between px-3 py-2.5 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                     <span>Avaliações</span>
-                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    <span className="text-sm bg-secondary/20 px-2 py-0.5 rounded text-muted-foreground">Em breve</span>
                   </div>
                 </div>
               )}
@@ -158,11 +158,11 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             {/* Commercial Module */}
             <div className="nav-group">
               <button 
-                className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
                 onClick={() => toggleGroup('commercial')}
               >
                 <div className="flex items-center">
-                  <Store className="mr-3 h-5 w-5 text-sidebar-foreground/70" />
+                  <Store className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
                   Comercial
                 </div>
                 <ChevronDown 

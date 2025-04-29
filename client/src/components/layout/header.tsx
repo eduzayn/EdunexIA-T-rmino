@@ -151,63 +151,63 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 flex items-center gap-2 pl-0">
-                  <Avatar className="h-8 w-8 border-2 border-background">
+                <Button variant="ghost" className="relative h-12 flex items-center gap-3 pl-0">
+                  <Avatar className="h-10 w-10 border-2 border-background">
                     <AvatarImage src={user?.avatarUrl || undefined} alt={user?.fullName || 'User'} />
-                    <AvatarFallback className="bg-primary/10 text-primary">
+                    <AvatarFallback className="bg-primary/10 text-primary font-medium text-base">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden md:flex flex-col items-start">
-                    <span className="text-sm font-medium leading-none">{user?.fullName}</span>
-                    <span className="text-xs text-muted-foreground leading-tight">{user?.role === 'admin' ? 'Administrador' : user?.role === 'teacher' ? 'Professor' : 'Aluno'}</span>
+                    <span className="text-base font-medium leading-tight">{user?.fullName}</span>
+                    <span className="text-sm text-muted-foreground leading-tight">{user?.role === 'admin' ? 'Administrador' : user?.role === 'teacher' ? 'Professor' : 'Aluno'}</span>
                   </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-60" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">{user?.fullName}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+              <DropdownMenuContent className="w-72" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal py-3">
+                  <div className="flex flex-col space-y-1.5">
+                    <p className="text-base font-medium">{user?.fullName}</p>
+                    <p className="text-sm text-muted-foreground">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-xs text-muted-foreground">Instituição atual</p>
+                <DropdownMenuLabel className="font-normal py-3">
+                  <div className="flex flex-col space-y-2">
+                    <p className="text-sm text-muted-foreground">Instituição atual</p>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 rounded-md bg-secondary-100 flex items-center justify-center">
-                          <span className="text-secondary-800 text-xs font-bold">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-md bg-secondary-100 flex items-center justify-center">
+                          <span className="text-secondary-800 text-sm font-bold">
                             {user?.tenantId === 1 ? 'ED' : 'TS'}
                           </span>
                         </div>
-                        <span className="text-sm font-medium">
+                        <span className="text-base font-medium">
                           {user?.tenantId === 1 ? 'Edunéxia Demo' : 'Tenant Secundário'}
                         </span>
                       </div>
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
                     </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
+                  <DropdownMenuItem className="py-2.5 text-base">
+                    <User className="mr-3 h-5 w-5" />
                     <span>Meu perfil</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
+                  <DropdownMenuItem className="py-2.5 text-base">
+                    <Settings className="mr-3 h-5 w-5" />
                     <span>Configurações</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
-                  className="text-destructive focus:text-destructive" 
+                  className="text-destructive focus:text-destructive py-2.5 text-base" 
                   onClick={handleLogout}
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-3 h-5 w-5" />
                   <span>Sair</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
