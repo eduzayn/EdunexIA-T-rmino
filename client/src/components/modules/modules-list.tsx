@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Module } from "@shared/schema";
+import { Module, Lesson } from "@shared/schema";
+
+// Tipo estendido de Module para incluir as lessons
+interface ModuleWithLessons extends Module {
+  lessons?: Lesson[];
+}
 import { apiRequest } from "@/lib/queryClient";
 
 import {
@@ -36,7 +41,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
   const [editingModuleId, setEditingModuleId] = useState<number | null>(null);
 
   // Buscar módulos do curso
-  const { data: modules, isLoading, error } = useQuery({
+  const { data: modules, isLoading, error } = useQuery<ModuleWithLessons[]>({
     queryKey: ['/api/courses', courseId, 'modules'],
     queryFn: async () => {
       const res = await fetch(`/api/courses/${courseId}/modules`);
@@ -67,13 +72,13 @@ export function ModulesList({ courseId }: ModulesListProps) {
   });
 
   const handleAddModule = () => {
-    setIsAddingModule(true);
-    setEditingModuleId(null);
+    // Redirecionar para página de criação de módulo
+    window.location.href = `/admin/courses/${courseId}/modules/new`;
   };
 
   const handleEditModule = (moduleId: number) => {
-    setEditingModuleId(moduleId);
-    setIsAddingModule(false);
+    // Redirecionar para página de edição de módulo
+    window.location.href = `/admin/courses/${courseId}/modules/${moduleId}/edit`;
   };
 
   const handleCancelEdit = () => {
@@ -137,7 +142,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
   }
 
   if (editingModuleId !== null) {
-    const moduleToEdit = modules?.find((module: Module) => module.id === editingModuleId);
+    const moduleToEdit = modules?.find((module: ModuleWithLessons) => module.id === editingModuleId);
     if (moduleToEdit) {
       return (
         <div className="space-y-4">
@@ -167,7 +172,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
 
       {modules && modules.length > 0 ? (
         <Accordion type="single" collapsible className="w-full space-y-2">
-          {modules.map((module: Module) => (
+          {modules.map((module: ModuleWithLessons) => (
             <AccordionItem key={module.id} value={`module-${module.id}`} className="border rounded-md">
               <AccordionTrigger className="px-4 py-2 hover:no-underline">
                 <div className="flex items-center text-left">

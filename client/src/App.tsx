@@ -8,6 +8,8 @@ import CoursesPage from "@/pages/courses-page";
 import CourseDetailsPage from "@/pages/course-details-page";
 import CourseCreatePage from "@/pages/course-create-page";
 import CourseEditPage from "@/pages/course-edit-page";
+import ModuleCreatePage from "@/pages/module-create-page";
+import ModuleEditPage from "@/pages/module-edit-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { PortalProvider, usePortal } from "./hooks/use-portal";
 
@@ -25,6 +27,8 @@ function Router() {
       <ProtectedRoute path="/admin/courses" component={CoursesPage} />
       <ProtectedRoute path="/admin/courses/new" component={CourseCreatePage} />
       <ProtectedRoute path="/admin/courses/:id/edit" component={CourseEditPage} />
+      <ProtectedRoute path="/admin/courses/:id/modules/new" component={ModuleCreatePage} />
+      <ProtectedRoute path="/admin/courses/:courseId/modules/:moduleId/edit" component={ModuleEditPage} />
       <ProtectedRoute path="/admin/courses/:id" component={CourseDetailsPage} />
       
       {/* Rotas do Portal do Aluno */}
