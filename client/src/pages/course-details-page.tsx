@@ -63,16 +63,34 @@ export default function CourseDetailsPage() {
     );
   };
 
-  // Formato simulado para um módulo/aula para ter uma interface completa
-  // Isso será substituído pelos dados reais quando a API estiver completa
-  const mockData = {
-    course: {
-      lessonsCount: 24,
-      studentsCount: 42,
-      totalDuration: "24h 30min",
-      isFree: false
+  // Calcular estatísticas a partir dos dados reais
+  const computeStats = () => {
+    let totalLessons = 0;
+    let totalModules = 0;
+    let totalDuration = 0;
+
+    if (modules && modules.length > 0) {
+      totalModules = modules.length;
+      totalLessons = modules.reduce((count, module) => {
+        return count + (module.lessons ? module.lessons.length : 0);
+      }, 0);
+
+      // Duração aproximada (10 minutos por aula por enquanto)
+      totalDuration = totalLessons * 10;
     }
+
+    return {
+      lessonsCount: totalLessons,
+      modulesCount: totalModules,
+      studentsCount: 42, // Simulado: será substituído por API de matrículas
+      totalDuration: totalDuration > 60 
+        ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}min` 
+        : `${totalDuration}min`,
+      isFree: !course.price
+    };
   };
+
+  const courseStats = computeStats();
 
   if (isLoading) {
     return (
@@ -124,7 +142,7 @@ export default function CourseDetailsPage() {
   return (
     <AppShell>
       <Helmet>
-        <title>{course.title} | Edunéxia</title>
+        <title>{`${course.title || 'Detalhes do curso'} | Edunéxia`}</title>
       </Helmet>
       
       <div className="container py-6 space-y-6">
@@ -201,21 +219,21 @@ export default function CourseDetailsPage() {
                       <Users className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Alunos Matriculados</p>
-                        <p className="font-medium">{mockData.course.studentsCount}</p>
+                        <p className="font-medium">{courseStats.studentsCount}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Total de Aulas</p>
-                        <p className="font-medium">{mockData.course.lessonsCount}</p>
+                        <p className="font-medium">{courseStats.lessonsCount}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Duração Total</p>
-                        <p className="font-medium">{mockData.course.totalDuration}</p>
+                        <p className="font-medium">{courseStats.totalDuration}</p>
                       </div>
                     </div>
                   </div>
@@ -257,11 +275,12 @@ export default function CourseDetailsPage() {
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <span className="flex items-center">
                                 <FileText className="h-3.5 w-3.5 mr-1" />
-                                4 aulas
+                                {module.lessons ? module.lessons.length : 0} aulas
                               </span>
                               <span className="flex items-center">
                                 <Clock className="h-3.5 w-3.5 mr-1" />
-                                2h 30min
+                                {/* Lógica de duração total a ser implementada */}
+                                {module.lessons ? `Aprox. ${module.lessons.length * 10}min` : '0min'}
                               </span>
                             </div>
                           </div>
@@ -368,21 +387,21 @@ export default function CourseDetailsPage() {
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">
-                      {mockData.course.studentsCount} alunos matriculados
+                      {courseStats.studentsCount} alunos matriculados
                     </span>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">
-                      {mockData.course.lessonsCount} aulas
+                      {courseStats.lessonsCount} aulas
                     </span>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">
-                      {mockData.course.totalDuration} de duração
+                      {courseStats.totalDuration} de duração
                     </span>
                   </div>
                 </div>
