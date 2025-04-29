@@ -103,10 +103,8 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             </div>
           </div>
         </div>
-        
-        <div className="px-6 py-2 border-b border-sidebar-border"></div>
 
-        <div className="px-6 pt-2 pb-4 flex-1 overflow-y-auto">
+        <div className="px-6 pt-1 pb-4 flex-1 overflow-y-auto">
           {/* Portal Selector */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-muted-foreground mb-1">
