@@ -73,6 +73,39 @@ export default function CoursesPage() {
       </div>
     );
   };
+  
+  // Função para obter o nome amigável da área do curso
+  const getAreaName = (area?: string | null) => {
+    const areaNames: Record<string, string> = {
+      development: "Desenvolvimento",
+      business: "Negócios",
+      marketing: "Marketing",
+      design: "Design",
+      technology: "Tecnologia",
+      education: "Educação",
+      health: "Saúde",
+      language: "Idiomas",
+      other: "Outros"
+    };
+    
+    return area ? areaNames[area] || "Não definida" : "Não definida";
+  };
+  
+  // Função para obter o nome amigável da categoria educacional
+  const getCourseCategoryName = (category?: string | null) => {
+    const categoryNames: Record<string, string> = {
+      segunda_graduacao: "Segunda Graduação",
+      segunda_licenciatura: "Segunda Licenciatura",
+      formacao_pedagogica: "Formação Pedagógica",
+      formacao_livre: "Formação Livre",
+      profissionalizante: "Profissionalizante",
+      sequencial: "Sequencial",
+      graduacao: "Graduação",
+      pos_graduacao: "Pós-Graduação"
+    };
+    
+    return category ? categoryNames[category] || "Não definida" : "Não definida";
+  };
 
   return (
     <AppShell>

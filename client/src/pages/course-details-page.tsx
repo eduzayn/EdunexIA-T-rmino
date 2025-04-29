@@ -64,7 +64,7 @@ export default function CourseDetailsPage() {
   };
   
   // Função para renderizar o nome amigável da área do curso
-  const getAreaName = (area?: string) => {
+  const getAreaName = (area?: string | null) => {
     const areaNames: Record<string, string> = {
       development: "Desenvolvimento",
       business: "Negócios",
@@ -81,7 +81,7 @@ export default function CourseDetailsPage() {
   };
   
   // Função para renderizar o nome amigável da categoria educacional
-  const getCourseCategoryName = (category?: string) => {
+  const getCourseCategoryName = (category?: string | null) => {
     const categoryNames: Record<string, string> = {
       segunda_graduacao: "Segunda Graduação",
       segunda_licenciatura: "Segunda Licenciatura",
