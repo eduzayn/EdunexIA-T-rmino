@@ -426,14 +426,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Apenas administradores e professores podem criar disciplinas" });
       }
 
+      console.log("Dados recebidos:", req.body);
+      console.log("Usuário atual:", req.user?.id, req.user?.tenantId);
+
       const subjectData = insertSubjectSchema.parse({
         ...req.body,
-        tenantId: req.user.tenantId
+        tenantId: req.user.tenantId || 1
       });
 
+      console.log("Dados após validação:", subjectData);
+
       const subject = await storage.createSubject(subjectData);
+      console.log("Disciplina criada:", subject);
+      
       res.status(201).json(subject);
     } catch (error) {
+      console.error("Erro ao criar disciplina:", error);
       next(error);
     }
   });

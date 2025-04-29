@@ -57,8 +57,10 @@ export function SubjectForm({ defaultValues, onSubmit, isSubmitting }: SubjectFo
   // Handler para submissão do formulário
   const handleSubmit = (data: FormData) => {
     try {
+      console.log("Form data:", data);
       onSubmit(data);
     } catch (error) {
+      console.error("Form submission error:", error);
       toast({
         title: 'Erro ao processar o formulário',
         description: (error as Error).message,

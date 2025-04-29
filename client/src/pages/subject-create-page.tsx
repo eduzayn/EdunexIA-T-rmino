@@ -17,9 +17,10 @@ export function SubjectCreatePage() {
   // Mutação para criar disciplina
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('/api/subjects', {
-        method: 'POST',
+      const response = await apiRequest({
+        method: 'POST /api/subjects',
         body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
       });
       return response;
     },
