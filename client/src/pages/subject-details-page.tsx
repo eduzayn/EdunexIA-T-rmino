@@ -109,11 +109,12 @@ export function SubjectDetailsPage() {
                 </div>
               </div>
             </div>
-            <Button asChild>
-              <a href={`${currentPortal.baseRoute}/subjects/${id}/edit`}>
-                <Pencil className="w-4 h-4 mr-2" />
-                Editar
-              </a>
+            <Button 
+              variant="outline"
+              onClick={() => navigate(`${currentPortal.baseRoute}/subjects/${id}/edit`)}
+            >
+              <Pencil className="w-4 h-4 mr-2" />
+              Editar
             </Button>
           </div>
 
