@@ -78,7 +78,7 @@ export default function ModuleEditPage() {
   return (
     <AppShell>
       <Helmet>
-        <title>Editar Módulo | {course.title} | Edunéxia</title>
+        <title>{`Editar Módulo | ${course.title} | Edunéxia`}</title>
       </Helmet>
 
       <div className="container py-6 space-y-6">

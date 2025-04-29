@@ -63,7 +63,7 @@ export default function ModuleCreatePage() {
   return (
     <AppShell>
       <Helmet>
-        <title>Novo Módulo | {course.title} | Edunéxia</title>
+        <title>{`Novo Módulo | ${course.title} | Edunéxia`}</title>
       </Helmet>
 
       <div className="container py-6 space-y-6">
