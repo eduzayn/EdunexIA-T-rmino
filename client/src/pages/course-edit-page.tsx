@@ -44,7 +44,7 @@ export default function CourseEditPage() {
         <div className="container py-4 space-y-4">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/courses">
+              <Link href="/admin/courses">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -58,7 +58,7 @@ export default function CourseEditPage() {
             </AlertDescription>
           </Alert>
           <Button variant="outline" asChild>
-            <Link href="/courses">Voltar para Cursos</Link>
+            <Link href="/admin/courses">Voltar para Cursos</Link>
           </Button>
         </div>
       </AppShell>

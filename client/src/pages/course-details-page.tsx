@@ -142,7 +142,7 @@ export default function CourseDetailsPage() {
         <div className="container py-4 space-y-4">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/courses">
+              <Link href="/admin/courses">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -175,7 +175,7 @@ export default function CourseDetailsPage() {
         <div className="container py-4 space-y-4">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/courses">
+              <Link href="/admin/courses">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -185,7 +185,7 @@ export default function CourseDetailsPage() {
             <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-2" />
             <p className="text-destructive mb-3">Não foi possível carregar os detalhes do curso. Por favor, tente novamente mais tarde.</p>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/courses">Voltar para Cursos</Link>
+              <Link href="/admin/courses">Voltar para Cursos</Link>
             </Button>
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function CourseDetailsPage() {
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/courses">
+              <Link href="/admin/courses">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -218,7 +218,7 @@ export default function CourseDetailsPage() {
               Visualizar
             </Button>
             <Button size="sm" className="h-8" asChild>
-              <Link href={`/courses/${courseId}/edit`}>
+              <Link href={`/admin/courses/${courseId}/edit`}>
                 <Edit className="h-4 w-4 mr-1.5" />
                 Editar Curso
               </Link>
@@ -499,7 +499,7 @@ export default function CourseDetailsPage() {
               
               <div className="pt-1 space-y-1.5">
                 <Button size="sm" className="w-full h-8" asChild>
-                  <Link href={`/courses/${courseId}/edit`}>
+                  <Link href={`/admin/courses/${courseId}/edit`}>
                     <Edit className="h-4 w-4 mr-1.5" />
                     Editar Curso
                   </Link>
