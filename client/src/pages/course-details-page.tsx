@@ -106,21 +106,30 @@ export default function CourseDetailsPage() {
   if (isLoading) {
     return (
       <AppShell>
-        <div className="container py-6 space-y-6">
+        <div className="container py-4 space-y-4">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/courses">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <Skeleton className="h-8 w-60" />
+            <Skeleton className="h-7 w-52" />
           </div>
-          <Skeleton className="h-80 w-full rounded-lg" />
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-5/6" />
-            <Skeleton className="h-4 w-3/4" />
+          
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="col-span-2 space-y-4">
+              <Skeleton className="h-64 w-full rounded-lg" />
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <Skeleton className="h-[280px] w-full rounded-lg" />
+              <Skeleton className="h-[140px] w-full rounded-lg" />
+            </div>
           </div>
         </div>
       </AppShell>
@@ -130,18 +139,19 @@ export default function CourseDetailsPage() {
   if (error || !course) {
     return (
       <AppShell>
-        <div className="container py-6 space-y-6">
+        <div className="container py-4 space-y-4">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/courses">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <h1 className="text-2xl font-bold">Curso não encontrado</h1>
+            <h1 className="text-xl font-bold">Curso não encontrado</h1>
           </div>
-          <div className="rounded-lg border border-destructive/50 p-6 text-center">
-            <p className="text-destructive">Não foi possível carregar os detalhes do curso. Por favor, tente novamente mais tarde.</p>
-            <Button variant="outline" className="mt-4" asChild>
+          <div className="rounded-lg border border-destructive/50 p-4 text-center">
+            <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-2" />
+            <p className="text-destructive mb-3">Não foi possível carregar os detalhes do curso. Por favor, tente novamente mais tarde.</p>
+            <Button variant="outline" size="sm" asChild>
               <Link href="/courses">Voltar para Cursos</Link>
             </Button>
           </div>
@@ -364,91 +374,89 @@ export default function CourseDetailsPage() {
           </div>
           
           {/* Barra lateral */}
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Cartão de Informações */}
-            <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="font-semibold text-lg">Informações do Curso</h3>
+            <div className="border rounded-lg p-4 space-y-3">
+              <h3 className="font-semibold text-lg mb-1">Informações do Curso</h3>
               
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Preço:</span>
-                  <span className="font-medium">
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                  <span className="text-muted-foreground text-sm">Preço:</span>
+                  <span className="font-medium text-sm text-right">
                     {course.price ? formatCurrency(course.price) : "Grátis"}
                   </span>
+                
+                  <span className="text-muted-foreground text-sm">Status:</span>
+                  <div className="text-right">{renderStatus(course.status || 'draft')}</div>
                 </div>
                 
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Status:</span>
-                  <span>{renderStatus(course.status || 'draft')}</span>
+                <Separator className="my-1.5" />
+                
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                  <span className="text-muted-foreground text-sm">Criado em:</span>
+                  <span className="text-sm text-right">{course.createdAt ? new Date(course.createdAt).toLocaleDateString('pt-BR') : "N/D"}</span>
+                
+                  <span className="text-muted-foreground text-sm">Atualização:</span>
+                  <span className="text-sm text-right">{course.updatedAt ? new Date(course.updatedAt).toLocaleDateString('pt-BR') : "N/D"}</span>
                 </div>
                 
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Criado em:</span>
-                  <span>{course.createdAt ? new Date(course.createdAt).toLocaleDateString('pt-BR') : "Data não disponível"}</span>
-                </div>
+                <Separator className="my-1.5" />
                 
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Última atualização:</span>
-                  <span>{course.updatedAt ? new Date(course.updatedAt).toLocaleDateString('pt-BR') : "Data não disponível"}</span>
-                </div>
-                
-                <Separator />
-                
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
+                <div className="grid grid-cols-1 gap-1">
+                  <div className="flex items-center gap-1.5">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {courseStats.studentsCount} alunos matriculados
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {courseStats.lessonsCount} aulas
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {courseStats.totalDuration} de duração
                     </span>
                   </div>
                 </div>
               </div>
               
-              <div className="pt-2 space-y-2">
-                <Button className="w-full" asChild>
+              <div className="pt-1 space-y-1.5">
+                <Button size="sm" className="w-full h-8" asChild>
                   <Link href={`/courses/${courseId}/edit`}>
-                    <Edit className="h-4 w-4 mr-2" />
+                    <Edit className="h-4 w-4 mr-1.5" />
                     Editar Curso
                   </Link>
                 </Button>
                 
-                <Button variant="outline" className="w-full">
-                  <ExternalLink className="h-4 w-4 mr-2" />
+                <Button size="sm" variant="outline" className="w-full h-8">
+                  <ExternalLink className="h-4 w-4 mr-1.5" />
                   Visualizar como Aluno
                 </Button>
               </div>
             </div>
             
             {/* Acesso Rápido */}
-            <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="font-semibold text-lg">Acesso Rápido</h3>
+            <div className="border rounded-lg p-4 space-y-3">
+              <h3 className="font-semibold text-lg mb-1">Acesso Rápido</h3>
               
-              <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
+              <div className="grid grid-cols-1 gap-1.5">
+                <Button variant="outline" size="sm" className="w-full justify-start h-8">
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Dashboard do Curso
                 </Button>
                 
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" size="sm" className="w-full justify-start h-8">
                   <Users className="h-4 w-4 mr-2" />
                   Gerenciar Alunos
                 </Button>
                 
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" size="sm" className="w-full justify-start h-8">
                   <FileText className="h-4 w-4 mr-2" />
                   Materiais de Apoio
                 </Button>
