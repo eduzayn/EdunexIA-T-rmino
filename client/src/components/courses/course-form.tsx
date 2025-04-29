@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { insertCourseSchema } from "@shared/schema";
@@ -40,6 +41,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 
 // Estendendo o esquema de curso para adicionar validações adicionais
 const courseFormSchema = insertCourseSchema.extend({
+  code: z.number().optional(),
   title: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
   shortDescription: z.string().min(10, "A descrição curta deve ter pelo menos 10 caracteres"),
   description: z.string().optional().nullable(),
@@ -60,10 +62,13 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const isEditMode = Boolean(initialData && courseId);
+  const isAdmin = user?.role === "admin";
 
   // Valores iniciais
   const defaultValues: Partial<CourseFormValues> = {
+    code: initialData?.code,
     title: initialData?.title || "",
     shortDescription: initialData?.shortDescription || "",
     description: initialData?.description || "",
@@ -153,6 +158,33 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {isEditMode && (
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Código do Curso</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field}
+                          value={field.value || "Gerado automaticamente"}
+                          disabled={!isEditMode || !isAdmin}
+                          readOnly={!isAdmin}
+                          type="number"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {isAdmin 
+                          ? "Como administrador, você pode editar o código do curso"
+                          : "O código do curso é gerado automaticamente e só pode ser editado por administradores"}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
               <FormField
                 control={form.control}
                 name="title"
