@@ -320,217 +320,84 @@ export default function CourseDetailsPage() {
               
               {/* Aba de Currículo */}
               <TabsContent value="curriculum" className="space-y-5 pt-4 px-1">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium mb-1">Módulos e Aulas</h3>
-                  <Button size="sm" className="h-8">
-                    <Edit className="h-4 w-4 mr-1.5" />
-                    Editar Currículo
-                  </Button>
-                </div>
-                
-                {isLoadingModules ? (
-                  <div className="space-y-4">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="space-y-2">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-8 w-full ml-4" />
-                        <Skeleton className="h-8 w-full ml-4" />
-                      </div>
-                    ))}
-                  </div>
-                ) : modules && modules.length > 0 ? (
-                  <Accordion
-                    type="multiple"
-                    value={activeAccordion}
-                    onValueChange={setActiveAccordion}
-                    className="w-full"
-                  >
-                    {modules.map((module) => (
-                      <AccordionItem key={module.id} value={`module-${module.id}`}>
-                        <AccordionTrigger className="hover:bg-accent hover:text-accent-foreground px-4 rounded-md">
-                          <div className="flex justify-between items-center w-full pr-4">
-                            <span className="font-medium">{module.title}</span>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <span className="flex items-center">
-                                <FileText className="h-3.5 w-3.5 mr-1" />
-                                {module.lessons ? module.lessons.length : 0} aulas
-                              </span>
-                              <span className="flex items-center">
-                                <Clock className="h-3.5 w-3.5 mr-1" />
-                                {/* Lógica de duração total a ser implementada */}
-                                {module.lessons ? `Aprox. ${module.lessons.length * 10}min` : '0min'}
-                              </span>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-2 py-2">
-                            {module.lessons && module.lessons.length > 0 ? (
-                              module.lessons.map((lesson: any) => (
-                                <div 
-                                  key={lesson.id} 
-                                  className="flex items-center justify-between p-2 hover:bg-accent hover:text-accent-foreground rounded-md ml-4"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Play className="h-4 w-4 text-primary" />
-                                    <span>{lesson.title}</span>
-                                  </div>
-                                  <div className="text-sm text-muted-foreground">
-                                    {lesson.duration || "10min"}
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <div className="text-center text-muted-foreground py-4 ml-4">
-                                Nenhuma aula disponível neste módulo.
-                              </div>
-                            )}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                ) : (
-                  <div className="text-center p-6 border rounded-lg">
-                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                    <h3 className="text-lg font-medium">Nenhum conteúdo disponível</h3>
-                    <p className="text-sm text-muted-foreground mt-1 mb-4">
-                      Este curso ainda não possui módulos ou aulas cadastrados.
-                    </p>
-                    <Button size="sm" className="h-8">
-                      <Edit className="h-4 w-4 mr-1.5" />
-                      Adicionar Módulos
-                    </Button>
-                  </div>
-                )}
+                {courseId && <ModulesList courseId={courseId} />}
               </TabsContent>
               
               {/* Aba de Materiais */}
-              <TabsContent value="materials" className="space-y-5 pt-4 px-1">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium mb-1">Materiais Complementares</h3>
-                  <Button size="sm" className="h-8">
-                    <Edit className="h-4 w-4 mr-1.5" />
-                    Adicionar Materiais
-                  </Button>
-                </div>
-                
-                <div className="text-center p-6 border rounded-lg">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                  <h3 className="text-lg font-medium">Nenhum material disponível</h3>
-                  <p className="text-sm text-muted-foreground mt-1 mb-4">
-                    Este curso ainda não possui materiais complementares.
-                  </p>
-                  <Button size="sm" className="h-8">
-                    <Edit className="h-4 w-4 mr-1.5" />
-                    Adicionar Materiais
+              <TabsContent value="materials" className="pt-4 px-1">
+                <div className="text-center py-8 border rounded-lg">
+                  <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                  <h3 className="font-medium mb-1">Nenhum material disponível</h3>
+                  <p className="text-muted-foreground mb-4">Adicione materiais complementares para este curso.</p>
+                  <Button size="sm">
+                    <ExternalLink className="h-4 w-4 mr-1.5" />
+                    Adicionar Material
                   </Button>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
           
-          {/* Barra lateral */}
-          <div className="space-y-3">
-            {/* Cartão de Informações */}
-            <div className="border rounded-lg p-4 space-y-3">
-              <h3 className="font-semibold text-lg mb-1">Informações do Curso</h3>
-              
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                  <span className="text-muted-foreground text-sm">Código:</span>
-                  <span className="font-medium text-sm text-right">
-                    {course.code || "Não definido"}
-                  </span>
-
-                  <span className="text-muted-foreground text-sm">Preço:</span>
-                  <span className="font-medium text-sm text-right">
-                    {course.price ? formatCurrency(course.price) : "Grátis"}
-                  </span>
-                
-                  <span className="text-muted-foreground text-sm">Status:</span>
-                  <div className="text-right">{renderStatus(course.status || 'draft')}</div>
-                </div>
-                
-                <Separator className="my-1.5" />
-                
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                  <span className="text-muted-foreground text-sm">Área:</span>
-                  <span className="text-sm text-right">{getAreaName(course.area)}</span>
-                
-                  <span className="text-muted-foreground text-sm">Categoria:</span>
-                  <span className="text-sm text-right">{getCourseCategoryName(course.courseCategory)}</span>
-                </div>
-                
-                <Separator className="my-1.5" />
-                
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                  <span className="text-muted-foreground text-sm">Criado em:</span>
-                  <span className="text-sm text-right">{course.createdAt ? new Date(course.createdAt).toLocaleDateString('pt-BR') : "N/D"}</span>
-                
-                  <span className="text-muted-foreground text-sm">Atualização:</span>
-                  <span className="text-sm text-right">{course.updatedAt ? new Date(course.updatedAt).toLocaleDateString('pt-BR') : "N/D"}</span>
-                </div>
-                
-                <Separator className="my-1.5" />
-                
-                <div className="grid grid-cols-1 gap-1">
-                  <div className="flex items-center gap-1.5">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground text-sm">
-                      {courseStats.studentsCount} alunos matriculados
-                    </span>
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="rounded-lg border shadow-sm">
+              <div className="p-5">
+                <h3 className="font-medium mb-4">Informações de Matrícula</h3>
+                <div className="space-y-3">
+                  {course.price ? (
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Valor:</span>
+                      <span className="font-bold text-lg">{formatCurrency(course.price)}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Valor:</span>
+                      <Badge variant="outline" className="bg-green-100 text-green-800 border-none">Gratuito</Badge>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Formato:</span>
+                    <span>100% Online</span>
                   </div>
                   
-                  <div className="flex items-center gap-1.5">
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground text-sm">
-                      {courseStats.lessonsCount} aulas
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground text-sm">
-                      {courseStats.totalDuration} de duração
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Método:</span>
+                    <span>Autodidata</span>
                   </div>
                 </div>
               </div>
+              <div className="p-4 border-t">
+                <Button className="w-full" asChild>
+                  <Link href={`/admin/courses/${courseId}/enrollments`}>
+                    <Users className="h-4 w-4 mr-1.5" />
+                    Ver Matrículas
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            
+            <div className="rounded-lg border shadow-sm p-5 space-y-3">
+              <h3 className="font-medium mb-1">Ações do Curso</h3>
               
-              <div className="pt-1 space-y-1.5">
-                <Button size="sm" className="w-full h-8" asChild>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start" asChild>
                   <Link href={`/admin/courses/${courseId}/edit`}>
                     <Edit className="h-4 w-4 mr-1.5" />
                     Editar Curso
                   </Link>
                 </Button>
                 
-                <Button size="sm" variant="outline" className="w-full h-8">
-                  <ExternalLink className="h-4 w-4 mr-1.5" />
-                  Visualizar como Aluno
-                </Button>
-              </div>
-            </div>
-            
-            {/* Acesso Rápido */}
-            <div className="border rounded-lg p-4 space-y-3">
-              <h3 className="font-semibold text-lg mb-1">Acesso Rápido</h3>
-              
-              <div className="grid grid-cols-1 gap-1.5">
-                <Button variant="outline" size="sm" className="w-full justify-start h-8">
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
-                  Dashboard do Curso
+                <Button variant="outline" className="w-full justify-start">
+                  <Share className="h-4 w-4 mr-1.5" />
+                  Compartilhar Curso
                 </Button>
                 
-                <Button variant="outline" size="sm" className="w-full justify-start h-8">
-                  <Users className="h-4 w-4 mr-2" />
-                  Gerenciar Alunos
-                </Button>
-                
-                <Button variant="outline" size="sm" className="w-full justify-start h-8">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Materiais de Apoio
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href="/admin/dashboard">
+                    <LayoutDashboard className="h-4 w-4 mr-1.5" />
+                    Ir para Dashboard
+                  </Link>
                 </Button>
               </div>
             </div>
