@@ -44,7 +44,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   };
 
   const sidebarClasses = cn(
-    "fixed inset-y-0 left-0 z-50 w-72 pt-20 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
+    "fixed inset-y-0 left-0 z-50 w-72 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
     "transform transition-transform duration-300 ease-in-out lg:translate-x-0",
     isMobileOpen ? "translate-x-0" : "-translate-x-full",
     className
@@ -61,6 +61,23 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
       )}
       
       <aside className={sidebarClasses}>
+        {/* Logo no Sidebar */}
+        <div className="pt-4 pb-2">
+          <div className="flex items-center justify-between px-6 pt-2 pb-3">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
+                <span className="text-white font-bold text-xl">E</span>
+              </div>
+              <span className="text-2xl font-bold text-sidebar-foreground">Edunéxia</span>
+            </div>
+            <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-xs px-2 py-0.5 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
+              NextGen
+            </span>
+          </div>
+        </div>
+        
+        <div className="px-6 pb-4 pt-2 border-b border-sidebar-border"></div>
+
         <div className="p-6 flex-1 overflow-y-auto">
           {/* Portal Selector */}
           <div className="mb-8">

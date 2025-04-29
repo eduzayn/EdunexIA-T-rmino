@@ -55,7 +55,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
   return (
     <header className="bg-background border-b border-border sticky top-0 z-30">
       <div className="max-w-[2000px] mx-auto px-6">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16">
           {/* Logo Area */}
           <div className="flex items-center space-x-2">
             <Button
@@ -67,14 +67,14 @@ export function Header({ onToggleSidebar }: HeaderProps) {
               <Menu className="h-6 w-6" />
             </Button>
             
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
-                <span className="text-white font-bold text-xl">E</span>
+            <Link href="/" className="flex items-center space-x-3 lg:hidden">
+              <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-r from-primary to-purple-600 rounded-md">
+                <span className="text-white font-bold text-lg">E</span>
               </div>
-              <span className="text-2xl font-bold text-foreground">Edunéxia</span>
+              <span className="text-xl font-bold text-foreground">Edunéxia</span>
             </Link>
             
-            <span className="hidden md:inline-block bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full ml-2 dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
+            <span className="hidden md:inline-block lg:ml-24 bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
               NextGen
             </span>
           </div>
