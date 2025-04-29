@@ -60,7 +60,9 @@ export const courses = pgTable('courses', {
   id: serial('id').primaryKey(),
   tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
+  shortDescription: text('short_description'),
   description: text('description'),
+  category: text('category'),
   imageUrl: text('image_url'),
   price: integer('price'), // in cents
   status: courseStatusEnum('status').default('draft').notNull(),
