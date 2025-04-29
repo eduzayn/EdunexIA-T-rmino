@@ -265,6 +265,13 @@ export default function CourseDetailsPage() {
                   <h3 className="text-lg font-medium mb-2">Detalhes</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Código do Curso</p>
+                        <p className="font-medium">{course.code || "Não definido"}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Data de Criação</p>
@@ -430,6 +437,11 @@ export default function CourseDetailsPage() {
               
               <div className="space-y-2">
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                  <span className="text-muted-foreground text-sm">Código:</span>
+                  <span className="font-medium text-sm text-right">
+                    {course.code || "Não definido"}
+                  </span>
+
                   <span className="text-muted-foreground text-sm">Preço:</span>
                   <span className="font-medium text-sm text-right">
                     {course.price ? formatCurrency(course.price) : "Grátis"}

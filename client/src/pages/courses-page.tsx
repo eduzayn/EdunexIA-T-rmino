@@ -231,7 +231,12 @@ export default function CoursesPage() {
                       
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
-                          <CardTitle className="text-lg">{course.title}</CardTitle>
+                          <div>
+                            <CardTitle className="text-lg">{course.title}</CardTitle>
+                            <div className="text-xs font-medium text-muted-foreground">
+                              Código: {course.code}
+                            </div>
+                          </div>
                           {renderStatus(course.status || 'draft')}
                         </div>
                         <CardDescription className="flex items-center">
@@ -307,7 +312,12 @@ export default function CoursesPage() {
                         
                         <div className="flex-grow p-4">
                           <div className="flex justify-between">
-                            <h3 className="text-lg font-semibold">{course.title}</h3>
+                            <div>
+                              <h3 className="text-lg font-semibold">{course.title}</h3>
+                              <div className="text-xs font-medium text-muted-foreground">
+                                Código: {course.code}
+                              </div>
+                            </div>
                             {renderStatus(course.status || 'draft')}
                           </div>
                           
