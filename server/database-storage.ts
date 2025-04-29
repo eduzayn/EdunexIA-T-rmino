@@ -31,6 +31,7 @@ export interface IStorage {
   getCourseById(id: number): Promise<Course | undefined>;
   getCoursesByTenant(tenantId: number): Promise<Course[]>;
   createCourse(course: InsertCourse): Promise<Course>;
+  updateCourse(id: number, courseData: Partial<InsertCourse>): Promise<Course>;
   
   // Module operations
   getModulesByCourse(courseId: number): Promise<any[]>;
@@ -162,6 +163,27 @@ export class DatabaseStorage implements IStorage {
       return course;
     } catch (error) {
       console.error('Erro ao criar curso:', error);
+      throw error;
+    }
+  }
+  
+  async updateCourse(id: number, courseData: Partial<InsertCourse>): Promise<Course> {
+    try {
+      const [updatedCourse] = await db.update(courses)
+        .set({
+          ...courseData,
+          updatedAt: new Date()
+        })
+        .where(eq(courses.id, id))
+        .returning();
+      
+      if (!updatedCourse) {
+        throw new Error('Curso não encontrado');
+      }
+      
+      return updatedCourse;
+    } catch (error) {
+      console.error('Erro ao atualizar curso:', error);
       throw error;
     }
   }

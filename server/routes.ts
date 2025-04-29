@@ -146,6 +146,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next(error);
     }
   });
+  
+  // Update an existing course
+  app.put("/api/courses/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      
+      // Check if course exists
+      const existingCourse = await storage.getCourseById(courseId);
+      if (!existingCourse) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+      
+      // Check if user has permission to edit this course
+      if (existingCourse.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "You don't have permission to edit this course" });
+      }
+      
+      // Only course creator or admin can edit
+      if (req.user?.role !== 'admin' && existingCourse.teacherId !== req.user?.id) {
+        return res.status(403).json({ message: "Only the course creator or admins can edit this course" });
+      }
+      
+      // Validate and update course data
+      const courseData = insertCourseSchema.partial().parse({
+        ...req.body,
+        tenantId: req.user.tenantId,
+        updatedAt: new Date()
+      });
+      
+      const updatedCourse = await storage.updateCourse(courseId, courseData);
+      res.json(updatedCourse);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   // Enrollments
   app.get("/api/enrollments", isAuthenticated, async (req, res, next) => {
