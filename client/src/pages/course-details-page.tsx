@@ -352,8 +352,8 @@ export default function CourseDetailsPage() {
               <TabsContent value="materials" className="space-y-4 pt-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-medium">Materiais Complementares</h3>
-                  <Button>
-                    <Edit className="h-4 w-4 mr-2" />
+                  <Button size="sm" className="h-8">
+                    <Edit className="h-4 w-4 mr-1.5" />
                     Adicionar Materiais
                   </Button>
                 </div>
@@ -364,8 +364,8 @@ export default function CourseDetailsPage() {
                   <p className="text-sm text-muted-foreground mt-1 mb-4">
                     Este curso ainda não possui materiais complementares.
                   </p>
-                  <Button>
-                    <Edit className="h-4 w-4 mr-2" />
+                  <Button size="sm" className="h-8">
+                    <Edit className="h-4 w-4 mr-1.5" />
                     Adicionar Materiais
                   </Button>
                 </div>
