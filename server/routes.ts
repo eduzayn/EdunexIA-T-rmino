@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./database-storage";
 import { z } from "zod";
-import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema } from "@shared/schema";
+import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema, insertModuleSchema, insertLessonSchema } from "@shared/schema";
 import { testDatabaseConnection } from "./db";
 import { db } from "./db";
 import { tenants, users } from "@shared/schema";
@@ -267,6 +267,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const lead = await storage.createLead(leadData);
       res.status(201).json(lead);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Módulos
+  app.get("/api/modules/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const moduleId = parseInt(req.params.id);
+      const module = await storage.getModuleById(moduleId);
+      
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      // Verificar se o usuário tem acesso ao curso deste módulo
+      const course = await storage.getCourseById(module.courseId);
+      if (!course || course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      res.json(module);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  app.post("/api/modules", isAuthenticated, async (req, res, next) => {
+    try {
+      // Validar role de professor e admin
+      if (req.user?.role !== 'teacher' && req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas professores e admins podem criar módulos" });
+      }
+      
+      const moduleData = insertModuleSchema.parse(req.body);
+      
+      // Verificar se o curso existe e pertence ao tenant do usuário
+      const course = await storage.getCourseById(moduleData.courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Curso não encontrado" });
+      }
+      
+      if (course.tenantId !== req.user.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para adicionar módulos a este curso" });
+      }
+      
+      // Verificar se o usuário é o criador do curso ou admin
+      if (req.user?.role !== 'admin' && course.teacherId !== req.user?.id) {
+        return res.status(403).json({ message: "Apenas o criador do curso ou administradores podem adicionar módulos" });
+      }
+      
+      const module = await storage.createModule(moduleData);
+      res.status(201).json(module);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  app.put("/api/modules/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const moduleId = parseInt(req.params.id);
+      
+      // Verificar se o módulo existe
+      const existingModule = await storage.getModuleById(moduleId);
+      if (!existingModule) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      // Verificar se o curso pertence ao tenant do usuário
+      const course = await storage.getCourseById(existingModule.courseId);
+      if (!course || course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário é o criador do curso ou admin
+      if (req.user?.role !== 'admin' && course.teacherId !== req.user?.id) {
+        return res.status(403).json({ message: "Apenas o criador do curso ou administradores podem editar módulos" });
+      }
+      
+      // Validar e atualizar dados do módulo
+      const moduleData = insertModuleSchema.partial().parse(req.body);
+      
+      const updatedModule = await storage.updateModule(moduleId, moduleData);
+      res.json(updatedModule);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  app.delete("/api/modules/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const moduleId = parseInt(req.params.id);
+      
+      // Verificar se o módulo existe
+      const existingModule = await storage.getModuleById(moduleId);
+      if (!existingModule) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      // Verificar se o curso pertence ao tenant do usuário
+      const course = await storage.getCourseById(existingModule.courseId);
+      if (!course || course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário é o criador do curso ou admin
+      if (req.user?.role !== 'admin' && course.teacherId !== req.user?.id) {
+        return res.status(403).json({ message: "Apenas o criador do curso ou administradores podem excluir módulos" });
+      }
+      
+      const deleted = await storage.deleteModule(moduleId);
+      if (deleted) {
+        res.status(200).json({ message: "Módulo excluído com sucesso" });
+      } else {
+        res.status(500).json({ message: "Falha ao excluir módulo" });
+      }
     } catch (error) {
       next(error);
     }
