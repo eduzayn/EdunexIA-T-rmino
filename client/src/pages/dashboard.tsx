@@ -195,16 +195,8 @@ export default function Dashboard() {
               courses={
                 dashboardStats?.popularCourses?.map((course: any) => {
                   // Determinar a categoria com verificações de segurança
-                  let category = "business"; // categoria padrão
-                  if (course && course.title && typeof course.title === 'string') {
-                    if (course.title.includes("Web")) {
-                      category = "development";
-                    } else if (course.title.includes("Marketing")) {
-                      category = "marketing";
-                    } else if (course.title.includes("Inteligência") || course.title.includes("IA")) {
-                      category = "ai";
-                    }
-                  }
+                  // Usar o valor já existente ou um padrão
+                  let category = course.category || "development";
                   
                   return {
                     id: course?.id || 0,
