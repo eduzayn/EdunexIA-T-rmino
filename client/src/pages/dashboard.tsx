@@ -193,20 +193,22 @@ export default function Dashboard() {
           <div>
             <PopularCourses 
               courses={
-                dashboardStats?.popularCourses?.map((course: any) => {
+                (dashboardStats?.popularCourses || []).map((course: any, index: number) => {
                   // Determinar a categoria com verificações de segurança
                   // Usar o valor já existente ou um padrão
-                  let category = course.category || "development";
+                  const category = course?.category || "development";
+                  // Garantir IDs únicos para cada curso
+                  const courseId = course?.id || (index + 1) * 1000;
                   
                   return {
-                    id: course?.id || 0,
-                    title: course?.title || "Curso sem título",
+                    id: courseId,
+                    title: course?.title || course?.courseTitle || "Curso sem título",
                     studentsCount: course?.studentsCount || 0,
                     price: course?.price || 0,
                     rating: course?.rating || "0.0",
                     category: category
                   };
-                }) || []
+                })
               } 
             />
           </div>
