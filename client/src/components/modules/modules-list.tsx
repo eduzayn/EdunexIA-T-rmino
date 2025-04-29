@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Module, Lesson } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 
 // Tipo estendido de Module para incluir as lessons
 interface ModuleWithLessons extends Module {
   lessons?: Lesson[];
 }
-import { apiRequest } from "@/lib/queryClient";
 
 import {
   Accordion,
@@ -25,7 +25,17 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModuleForm } from "./module-form";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogTrigger 
+} from "../ui/alert-dialog";
 import { Edit, File, Loader2, Plus, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -142,7 +152,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
   }
 
   if (editingModuleId !== null) {
-    const moduleToEdit = modules?.find((module: ModuleWithLessons) => module.id === editingModuleId);
+    const moduleToEdit = modules?.find((mod: ModuleWithLessons) => mod.id === editingModuleId);
     if (moduleToEdit) {
       return (
         <div className="space-y-4">
@@ -195,7 +205,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
                   <div className="mt-4">
                     <h4 className="text-sm font-semibold mb-2">Aulas ({module.lessons.length})</h4>
                     <ul className="space-y-2">
-                      {module.lessons.map((lesson) => (
+                      {module.lessons.map((lesson: Lesson) => (
                         <li key={lesson.id} className="flex items-center">
                           <File className="h-4 w-4 mr-2 text-muted-foreground" />
                           <span>{lesson.title}</span>

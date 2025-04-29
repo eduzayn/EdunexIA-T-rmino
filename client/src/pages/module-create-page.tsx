@@ -8,21 +8,24 @@ import { Course } from "@shared/schema";
 import { ModuleForm } from "@/components/modules/module-form";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
 
 export default function ModuleCreatePage() {
-  // Capturar o ID do curso da URL
-  const { courseId } = useParams<{ courseId: string }>();
-  const parsedCourseId = parseInt(courseId);
+  // Capturar ID do curso da URL
+  const { id } = useParams<{ id: string }>();
+  const courseId = parseInt(id);
 
   // Buscar detalhes do curso
-  const { data: course, isLoading, error } = useQuery<Course>({
-    queryKey: ['/api/courses', parsedCourseId],
+  const { 
+    data: course, 
+    isLoading: isLoadingCourse, 
+    error: courseError 
+  } = useQuery<Course>({
+    queryKey: ['/api/courses', courseId],
     queryFn: getQueryFn({ on401: 'throw' })
   });
 
-  if (isLoading) {
+  if (isLoadingCourse) {
     return (
       <AppShell>
         <div className="container py-6 flex items-center justify-center">
@@ -35,13 +38,13 @@ export default function ModuleCreatePage() {
     );
   }
 
-  if (error || !course) {
+  if (courseError || !course) {
     return (
       <AppShell>
         <div className="container py-6">
           <div className="max-w-lg mx-auto border border-destructive/50 rounded-lg p-6 text-center">
             <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Erro ao carregar curso</h2>
+            <h2 className="text-xl font-bold mb-2">Erro ao carregar dados</h2>
             <p className="text-muted-foreground mb-4">
               Não foi possível encontrar o curso solicitado. Verifique se você tem acesso a este recurso.
             </p>
@@ -77,7 +80,7 @@ export default function ModuleCreatePage() {
             </BreadcrumbSeparator>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href={`/admin/courses/${parsedCourseId}`}>{course.title}</Link>
+                <Link href={`/admin/courses/${courseId}`}>{course.title}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator>
@@ -90,8 +93,8 @@ export default function ModuleCreatePage() {
         </Breadcrumb>
 
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Adicionar Módulo ao Curso</h1>
-          <ModuleForm courseId={parsedCourseId} />
+          <h1 className="text-2xl font-bold mb-6">Adicionar Novo Módulo</h1>
+          <ModuleForm courseId={courseId} />
         </div>
       </div>
     </AppShell>
