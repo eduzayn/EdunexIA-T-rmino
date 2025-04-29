@@ -104,6 +104,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next(error);
     }
   });
+  
+  // Get modules for a specific course
+  app.get("/api/courses/:id/modules", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      const course = await storage.getCourseById(courseId);
+      
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      // Check tenant access
+      if (course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      const modules = await storage.getModulesByCourse(courseId);
+      res.json(modules);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   app.post("/api/courses", isAuthenticated, async (req, res, next) => {
     try {

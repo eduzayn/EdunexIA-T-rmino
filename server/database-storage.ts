@@ -8,8 +8,8 @@ import {
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { 
-  users, tenants, courses, enrollments, leads, 
-  lessons, lessonProgress, payments,
+  users, tenants, courses, modules, lessons, enrollments, leads, 
+  lessonProgress, payments,
   aiKnowledgeBase, productivityLogs
 } from "@shared/schema";
 import session from "express-session";
@@ -31,6 +31,9 @@ export interface IStorage {
   getCourseById(id: number): Promise<Course | undefined>;
   getCoursesByTenant(tenantId: number): Promise<Course[]>;
   createCourse(course: InsertCourse): Promise<Course>;
+  
+  // Module operations
+  getModulesByCourse(courseId: number): Promise<any[]>;
   
   // Enrollment operations
   getEnrollmentsByStudent(studentId: number): Promise<Enrollment[]>;
@@ -160,6 +163,56 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao criar curso:', error);
       throw error;
+    }
+  }
+  
+  async getModulesByCourse(courseId: number): Promise<any[]> {
+    try {
+      // Buscar módulos do curso
+      const courseModules = await db
+        .select({
+          id: modules.id,
+          title: modules.title,
+          description: modules.description,
+          order: modules.order,
+          courseId: modules.courseId,
+          createdAt: modules.createdAt,
+          updatedAt: modules.updatedAt
+        })
+        .from(modules)
+        .where(eq(modules.courseId, courseId))
+        .orderBy(modules.order);
+      
+      // Para cada módulo, buscar suas aulas
+      const modulesWithLessons = await Promise.all(
+        courseModules.map(async (module) => {
+          const moduleLessons = await db
+            .select({
+              id: lessons.id,
+              title: lessons.title,
+              description: lessons.description,
+              content: lessons.content,
+              videoUrl: lessons.videoUrl,
+              order: lessons.order,
+              moduleId: lessons.moduleId,
+              createdAt: lessons.createdAt,
+              updatedAt: lessons.updatedAt
+            })
+            .from(lessons)
+            .where(eq(lessons.moduleId, module.id))
+            .orderBy(lessons.order);
+          
+          return {
+            ...module,
+            lessons: moduleLessons
+          };
+        })
+      );
+      
+      return modulesWithLessons;
+    } catch (error) {
+      console.error('Erro ao buscar módulos por curso:', error);
+      return [];
     }
   }
 
