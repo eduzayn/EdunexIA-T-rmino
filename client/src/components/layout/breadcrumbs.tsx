@@ -73,8 +73,10 @@ export function Breadcrumbs({ items = [], className = "" }: BreadcrumbsProps) {
     <nav className={`flex items-center space-x-1 text-sm py-2 ${className}`} aria-label="Breadcrumbs">
       {location === '/' ? (
         <span className="flex items-center text-muted-foreground">
-          <Home className="h-4 w-4 mr-2" />
-          <span>Dashboard</span>
+          <span className="w-4 inline-flex items-center">
+            <Home className="h-4 w-4" />
+          </span>
+          <span className="ml-2">Dashboard</span>
         </span>
       ) : (
         breadcrumbs.map((crumb, i) => {
@@ -91,8 +93,16 @@ export function Breadcrumbs({ items = [], className = "" }: BreadcrumbsProps) {
                   href={crumb.href}
                   className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
                 >
-                  {i === 0 && <Home className="h-4 w-4 mr-2" />}
-                  {crumb.label}
+                  {i === 0 ? (
+                    <>
+                      <span className="w-4 inline-flex items-center">
+                        <Home className="h-4 w-4" />
+                      </span>
+                      <span className="ml-2">{crumb.label}</span>
+                    </>
+                  ) : (
+                    <span>{crumb.label}</span>
+                  )}
                 </Link>
               )}
             </div>
