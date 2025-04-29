@@ -439,7 +439,7 @@ export default function AuthPage() {
 
           <div className="relative p-12 flex flex-col justify-center">
             <h2 className="text-3xl font-bold text-white mb-6">
-              Bem-vindo ao Edunéxia NextGen
+              Bem-vindo ao Edunéxia
             </h2>
             <p className="text-white/80 text-lg mb-8">
               A plataforma educacional mais inovadora do mercado, combinando LMS, CMS, CRM e IA em uma única solução.
