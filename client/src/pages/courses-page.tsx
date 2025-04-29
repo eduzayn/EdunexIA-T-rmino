@@ -14,10 +14,12 @@ import { BookOpen, Calendar, Clock, Filter, GraduationCap, Grid3X3, List, PlusCi
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { usePortal } from "@/hooks/use-portal";
 
 export default function CoursesPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
+  const { currentPortal } = usePortal();
 
   const {
     data: courses,
@@ -123,7 +125,7 @@ export default function CoursesPage() {
           </div>
           
           <Button className="w-full md:w-auto" asChild>
-            <Link href="/courses/new">
+            <Link href={`${currentPortal.baseRoute}/courses/new`}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Novo Curso
             </Link>
@@ -210,7 +212,7 @@ export default function CoursesPage() {
                   {searchTerm ? 'Nenhum curso corresponde à sua busca.' : 'Você ainda não possui nenhum curso. Crie seu primeiro curso agora!'}
                 </p>
                 <Button asChild>
-                  <Link href="/courses/new">
+                  <Link href={`${currentPortal.baseRoute}/courses/new`}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Criar Novo Curso
                   </Link>
@@ -219,7 +221,7 @@ export default function CoursesPage() {
             ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCourses!.map((course) => (
-                  <Link key={course.id} href={`/courses/${course.id}`}>
+                  <Link key={course.id} href={`${currentPortal.baseRoute}/courses/${course.id}`}>
                     <Card className="overflow-hidden h-full cursor-pointer hover:shadow-md transition-shadow">
                       {course.imageUrl ? (
                         <img 
