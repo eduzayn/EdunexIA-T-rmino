@@ -5,7 +5,8 @@ import {
   Module, InsertModule,
   Lesson, InsertLesson,
   Enrollment, InsertEnrollment,
-  Lead, InsertLead
+  Lead, InsertLead,
+  Subject, InsertSubject
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -34,6 +35,13 @@ export interface IStorage {
   getCoursesByTenant(tenantId: number): Promise<Course[]>;
   createCourse(course: InsertCourse): Promise<Course>;
   updateCourse(id: number, courseData: Partial<InsertCourse>): Promise<Course>;
+  
+  // Subject operations
+  getSubjectById(id: number): Promise<Subject | undefined>;
+  getSubjectsByTenant(tenantId: number): Promise<Subject[]>;
+  createSubject(subject: InsertSubject): Promise<Subject>;
+  updateSubject(id: number, subjectData: Partial<InsertSubject>): Promise<Subject>;
+  deleteSubject(id: number): Promise<boolean>;
   
   // Module operations
   getModulesByCourse(courseId: number): Promise<Module[]>;
@@ -197,6 +205,76 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao criar curso:', error);
       throw error;
+    }
+  }
+  
+  // Subject operations
+  async getSubjectById(id: number): Promise<Subject | undefined> {
+    try {
+      const [subject] = await db.select().from(subjects).where(eq(subjects.id, id));
+      return subject;
+    } catch (error) {
+      console.error('Erro ao buscar disciplina por ID:', error);
+      return undefined;
+    }
+  }
+
+  async getSubjectsByTenant(tenantId: number): Promise<Subject[]> {
+    try {
+      return await db.select().from(subjects).where(eq(subjects.tenantId, tenantId))
+        .orderBy(subjects.title);
+    } catch (error) {
+      console.error('Erro ao buscar disciplinas por tenant:', error);
+      return [];
+    }
+  }
+
+  async createSubject(subjectData: InsertSubject): Promise<Subject> {
+    try {
+      const [subject] = await db.insert(subjects).values({
+        ...subjectData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        description: subjectData.description || null,
+        workload: subjectData.workload || null,
+        area: subjectData.area || null,
+        isActive: subjectData.isActive !== undefined ? subjectData.isActive : true
+      }).returning();
+      return subject;
+    } catch (error) {
+      console.error('Erro ao criar disciplina:', error);
+      throw error;
+    }
+  }
+
+  async updateSubject(id: number, subjectData: Partial<InsertSubject>): Promise<Subject> {
+    try {
+      const [updatedSubject] = await db.update(subjects)
+        .set({
+          ...subjectData,
+          updatedAt: new Date()
+        })
+        .where(eq(subjects.id, id))
+        .returning();
+      
+      if (!updatedSubject) {
+        throw new Error('Disciplina não encontrada');
+      }
+      
+      return updatedSubject;
+    } catch (error) {
+      console.error('Erro ao atualizar disciplina:', error);
+      throw error;
+    }
+  }
+
+  async deleteSubject(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(subjects).where(eq(subjects.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir disciplina:', error);
+      return false;
     }
   }
   
