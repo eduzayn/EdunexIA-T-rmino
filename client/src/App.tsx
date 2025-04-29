@@ -9,16 +9,40 @@ import CourseDetailsPage from "@/pages/course-details-page";
 import CourseCreatePage from "@/pages/course-create-page";
 import CourseEditPage from "@/pages/course-edit-page";
 import { ProtectedRoute } from "./lib/protected-route";
+import { PortalProvider, usePortal } from "./hooks/use-portal";
 
 function Router() {
+  const { currentPortal } = usePortal();
+  const baseRoute = currentPortal.baseRoute;
+  
   return (
     <Switch>
+      {/* Rotas comuns a todos os portais */}
       <ProtectedRoute path="/" component={Dashboard} />
-      <ProtectedRoute path="/courses" component={CoursesPage} />
-      <ProtectedRoute path="/courses/new" component={CourseCreatePage} />
-      <ProtectedRoute path="/courses/:id/edit" component={CourseEditPage} />
-      <ProtectedRoute path="/courses/:id" component={CourseDetailsPage} />
       <Route path="/auth" component={AuthPage} />
+      
+      {/* Rotas do Portal Administrativo */}
+      <ProtectedRoute path="/admin/courses" component={CoursesPage} />
+      <ProtectedRoute path="/admin/courses/new" component={CourseCreatePage} />
+      <ProtectedRoute path="/admin/courses/:id/edit" component={CourseEditPage} />
+      <ProtectedRoute path="/admin/courses/:id" component={CourseDetailsPage} />
+      
+      {/* Rotas do Portal do Aluno */}
+      <ProtectedRoute path="/student/courses" component={CoursesPage} />
+      <ProtectedRoute path="/student/courses/:id" component={CourseDetailsPage} />
+      
+      {/* Rotas do Portal do Professor */}
+      <ProtectedRoute path="/teacher/courses" component={CoursesPage} />
+      <ProtectedRoute path="/teacher/courses/:id" component={CourseDetailsPage} />
+      <ProtectedRoute path="/teacher/courses/:id/edit" component={CourseEditPage} />
+      
+      {/* Rotas do Portal do Polo */}
+      <ProtectedRoute path="/hub/courses" component={CoursesPage} />
+      
+      {/* Rotas do Portal do Parceiro */}
+      <ProtectedRoute path="/partner/courses" component={CoursesPage} />
+      
+      {/* Rota para página não encontrada */}
       <Route path="/:rest*">
         {() => <NotFound />}
       </Route>
@@ -26,11 +50,19 @@ function Router() {
   );
 }
 
+function AppWithProviders() {
+  return (
+    <PortalProvider>
+      <Router />
+    </PortalProvider>
+  );
+}
+
 function App() {
   return (
     <TooltipProvider>
       <Toaster />
-      <Router />
+      <AppWithProviders />
     </TooltipProvider>
   );
 }
