@@ -167,7 +167,39 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
 
               <FormField
                 control={form.control}
-                name="category"
+                name="area"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Área</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione uma área" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="development">Desenvolvimento</SelectItem>
+                        <SelectItem value="business">Negócios</SelectItem>
+                        <SelectItem value="marketing">Marketing</SelectItem>
+                        <SelectItem value="design">Design</SelectItem>
+                        <SelectItem value="technology">Tecnologia</SelectItem>
+                        <SelectItem value="education">Educação</SelectItem>
+                        <SelectItem value="health">Saúde</SelectItem>
+                        <SelectItem value="language">Idiomas</SelectItem>
+                        <SelectItem value="other">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="courseCategory"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoria</FormLabel>
@@ -181,15 +213,14 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="development">Desenvolvimento</SelectItem>
-                        <SelectItem value="business">Negócios</SelectItem>
-                        <SelectItem value="marketing">Marketing</SelectItem>
-                        <SelectItem value="design">Design</SelectItem>
-                        <SelectItem value="technology">Tecnologia</SelectItem>
-                        <SelectItem value="education">Educação</SelectItem>
-                        <SelectItem value="health">Saúde</SelectItem>
-                        <SelectItem value="language">Idiomas</SelectItem>
-                        <SelectItem value="other">Outros</SelectItem>
+                        <SelectItem value="segunda_graduacao">Segunda Graduação</SelectItem>
+                        <SelectItem value="segunda_licenciatura">Segunda Licenciatura</SelectItem>
+                        <SelectItem value="formacao_pedagogica">Formação Pedagógica</SelectItem>
+                        <SelectItem value="formacao_livre">Formação Livre</SelectItem>
+                        <SelectItem value="profissionalizante">Profissionalizante</SelectItem>
+                        <SelectItem value="sequencial">Sequencial</SelectItem>
+                        <SelectItem value="graduacao">Graduação</SelectItem>
+                        <SelectItem value="pos_graduacao">Pós-Graduação</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

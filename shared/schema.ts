@@ -62,7 +62,8 @@ export const courses = pgTable('courses', {
   title: text('title').notNull(),
   shortDescription: text('short_description'),
   description: text('description'),
-  category: text('category'),
+  area: text('category'), // mantém o nome da coluna no banco como 'category' para compatibilidade
+  courseCategory: text('course_category'), // novo campo para as categorias educacionais
   imageUrl: text('image_url'),
   price: integer('price'), // in cents
   status: courseStatusEnum('status').default('draft').notNull(),
