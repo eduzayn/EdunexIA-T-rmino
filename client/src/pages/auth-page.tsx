@@ -82,7 +82,9 @@ export default function AuthPage() {
   });
 
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
+    console.log("Login submit - valores:", values);
     loginMutation.mutate(values);
+    console.log("Login submit - mutation chamada");
   };
 
   const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {

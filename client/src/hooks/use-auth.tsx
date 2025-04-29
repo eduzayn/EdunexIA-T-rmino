@@ -22,6 +22,8 @@ type LoginData = Pick<InsertUser, "username" | "password">;
 export const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  console.log("AuthProvider - Inicializando");
+  
   const {
     data: user,
     error,
@@ -31,19 +33,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
+  console.log("AuthProvider - Estado atual:", { user, isLoading, error });
+
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
+      console.log("loginMutation - Iniciando login com:", credentials.username);
       const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      const data = await res.json();
+      console.log("loginMutation - Resposta do servidor:", data);
+      return data;
     },
     onSuccess: (user: SelectUser) => {
+      console.log("loginMutation - Login bem sucedido:", user);
       queryClient.setQueryData(["/api/user"], user);
+      // Forçar refetch dos dados do usuário
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
         title: "Login realizado com sucesso",
         description: `Bem-vindo(a), ${user.fullName}!`,
       });
     },
     onError: (error: Error) => {
+      console.error("loginMutation - Erro no login:", error);
       toast({
         title: "Falha no login",
         description: error.message,
