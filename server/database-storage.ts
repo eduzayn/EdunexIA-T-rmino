@@ -12,10 +12,42 @@ import {
   lessons, lessonProgress, payments,
   aiKnowledgeBase, productivityLogs
 } from "@shared/schema";
-import { IStorage } from "./storage";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+
+// Interface for storage operations
+export interface IStorage {
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // Tenant operations
+  getTenantById(id: number): Promise<Tenant | undefined>;
+  createTenant(tenant: InsertTenant): Promise<Tenant>;
+  
+  // Course operations
+  getCourseById(id: number): Promise<Course | undefined>;
+  getCoursesByTenant(tenantId: number): Promise<Course[]>;
+  createCourse(course: InsertCourse): Promise<Course>;
+  
+  // Enrollment operations
+  getEnrollmentsByStudent(studentId: number): Promise<Enrollment[]>;
+  getEnrollmentsByTeacher(teacherId: number): Promise<Enrollment[]>;
+  getEnrollmentsByTenant(tenantId: number): Promise<Enrollment[]>;
+  createEnrollment(enrollment: InsertEnrollment): Promise<Enrollment>;
+  
+  // Lead operations
+  getLeadsByTenant(tenantId: number): Promise<Lead[]>;
+  createLead(lead: InsertLead): Promise<Lead>;
+  
+  // Dashboard statistics
+  getDashboardStats(tenantId: number): Promise<any>;
+  
+  // Session store
+  sessionStore: session.Store;
+}
 
 const PostgresSessionStore = connectPg(session);
 
@@ -316,3 +348,6 @@ export class DatabaseStorage implements IStorage {
     }
   }
 }
+
+// Exportando a instância da DatabaseStorage para uso em toda a aplicação
+export const storage = new DatabaseStorage();
