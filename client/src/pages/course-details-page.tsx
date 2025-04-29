@@ -62,6 +62,39 @@ export default function CourseDetailsPage() {
       </Badge>
     );
   };
+  
+  // Função para renderizar o nome amigável da área do curso
+  const getAreaName = (area?: string) => {
+    const areaNames: Record<string, string> = {
+      development: "Desenvolvimento",
+      business: "Negócios",
+      marketing: "Marketing",
+      design: "Design",
+      technology: "Tecnologia",
+      education: "Educação",
+      health: "Saúde",
+      language: "Idiomas",
+      other: "Outros"
+    };
+    
+    return area ? areaNames[area] || "Não definida" : "Não definida";
+  };
+  
+  // Função para renderizar o nome amigável da categoria educacional
+  const getCourseCategoryName = (category?: string) => {
+    const categoryNames: Record<string, string> = {
+      segunda_graduacao: "Segunda Graduação",
+      segunda_licenciatura: "Segunda Licenciatura",
+      formacao_pedagogica: "Formação Pedagógica",
+      formacao_livre: "Formação Livre",
+      profissionalizante: "Profissionalizante",
+      sequencial: "Sequencial",
+      graduacao: "Graduação",
+      pos_graduacao: "Pós-Graduação"
+    };
+    
+    return category ? categoryNames[category] || "Não definida" : "Não definida";
+  };
 
   // Calcular estatísticas a partir dos dados reais
   const computeStats = () => {
@@ -390,6 +423,16 @@ export default function CourseDetailsPage() {
                 
                   <span className="text-muted-foreground text-sm">Status:</span>
                   <div className="text-right">{renderStatus(course.status || 'draft')}</div>
+                </div>
+                
+                <Separator className="my-1.5" />
+                
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                  <span className="text-muted-foreground text-sm">Área:</span>
+                  <span className="text-sm text-right">{getAreaName(course.area)}</span>
+                
+                  <span className="text-muted-foreground text-sm">Categoria:</span>
+                  <span className="text-sm text-right">{getCourseCategoryName(course.courseCategory)}</span>
                 </div>
                 
                 <Separator className="my-1.5" />

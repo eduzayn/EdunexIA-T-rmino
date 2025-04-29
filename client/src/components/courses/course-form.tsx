@@ -43,7 +43,8 @@ const courseFormSchema = insertCourseSchema.extend({
   title: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
   shortDescription: z.string().min(10, "A descrição curta deve ter pelo menos 10 caracteres"),
   description: z.string().optional().nullable(),
-  category: z.string().min(1, "Selecione uma categoria"),
+  area: z.string().min(1, "Selecione uma área"),
+  courseCategory: z.string().min(1, "Selecione uma categoria"),
   price: z.coerce.number().optional().nullable().transform(val => val === 0 ? null : val), // Permitir curso gratuito
 });
 
@@ -66,7 +67,8 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     title: initialData?.title || "",
     shortDescription: initialData?.shortDescription || "",
     description: initialData?.description || "",
-    category: initialData?.category || "",
+    area: initialData?.area || "",
+    courseCategory: initialData?.courseCategory || "",
     price: initialData?.price || null,
     status: initialData?.status || "draft",
     imageUrl: initialData?.imageUrl || "",
