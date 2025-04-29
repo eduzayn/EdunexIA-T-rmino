@@ -13,7 +13,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
+  AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
   FileText, Globe, GraduationCap, LayoutDashboard, Play, Users 
 } from "lucide-react";
 
@@ -166,7 +166,7 @@ export default function CourseDetailsPage() {
         <title>{`${course.title || 'Detalhes do curso'} | Edunéxia`}</title>
       </Helmet>
       
-      <div className="container py-6 space-y-6">
+      <div className="container py-4 space-y-4">
         {/* Cabeçalho */}
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
@@ -179,19 +179,19 @@ export default function CourseDetailsPage() {
             {renderStatus(course.status || 'draft')}
           </div>
           
-          <div className="flex gap-2">
-            <Button variant="outline" className="h-9">
-              <Globe className="h-4 w-4 mr-2" />
-              Visualizar como Aluno
+          <div className="flex gap-1.5">
+            <Button size="sm" variant="outline" className="h-8">
+              <Globe className="h-4 w-4 mr-1.5" />
+              Visualizar
             </Button>
-            <Button className="h-9">
-              <Edit className="h-4 w-4 mr-2" />
+            <Button size="sm" className="h-8">
+              <Edit className="h-4 w-4 mr-1.5" />
               Editar Curso
             </Button>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {/* Conteúdo principal */}
           <div className="col-span-2 space-y-6">
             {/* Imagem do curso */}
@@ -265,8 +265,8 @@ export default function CourseDetailsPage() {
               <TabsContent value="curriculum" className="space-y-4 pt-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-medium">Módulos e Aulas</h3>
-                  <Button>
-                    <Edit className="h-4 w-4 mr-2" />
+                  <Button size="sm" className="h-8">
+                    <Edit className="h-4 w-4 mr-1.5" />
                     Editar Currículo
                   </Button>
                 </div>
@@ -340,8 +340,8 @@ export default function CourseDetailsPage() {
                     <p className="text-sm text-muted-foreground mt-1 mb-4">
                       Este curso ainda não possui módulos ou aulas cadastrados.
                     </p>
-                    <Button>
-                      <Edit className="h-4 w-4 mr-2" />
+                    <Button size="sm" className="h-8">
+                      <Edit className="h-4 w-4 mr-1.5" />
                       Adicionar Módulos
                     </Button>
                   </div>
