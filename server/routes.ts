@@ -168,6 +168,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only the course creator or admins can edit this course" });
       }
       
+      // Verificar tentativa de modificação do código por não-administradores
+      if (req.body.code !== undefined && req.user?.role !== 'admin') {
+        return res.status(403).json({ 
+          message: "Apenas administradores podem modificar o código do curso" 
+        });
+      }
+      
       // Validate and update course data
       const courseData = insertCourseSchema.partial().parse({
         ...req.body,

@@ -157,9 +157,13 @@ export class DatabaseStorage implements IStorage {
         .from(courses)
         .where(eq(courses.tenantId, tenantId));
       
-      const maxCode = result[0]?.maxCode || 0;
+      // Garantir que o valor é do tipo number
+      let maxCode = 0;
+      if (result[0]?.maxCode) {
+        maxCode = Number(result[0].maxCode);
+      }
       // Incrementar o código máximo atual ou começar do 1000 se for o primeiro curso
-      return maxCode ? maxCode + 1 : 1000;
+      return maxCode > 0 ? maxCode + 1 : 1000;
     } catch (error) {
       console.error('Erro ao gerar código único para curso:', error);
       // Fallback para um código aleatório entre 1000 e 9999 em caso de erro
