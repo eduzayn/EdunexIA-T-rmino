@@ -9,7 +9,7 @@ interface CourseItem {
   studentsCount: number;
   price: number;
   rating: string;
-  category: "development" | "marketing" | "ai" | "business";
+  category: string;
 }
 
 interface PopularCoursesProps {

@@ -14,7 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
-  FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, School, Users 
+  FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, Users 
 } from "lucide-react";
 
 export default function CourseDetailsPage() {
