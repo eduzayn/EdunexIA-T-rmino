@@ -162,6 +162,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next(error);
     }
   });
+  
+  // Endpoint para diagnóstico (apenas para desenvolvimento)
+  app.get("/api/debug", async (req, res) => {
+    try {
+      // Obter usuário admin
+      const adminUser = await storage.getUserByUsername("admin");
+      
+      // Retornar estado do sistema
+      res.json({
+        usersCount: adminUser ? 1 : 0,
+        adminUser: adminUser ? {
+          id: adminUser.id,
+          username: adminUser.username,
+          passwordFormat: adminUser.password ? (adminUser.password.includes(".") ? "valid" : "invalid") : "missing",
+          role: adminUser.role,
+          tenantId: adminUser.tenantId
+        } : null,
+        environment: {
+          nodeEnv: process.env.NODE_ENV
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao obter debug:", error);
+      res.status(500).json({ error: "Erro interno" });
+    }
+  });
 
   const httpServer = createServer(app);
 

@@ -23,21 +23,28 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  // Verifica se temos uma senha armazenada válida com salt
-  if (!stored || !stored.includes(".")) {
+  try {
+    // Verifica se temos uma senha armazenada válida com salt
+    if (!stored || !stored.includes(".")) {
+      console.log("Formato de senha inválido:", stored);
+      return false;
+    }
+    
+    const [hashed, salt] = stored.split(".");
+    
+    // Verifica se temos tanto o hash quanto o salt
+    if (!hashed || !salt) {
+      console.log("Hash ou salt ausente:", { hashed, salt });
+      return false;
+    }
+    
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error("Erro ao comparar senhas:", error);
     return false;
   }
-  
-  const [hashed, salt] = stored.split(".");
-  
-  // Verifica se temos tanto o hash quanto o salt
-  if (!hashed || !salt) {
-    return false;
-  }
-  
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
 export function setupAuth(app: Express) {
@@ -64,12 +71,25 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
+        console.log("Tentativa de login com:", { username });
         const user = await storage.getUserByUsername(username);
-        if (!user || !(await comparePasswords(password, user.password))) {
+        console.log("Usuário encontrado:", user ? "Sim" : "Não");
+        
+        if (!user) {
           return done(null, false, { message: "Nome de usuário ou senha incorretos" });
         }
+        
+        console.log("Comparando senha com hash:", user.password);
+        const passwordMatches = await comparePasswords(password, user.password);
+        console.log("Senha corresponde:", passwordMatches ? "Sim" : "Não");
+        
+        if (!passwordMatches) {
+          return done(null, false, { message: "Nome de usuário ou senha incorretos" });
+        }
+        
         return done(null, user);
       } catch (error) {
+        console.error("Erro na autenticação:", error);
         return done(error);
       }
     }),
