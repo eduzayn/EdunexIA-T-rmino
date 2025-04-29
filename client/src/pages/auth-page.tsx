@@ -112,13 +112,15 @@ export default function AuthPage() {
         <div className="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:px-20 xl:px-24 lg:flex-none lg:w-1/2">
           <div className="w-full max-w-md mx-auto lg:mx-0">
             <div className="flex items-center mb-8">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
-                <span className="text-white font-bold text-xl">E</span>
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground mb-1 ml-1">NextGen</span>
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
+                    <span className="text-white font-bold text-xl">E</span>
+                  </div>
+                  <span className="ml-2 text-2xl font-bold">Edunéx<span className="text-primary font-black">IA</span></span>
+                </div>
               </div>
-              <span className="ml-2 text-2xl font-bold">Edunéxia</span>
-              <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-xs px-2 py-1 rounded-full ml-2 dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
-                NextGen
-              </span>
             </div>
 
             <Tabs

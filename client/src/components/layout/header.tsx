@@ -68,14 +68,19 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             </Button>
             
             <Link href="/" className="flex items-center space-x-3 lg:hidden">
-              <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-r from-primary to-purple-600 rounded-md">
-                <span className="text-white font-bold text-lg">E</span>
+              <div className="flex flex-col items-start">
+                <span className="text-xs text-muted-foreground mb-0.5">NextGen</span>
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center w-7 h-7 bg-gradient-to-r from-primary to-purple-600 rounded-md mr-2">
+                    <span className="text-white font-bold text-sm">E</span>
+                  </div>
+                  <span className="text-base font-bold text-foreground">Edunéx<span className="text-primary font-black">IA</span></span>
+                </div>
               </div>
-              <span className="text-xl font-bold text-foreground">Edunéxia</span>
             </Link>
             
-            <span className="hidden md:inline-block lg:ml-24 bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
-              NextGen
+            <span className="hidden lg:inline-block lg:ml-24 bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
+              NextGen EdunéxIA
             </span>
           </div>
           
