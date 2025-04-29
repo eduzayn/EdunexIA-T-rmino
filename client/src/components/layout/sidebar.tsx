@@ -63,16 +63,13 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
       <aside className={sidebarClasses}>
         {/* Logo no Sidebar */}
         <div className="pt-4 pb-2">
-          <div className="flex items-center justify-between px-6 pt-2 pb-3">
+          <div className="flex items-center px-6 pt-2 pb-3">
             <div className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
                 <span className="text-white font-bold text-xl">E</span>
               </div>
               <span className="text-2xl font-bold text-sidebar-foreground">Edunéxia</span>
             </div>
-            <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-xs px-2 py-0.5 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
-              NextGen
-            </span>
           </div>
         </div>
         
