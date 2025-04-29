@@ -50,6 +50,9 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [authTab, setAuthTab] = useState<string>("login");
   const [isMounted, setIsMounted] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -171,11 +174,30 @@ export default function AuthPage() {
                                 <div className="relative">
                                   <Key className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                                   <Input
-                                    type="password"
+                                    type={showLoginPassword ? "text" : "password"}
                                     placeholder="Sua senha"
-                                    className="pl-10"
+                                    className="pl-10 pr-10"
                                     {...field}
                                   />
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                                  >
+                                    {showLoginPassword ? (
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye-off">
+                                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                                        <line x1="2" x2="22" y1="2" y2="22"></line>
+                                      </svg>
+                                    ) : (
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye">
+                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                      </svg>
+                                    )}
+                                  </button>
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -300,11 +322,30 @@ export default function AuthPage() {
                                   <div className="relative">
                                     <Key className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                                     <Input
-                                      type="password"
+                                      type={showRegisterPassword ? "text" : "password"}
                                       placeholder="Crie uma senha"
-                                      className="pl-10"
+                                      className="pl-10 pr-10"
                                       {...field}
                                     />
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                                      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                                    >
+                                      {showRegisterPassword ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye-off">
+                                          <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                          <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                                          <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                                          <line x1="2" x2="22" y1="2" y2="22"></line>
+                                        </svg>
+                                      ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye">
+                                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                          <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                      )}
+                                    </button>
                                   </div>
                                 </FormControl>
                                 <FormMessage />
@@ -321,11 +362,30 @@ export default function AuthPage() {
                                   <div className="relative">
                                     <Key className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                                     <Input
-                                      type="password"
+                                      type={showConfirmPassword ? "text" : "password"}
                                       placeholder="Confirme sua senha"
-                                      className="pl-10"
+                                      className="pl-10 pr-10"
                                       {...field}
                                     />
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                                    >
+                                      {showConfirmPassword ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye-off">
+                                          <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                          <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                                          <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                                          <line x1="2" x2="22" y1="2" y2="22"></line>
+                                        </svg>
+                                      ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye">
+                                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                          <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                      )}
+                                    </button>
                                   </div>
                                 </FormControl>
                                 <FormMessage />
