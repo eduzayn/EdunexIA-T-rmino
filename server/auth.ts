@@ -16,13 +16,13 @@ declare global {
 
 const scryptAsync = promisify(scrypt);
 
-async function hashPassword(password: string) {
+export async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   return `${buf.toString("hex")}.${salt}`;
 }
 
-async function comparePasswords(supplied: string, stored: string) {
+export async function comparePasswords(supplied: string, stored: string) {
   try {
     // Verifica se temos uma senha armazenada válida com salt
     if (!stored || !stored.includes(".")) {
@@ -58,9 +58,8 @@ export function setupAuth(app: Express) {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       secure: process.env.NODE_ENV === "production",
     },
-    store: new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
-    }),
+    // Usar o store configurado na classe DatabaseStorage
+    store: storage.sessionStore,
   };
 
   app.set("trust proxy", 1);
@@ -184,6 +183,49 @@ export function setupAuth(app: Express) {
       
       res.status(201).json(tenant);
     } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Endpoint para criar usuário administrativo (apenas para desenvolvimento)
+  app.post("/api/setup-admin", async (req, res, next) => {
+    try {
+      // Verificar se já existe um usuário admin
+      const existingAdmin = await storage.getUserByUsername("admintest");
+      
+      if (existingAdmin) {
+        return res.status(200).json({
+          message: "Usuário admin já existe",
+          user: { 
+            id: existingAdmin.id,
+            username: existingAdmin.username,
+            role: existingAdmin.role,
+            tenantId: existingAdmin.tenantId
+          }
+        });
+      }
+      
+      // Criar o usuário admin
+      const adminUser = await storage.createUser({
+        username: "admintest",
+        password: await hashPassword("password123"),
+        email: "admin@edunexia.com",
+        fullName: "Administrador Teste",
+        role: "admin",
+        tenantId: 1,
+        isActive: true,
+        avatarUrl: null,
+      });
+      
+      // Ocultar senha na resposta
+      const { password, ...userWithoutPassword } = adminUser;
+      
+      res.status(201).json({
+        message: "Usuário admin criado com sucesso",
+        user: userWithoutPassword
+      });
+    } catch (error) {
+      console.error("Erro ao criar usuário admin:", error);
       next(error);
     }
   });

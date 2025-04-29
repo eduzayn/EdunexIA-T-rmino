@@ -4,8 +4,64 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { z } from "zod";
 import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema } from "@shared/schema";
+import { testDatabaseConnection } from "./db";
+import { db } from "./db";
+import { tenants, users } from "@shared/schema";
+import { log } from "./vite";
+import { sql } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Teste de conexão com banco de dados e inicialização
+  try {
+    const dbConnected = await testDatabaseConnection();
+    if (dbConnected) {
+      log("Conexão com banco de dados PostgreSQL estabelecida com sucesso", "database");
+      
+      // Criar tenant padrão se não existir
+      try {
+        await db.insert(tenants).values({
+          name: "Edunéxia",
+          domain: "edunexia.com",
+          logoUrl: null,
+          primaryColor: "#6366f1",
+          secondaryColor: "#a855f7",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }).onConflictDoNothing();
+        log("Tenant padrão criado ou verificado com sucesso", "database");
+        
+        // Criar um usuário administrativo para testes
+        try {
+          const { hashPassword } = await import("./auth");
+          const { users } = await import("@shared/schema");
+          
+          const hashedPassword = await hashPassword("password123");
+          await db.insert(users).values({
+            username: "admintest",
+            password: hashedPassword,
+            email: "admin@edunexia.com",
+            fullName: "Administrador Teste",
+            role: "admin",
+            tenantId: 1,
+            isActive: true,
+            avatarUrl: null,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }).onConflictDoNothing();
+          log("Usuário administrativo de teste criado ou verificado com sucesso", "database");
+        } catch (error) {
+          console.error("Erro ao criar usuário administrativo:", error);
+        }
+      } catch (error) {
+        console.error("Erro ao criar tenant padrão:", error);
+      }
+    } else {
+      log("Falha na conexão com o banco de dados PostgreSQL", "database");
+    }
+  } catch (error) {
+    console.error("Erro ao testar conexão com banco de dados:", error);
+  }
+  
   // Set up authentication routes
   setupAuth(app);
 
@@ -167,10 +223,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/debug", async (req, res) => {
     try {
       // Obter usuário admin
-      const adminUser = await storage.getUserByUsername("admin");
+      const adminUser = await storage.getUserByUsername("admintest");
+      const dbConnectionOk = await testDatabaseConnection();
       
       // Retornar estado do sistema
       res.json({
+        database: {
+          connected: dbConnectionOk,
+          url: process.env.DATABASE_URL ? "Configurado" : "Não configurado"
+        },
         usersCount: adminUser ? 1 : 0,
         adminUser: adminUser ? {
           id: adminUser.id,
@@ -186,6 +247,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao obter debug:", error);
       res.status(500).json({ error: "Erro interno" });
+    }
+  });
+  
+  // Rota específica para testar a criação do admin
+  app.get("/api/test-admin", async (req, res) => {
+    try {
+      // Verificar se o banco está conectado
+      const dbConnectionOk = await testDatabaseConnection();
+      
+      if (!dbConnectionOk) {
+        return res.status(500).json({ error: "Banco de dados não conectado" });
+      }
+      
+      // Verificar se o tenant existe
+      let tenant = await db.select().from(tenants).where(sql`id = 1`).limit(1);
+      
+      if (!tenant || tenant.length === 0) {
+        // Criar tenant se não existir
+        const [newTenant] = await db.insert(tenants).values({
+          name: "Edunéxia",
+          domain: "edunexia.com",
+          logoUrl: null,
+          primaryColor: "#6366f1",
+          secondaryColor: "#a855f7",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }).returning();
+        
+        tenant = [newTenant];
+      }
+      
+      // Verificar se o admin existe
+      const adminUser = await storage.getUserByUsername("admintest");
+      
+      if (!adminUser) {
+        // Importar a função de hash
+        const { hashPassword } = await import("./auth");
+        // Criar o admin
+        const hashedPassword = await hashPassword("password123");
+        const [newAdmin] = await db.insert(users).values({
+          username: "admintest",
+          password: hashedPassword,
+          email: "admin@edunexia.com",
+          fullName: "Administrador Teste",
+          role: "admin",
+          tenantId: 1,
+          isActive: true,
+          avatarUrl: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }).returning();
+        
+        return res.json({
+          message: "Usuário admin criado com sucesso",
+          tenant: tenant[0],
+          admin: {
+            id: newAdmin.id,
+            username: newAdmin.username,
+            role: newAdmin.role
+          }
+        });
+      }
+      
+      return res.json({
+        message: "Usuário admin já existe",
+        tenant: tenant[0],
+        admin: {
+          id: adminUser.id,
+          username: adminUser.username,
+          role: adminUser.role
+        }
+      });
+    } catch (error) {
+      console.error("Erro no teste de admin:", error);
+      res.status(500).json({ error: "Erro ao testar admin", details: error.message });
     }
   });
 
