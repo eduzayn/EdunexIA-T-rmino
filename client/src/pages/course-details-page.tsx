@@ -191,7 +191,7 @@ export default function CourseDetailsPage() {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
           {/* Conteúdo principal */}
           <div className="col-span-2 space-y-6">
             {/* Imagem do curso */}
@@ -216,9 +216,9 @@ export default function CourseDetailsPage() {
               </TabsList>
               
               {/* Aba de Visão Geral */}
-              <TabsContent value="overview" className="space-y-4 pt-4">
+              <TabsContent value="overview" className="space-y-5 pt-4 px-1">
                 <div>
-                  <h3 className="text-lg font-medium mb-2">Descrição</h3>
+                  <h3 className="text-lg font-medium mb-3">Descrição</h3>
                   <p className="text-muted-foreground">
                     {course.description || "Este curso ainda não possui uma descrição."}
                   </p>
@@ -262,9 +262,9 @@ export default function CourseDetailsPage() {
               </TabsContent>
               
               {/* Aba de Currículo */}
-              <TabsContent value="curriculum" className="space-y-4 pt-4">
+              <TabsContent value="curriculum" className="space-y-5 pt-4 px-1">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Módulos e Aulas</h3>
+                  <h3 className="text-lg font-medium mb-1">Módulos e Aulas</h3>
                   <Button size="sm" className="h-8">
                     <Edit className="h-4 w-4 mr-1.5" />
                     Editar Currículo
@@ -349,9 +349,9 @@ export default function CourseDetailsPage() {
               </TabsContent>
               
               {/* Aba de Materiais */}
-              <TabsContent value="materials" className="space-y-4 pt-4">
+              <TabsContent value="materials" className="space-y-5 pt-4 px-1">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Materiais Complementares</h3>
+                  <h3 className="text-lg font-medium mb-1">Materiais Complementares</h3>
                   <Button size="sm" className="h-8">
                     <Edit className="h-4 w-4 mr-1.5" />
                     Adicionar Materiais
