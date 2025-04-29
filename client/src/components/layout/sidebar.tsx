@@ -125,36 +125,32 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                   >
                     Cursos
                   </Link>
-                  <Link 
-                    href="/subjects"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Disciplinas
-                  </Link>
-                  <Link 
-                    href="/classes"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Turmas
-                  </Link>
-                  <Link 
-                    href="/students"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Alunos
-                  </Link>
-                  <Link 
-                    href="/teachers"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Professores
-                  </Link>
-                  <Link 
-                    href="/assessments"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Avaliações
-                  </Link>
+                  
+                  {/* Páginas em desenvolvimento - desabilitadas mas visíveis */}
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Disciplinas</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Turmas</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Alunos</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Professores</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Avaliações</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -179,30 +175,26 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.commercial && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link 
-                    href="/leads"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Leads
-                  </Link>
-                  <Link 
-                    href="/opportunities"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Oportunidades
-                  </Link>
-                  <Link 
-                    href="/campaigns"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Campanhas
-                  </Link>
-                  <Link 
-                    href="/automations"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Automações
-                  </Link>
+                  {/* Todas as seções comerciais estão em desenvolvimento ainda */}
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Leads</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Oportunidades</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Campanhas</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Automações</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -227,30 +219,26 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.financial && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link 
-                    href="/payments"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Pagamentos
-                  </Link>
-                  <Link 
-                    href="/subscriptions"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Assinaturas
-                  </Link>
-                  <Link 
-                    href="/billing"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Faturamento
-                  </Link>
-                  <Link 
-                    href="/financial-reports"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Relatórios
-                  </Link>
+                  {/* Módulo financeiro em desenvolvimento */}
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Pagamentos</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Assinaturas</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Faturamento</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Relatórios</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -275,24 +263,21 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.ai && (
                 <div className="pl-9 space-y-1 mt-1">
-                  <Link 
-                    href="/ai-assistant"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Assistente IA
-                  </Link>
-                  <Link 
-                    href="/knowledge-base"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Base de conhecimento
-                  </Link>
-                  <Link 
-                    href="/ai-settings"
-                    className="flex items-center px-2 py-2 text-sm font-medium text-sidebar-foreground/80 rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    Configurações
-                  </Link>
+                  {/* Módulo IA em desenvolvimento */}
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Assistente IA</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Base de conhecimento</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                    <span>Configurações</span>
+                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                  </div>
                 </div>
               )}
             </div>

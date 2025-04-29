@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface AppShellProps {
   children?: React.ReactNode;
+  showBreadcrumbs?: boolean;
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, showBreadcrumbs = true }: AppShellProps) {
   const { isLoading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [location] = useLocation();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -43,6 +47,11 @@ export function AppShell({ children }: AppShellProps) {
         />
         
         <main className="flex-1 overflow-auto pt-16 pb-10 bg-background lg:ml-64">
+          {showBreadcrumbs && (
+            <div className="container py-2 border-b">
+              <Breadcrumbs />
+            </div>
+          )}
           {children}
         </main>
       </div>

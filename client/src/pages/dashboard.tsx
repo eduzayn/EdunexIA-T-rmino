@@ -146,18 +146,28 @@ export default function Dashboard() {
           <div>
             <PopularCourses 
               courses={
-                dashboardStats?.popularCourses?.map((course: any) => ({
-                  id: course.id,
-                  title: course.title,
-                  studentsCount: course.studentsCount,
-                  price: course.price,
-                  rating: course.rating,
-                  category: 
-                    course.title.includes("Web") ? "development" :
-                    course.title.includes("Marketing") ? "marketing" :
-                    course.title.includes("Inteligência") || course.title.includes("IA") ? "ai" :
-                    "business"
-                })) || []
+                dashboardStats?.popularCourses?.map((course: any) => {
+                  // Determinar a categoria com verificações de segurança
+                  let category = "business"; // categoria padrão
+                  if (course && course.title && typeof course.title === 'string') {
+                    if (course.title.includes("Web")) {
+                      category = "development";
+                    } else if (course.title.includes("Marketing")) {
+                      category = "marketing";
+                    } else if (course.title.includes("Inteligência") || course.title.includes("IA")) {
+                      category = "ai";
+                    }
+                  }
+                  
+                  return {
+                    id: course?.id || 0,
+                    title: course?.title || "Curso sem título",
+                    studentsCount: course?.studentsCount || 0,
+                    price: course?.price || 0,
+                    rating: course?.rating || "0.0",
+                    category: category
+                  };
+                }) || []
               } 
             />
           </div>
