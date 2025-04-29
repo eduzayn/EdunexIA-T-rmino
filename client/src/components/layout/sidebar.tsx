@@ -92,13 +92,13 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
         {/* Logo no Sidebar */}
         <div className="pt-4 pb-2">
           <div className="flex items-center px-6 pt-2 pb-3">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center">
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
                 <span className="text-white font-bold text-xl">E</span>
               </div>
-              <div className="flex flex-col ml-2">
-                <span className="text-xs text-sidebar-foreground/70">Intelligent Education</span>
-                <span className="text-2xl font-bold text-sidebar-foreground">Edunéx<span className="text-primary font-black">IA</span></span>
+              <div className="flex flex-col ml-3">
+                <span className="text-xs text-sidebar-foreground/70 mb-0.5">Intelligent Education</span>
+                <span className="text-2xl font-bold text-sidebar-foreground leading-none">Edunéx<span className="text-primary font-black">IA</span></span>
               </div>
             </div>
           </div>
