@@ -184,9 +184,11 @@ export default function CourseDetailsPage() {
               <Globe className="h-4 w-4 mr-1.5" />
               Visualizar
             </Button>
-            <Button size="sm" className="h-8">
-              <Edit className="h-4 w-4 mr-1.5" />
-              Editar Curso
+            <Button size="sm" className="h-8" asChild>
+              <Link href={`/courses/${courseId}/edit`}>
+                <Edit className="h-4 w-4 mr-1.5" />
+                Editar Curso
+              </Link>
             </Button>
           </div>
         </div>

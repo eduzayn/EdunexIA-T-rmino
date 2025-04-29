@@ -89,9 +89,11 @@ export default function CoursesPage() {
             </p>
           </div>
           
-          <Button className="w-full md:w-auto">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Novo Curso
+          <Button className="w-full md:w-auto" asChild>
+            <Link href="/courses/new">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Novo Curso
+            </Link>
           </Button>
         </div>
 
@@ -174,9 +176,11 @@ export default function CoursesPage() {
                 <p className="text-sm text-muted-foreground mt-1 mb-4">
                   {searchTerm ? 'Nenhum curso corresponde à sua busca.' : 'Você ainda não possui nenhum curso. Crie seu primeiro curso agora!'}
                 </p>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Criar Novo Curso
+                <Button asChild>
+                  <Link href="/courses/new">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Criar Novo Curso
+                  </Link>
                 </Button>
               </div>
             ) : viewMode === 'grid' ? (
