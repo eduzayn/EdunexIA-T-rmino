@@ -68,15 +68,25 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             </Button>
             
             <Link href="/" className="flex items-center space-x-3 lg:hidden">
-              <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-r from-primary to-purple-600 rounded-md">
-                <span className="text-white font-bold text-lg">E</span>
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground tracking-wider ml-1 mb-0.5">NEXTGEN</span>
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-r from-primary to-purple-600 rounded-md">
+                    <span className="text-white font-bold text-lg">E</span>
+                  </div>
+                  <span className="ml-2 text-xl font-bold text-foreground">Edunéx<span className="text-primary font-black">IA</span></span>
+                </div>
               </div>
-              <span className="text-xl font-bold text-foreground">Edunéx<span className="text-primary font-black">IA</span></span>
             </Link>
             
-            <span className="hidden lg:inline-block lg:ml-24 bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
-              EdunéxIA
-            </span>
+            <div className="hidden lg:inline-block lg:ml-24">
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-muted-foreground tracking-wider mb-0.5">NEXTGEN</span>
+                <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
+                  EdunéxIA
+                </span>
+              </div>
+            </div>
           </div>
           
           {/* Search Bar - Hidden on Mobile */}
