@@ -181,10 +181,17 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                   {/* Mostrar ou esconder itens com base no tipo de portal */}
                   {['admin', 'teacher'].includes(currentPortal.id) && (
                     <>
-                      <div className="flex items-center justify-between px-3 py-2.5 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Disciplinas</span>
-                        <span className="text-sm bg-secondary/20 px-2 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/subjects`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/subjects`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Disciplinas
+                      </Link>
                       
                       <div className="flex items-center justify-between px-3 py-2.5 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                         <span>Turmas</span>

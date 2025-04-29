@@ -10,6 +10,10 @@ import CourseCreatePage from "@/pages/course-create-page";
 import CourseEditPage from "@/pages/course-edit-page";
 import ModuleCreatePage from "@/pages/module-create-page";
 import ModuleEditPage from "@/pages/module-edit-page";
+import { SubjectsPage } from "@/pages/subjects-page";
+import { SubjectCreatePage } from "@/pages/subject-create-page";
+import { SubjectEditPage } from "@/pages/subject-edit-page";
+import { SubjectDetailsPage } from "@/pages/subject-details-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { PortalProvider, usePortal } from "./hooks/use-portal";
 
@@ -30,6 +34,12 @@ function Router() {
       <ProtectedRoute path="/admin/courses/:id/modules/new" component={ModuleCreatePage} />
       <ProtectedRoute path="/admin/courses/:courseId/modules/:moduleId/edit" component={ModuleEditPage} />
       <ProtectedRoute path="/admin/courses/:id" component={CourseDetailsPage} />
+      
+      {/* Rotas de Disciplinas */}
+      <ProtectedRoute path="/admin/subjects" component={SubjectsPage} />
+      <ProtectedRoute path="/admin/subjects/new" component={SubjectCreatePage} />
+      <ProtectedRoute path="/admin/subjects/:id/edit" component={SubjectEditPage} />
+      <ProtectedRoute path="/admin/subjects/:id" component={SubjectDetailsPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/courses" component={CoursesPage} />
