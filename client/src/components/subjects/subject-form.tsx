@@ -18,12 +18,14 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 // Estendendo o schema para validação do formulário
-const formSchema = insertSubjectSchema.extend({
-  title: z.string().min(3, {
-    message: 'O nome da disciplina deve ter pelo menos 3 caracteres.',
-  }),
-  workload: z.coerce.number().nullable().optional(),
-});
+const formSchema = insertSubjectSchema
+  .omit({ tenantId: true, code: true }) // Remover campos que serão preenchidos pelo servidor
+  .extend({
+    title: z.string().min(3, {
+      message: 'O nome da disciplina deve ter pelo menos 3 caracteres.',
+    }),
+    workload: z.coerce.number().nullable().optional(),
+  });
 
 // Tipagem dos dados do formulário
 type FormData = z.infer<typeof formSchema>;

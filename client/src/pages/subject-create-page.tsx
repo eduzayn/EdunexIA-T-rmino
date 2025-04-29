@@ -17,12 +17,22 @@ export function SubjectCreatePage() {
   // Mutação para criar disciplina
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest({
-        method: 'POST /api/subjects',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      return response;
+      console.log("Enviando dados para API:", data);
+      
+      try {
+        const response = await apiRequest({
+          method: 'POST /api/subjects',
+          body: JSON.stringify(data),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const responseData = await response.json();
+        console.log("Resposta da API:", responseData);
+        return responseData;
+      } catch (error) {
+        console.error("Erro na requisição:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({

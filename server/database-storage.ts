@@ -229,10 +229,34 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  private async generateUniqueSubjectCode(tenantId: number): Promise<string> {
+    try {
+      // Buscar o código máximo atual
+      const result = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(subjects)
+        .where(eq(subjects.tenantId, tenantId));
+      
+      // Número de disciplinas atual + 1 para o novo código
+      const count = Number(result[0]?.count || 0) + 1;
+      
+      // Gerar código no formato SUBJ-001, SUBJ-002, etc.
+      return `SUBJ-${count.toString().padStart(3, '0')}`;
+    } catch (error) {
+      console.error('Erro ao gerar código único para disciplina:', error);
+      // Fallback para um código com timestamp em caso de erro
+      return `SUBJ-${Date.now().toString().substring(8, 13)}`;
+    }
+  }
+
   async createSubject(subjectData: InsertSubject): Promise<Subject> {
     try {
+      // Gerar um código único para a disciplina
+      const code = subjectData.code || await this.generateUniqueSubjectCode(subjectData.tenantId);
+      
       const [subject] = await db.insert(subjects).values({
         ...subjectData,
+        code,
         createdAt: new Date(),
         updatedAt: new Date(),
         description: subjectData.description || null,
