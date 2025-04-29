@@ -70,7 +70,7 @@ export function Breadcrumbs({ items = [], className = "" }: BreadcrumbsProps) {
   if (breadcrumbs.length <= 1 && location === '/') return null;
   
   return (
-    <nav className={`flex items-center space-x-1 text-sm ${className}`} aria-label="Breadcrumbs">
+    <nav className={`flex items-center space-x-1 text-sm py-2 ${className}`} aria-label="Breadcrumbs">
       {location === '/' ? (
         <span className="flex items-center text-muted-foreground">
           <Home className="h-4 w-4 mr-1" />

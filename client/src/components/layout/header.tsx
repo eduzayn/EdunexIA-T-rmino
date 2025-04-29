@@ -55,7 +55,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
   return (
     <header className="bg-background border-b border-border sticky top-0 z-30">
       <div className="max-w-[2000px] mx-auto px-6">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14">
           {/* Logo Area */}
           <div className="flex items-center space-x-2">
             <Button
