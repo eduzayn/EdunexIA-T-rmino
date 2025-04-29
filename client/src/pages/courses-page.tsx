@@ -250,13 +250,17 @@ export default function CoursesPage() {
                         )}
                         
                         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                          <div className="flex items-center border px-2 py-0.5 rounded-md bg-slate-50">
+                            <span>{getAreaName(course.area)}</span>
+                          </div>
+                          {course.courseCategory && (
+                            <div className="flex items-center border px-2 py-0.5 rounded-md bg-slate-50">
+                              <span>{getCourseCategoryName(course.courseCategory)}</span>
+                            </div>
+                          )}
                           <div className="flex items-center">
                             <BookOpen className="h-3.5 w-3.5 mr-1" /> 
                             <span>12 módulos</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="h-3.5 w-3.5 mr-1" /> 
-                            <span>24h total</span>
                           </div>
                           <div className="flex items-center">
                             <Users className="h-3.5 w-3.5 mr-1" /> 
@@ -318,13 +322,17 @@ export default function CoursesPage() {
                               <Calendar className="h-3.5 w-3.5 mr-1" /> 
                               <span>Criado em {new Date(course.createdAt).toLocaleDateString('pt-BR')}</span>
                             </div>
+                            <div className="flex items-center border px-2 py-0.5 rounded-md bg-slate-50">
+                              <span className="text-xs">Área: {getAreaName(course.area)}</span>
+                            </div>
+                            {course.courseCategory && (
+                              <div className="flex items-center border px-2 py-0.5 rounded-md bg-slate-50">
+                                <span className="text-xs">Categoria: {getCourseCategoryName(course.courseCategory)}</span>
+                              </div>
+                            )}
                             <div className="flex items-center">
                               <BookOpen className="h-3.5 w-3.5 mr-1" /> 
                               <span>12 módulos</span>
-                            </div>
-                            <div className="flex items-center">
-                              <Clock className="h-3.5 w-3.5 mr-1" /> 
-                              <span>24h total</span>
                             </div>
                             <div className="flex items-center">
                               <Users className="h-3.5 w-3.5 mr-1" /> 

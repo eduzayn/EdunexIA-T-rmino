@@ -14,7 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
-  FileText, Globe, GraduationCap, LayoutDashboard, Play, Users 
+  FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, School, Users 
 } from "lucide-react";
 
 export default function CourseDetailsPage() {
@@ -290,6 +290,20 @@ export default function CourseDetailsPage() {
                       <div>
                         <p className="text-sm text-muted-foreground">Duração Total</p>
                         <p className="font-medium">{courseStats.totalDuration}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Área</p>
+                        <p className="font-medium">{getAreaName(course.area)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Categoria Educacional</p>
+                        <p className="font-medium">{getCourseCategoryName(course.courseCategory)}</p>
                       </div>
                     </div>
                   </div>
