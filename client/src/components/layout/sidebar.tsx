@@ -90,8 +90,8 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
       
       <aside className={sidebarClasses}>
         {/* Logo no Sidebar */}
-        <div className="pt-4 pb-2">
-          <div className="flex items-center px-6 pt-2 pb-3">
+        <div className="pt-3 pb-1">
+          <div className="flex items-center px-6 pb-2">
             <div className="flex items-center">
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
                 <span className="text-white font-bold text-xl">E</span>
@@ -104,12 +104,12 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
           </div>
         </div>
         
-        <div className="px-6 pb-4 pt-2 border-b border-sidebar-border"></div>
+        <div className="px-6 py-2 border-b border-sidebar-border"></div>
 
-        <div className="p-6 flex-1 overflow-y-auto">
+        <div className="px-6 pt-2 pb-4 flex-1 overflow-y-auto">
           {/* Portal Selector */}
-          <div className="mb-8">
-            <label className="block text-sm font-medium text-muted-foreground mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-muted-foreground mb-1">
               Portal
             </label>
             <div className="relative">
