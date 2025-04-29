@@ -75,7 +75,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             </Link>
             
             <span className="hidden md:inline-block lg:ml-24 bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
-              Educação Inteligente
+              NextGen
             </span>
           </div>
           

@@ -117,7 +117,7 @@ export default function AuthPage() {
               </div>
               <span className="ml-2 text-2xl font-bold">Edunéxia</span>
               <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-xs px-2 py-1 rounded-full ml-2 dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
-                Educação Inteligente
+                NextGen
               </span>
             </div>
 
