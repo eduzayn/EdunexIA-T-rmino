@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./database-storage";
 import { z } from "zod";
-import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema, insertModuleSchema, insertLessonSchema } from "@shared/schema";
+import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema, insertModuleSchema, insertLessonSchema, insertSubjectSchema } from "@shared/schema";
 import { testDatabaseConnection } from "./db";
 import { db } from "./db";
 import { tenants, users } from "@shared/schema";
@@ -382,6 +382,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(200).json({ message: "Módulo excluído com sucesso" });
       } else {
         res.status(500).json({ message: "Falha ao excluir módulo" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Subjects (Disciplinas)
+  app.get("/api/subjects", isAuthenticated, async (req, res, next) => {
+    try {
+      const tenantId = req.user?.tenantId || 1;
+      const subjects = await storage.getSubjectsByTenant(tenantId);
+      res.json(subjects);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/api/subjects/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const subjectId = parseInt(req.params.id);
+      const subject = await storage.getSubjectById(subjectId);
+      
+      if (!subject) {
+        return res.status(404).json({ message: "Disciplina não encontrada" });
+      }
+
+      // Verificar acesso ao tenant
+      if (subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      res.json(subject);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post("/api/subjects", isAuthenticated, async (req, res, next) => {
+    try {
+      // Apenas administradores e professores podem criar disciplinas
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem criar disciplinas" });
+      }
+
+      const subjectData = insertSubjectSchema.parse({
+        ...req.body,
+        tenantId: req.user.tenantId
+      });
+
+      const subject = await storage.createSubject(subjectData);
+      res.status(201).json(subject);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.put("/api/subjects/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const subjectId = parseInt(req.params.id);
+      
+      // Verificar se a disciplina existe
+      const existingSubject = await storage.getSubjectById(subjectId);
+      if (!existingSubject) {
+        return res.status(404).json({ message: "Disciplina não encontrada" });
+      }
+      
+      // Verificar acesso ao tenant
+      if (existingSubject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para editar esta disciplina" });
+      }
+      
+      // Apenas administradores e professores podem editar disciplinas
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem editar disciplinas" });
+      }
+      
+      // Validar e atualizar dados da disciplina
+      const subjectData = insertSubjectSchema.partial().parse({
+        ...req.body,
+        updatedAt: new Date()
+      });
+      
+      const updatedSubject = await storage.updateSubject(subjectId, subjectData);
+      res.json(updatedSubject);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.delete("/api/subjects/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const subjectId = parseInt(req.params.id);
+      
+      // Verificar se a disciplina existe
+      const existingSubject = await storage.getSubjectById(subjectId);
+      if (!existingSubject) {
+        return res.status(404).json({ message: "Disciplina não encontrada" });
+      }
+      
+      // Verificar acesso ao tenant
+      if (existingSubject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para excluir esta disciplina" });
+      }
+      
+      // Apenas administradores podem excluir disciplinas
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem excluir disciplinas" });
+      }
+      
+      const deleted = await storage.deleteSubject(subjectId);
+      if (deleted) {
+        res.status(200).json({ message: "Disciplina excluída com sucesso" });
+      } else {
+        res.status(500).json({ message: "Falha ao excluir disciplina" });
       }
     } catch (error) {
       next(error);

@@ -11,7 +11,7 @@ import {
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { 
-  users, tenants, courses, modules, lessons, enrollments, leads, 
+  users, tenants, courses, modules, lessons, enrollments, leads, subjects,
   lessonProgress, payments,
   aiKnowledgeBase, productivityLogs
 } from "@shared/schema";
