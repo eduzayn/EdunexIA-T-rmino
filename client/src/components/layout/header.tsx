@@ -79,11 +79,18 @@ export function Header({ onToggleSidebar }: HeaderProps) {
               </div>
             </Link>
             
-
+            <div className="hidden lg:inline-block lg:ml-24">
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-muted-foreground tracking-wider mb-0.5">NEXTGEN</span>
+                <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-primary text-sm px-3 py-1 rounded-full dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-blue-900/30">
+                  EdunéxIA
+                </span>
+              </div>
+            </div>
           </div>
           
           {/* Search Bar - Hidden on Mobile */}
-          <div className={`${showMobileSearch ? 'flex absolute left-0 right-0 top-0 bg-background p-4 h-20 z-50' : 'hidden'} lg:relative lg:flex lg:p-0 lg:h-auto lg:z-auto lg:flex-1 lg:max-w-xl lg:ml-2`}>
+          <div className={`${showMobileSearch ? 'flex absolute left-0 right-0 top-0 bg-background p-4 h-20 z-50' : 'hidden'} lg:relative lg:flex lg:p-0 lg:h-auto lg:z-auto lg:flex-1 lg:max-w-xl lg:ml-8`}>
             {showMobileSearch && (
               <Button
                 variant="ghost"
