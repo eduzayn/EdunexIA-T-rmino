@@ -43,6 +43,7 @@ import PartnerStudentDocumentsPage from "@/pages/partner-student-documents-page"
 import PartnerCertificationRequestsPage from "@/pages/partner-certification-requests-page";
 import AdminPartnerCertificationsPage from "@/pages/admin-partner-certifications-page";
 import CertificateTemplatePage from "@/pages/certificate-template-page";
+import AdminPartnerViewPage from "@/pages/admin-partner-view-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -105,6 +106,7 @@ function Router() {
       
       {/* Rotas de Documentos */}
       <ProtectedRoute path="/admin/student-documents" component={AdminStudentDocumentsPage} />
+      <ProtectedRoute path="/admin/partner-view" component={AdminPartnerViewPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
