@@ -1277,6 +1277,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Assessments (Avaliações)
+  // Listar todas as avaliações da instituição
+  app.get("/api/assessments", isAuthenticated, async (req, res, next) => {
+    try {
+      // Verificar se o usuário tem permissão (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem listar todas as avaliações" });
+      }
+      
+      const assessments = await storage.getAssessmentsByTenant(req.user.tenantId);
+      res.json(assessments);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
   // Listar avaliações por turma
   app.get("/api/classes/:classId/assessments", isAuthenticated, async (req, res, next) => {
     try {
