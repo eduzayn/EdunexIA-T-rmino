@@ -9,6 +9,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@shared/schema';
 import { usePortal } from '@/hooks/use-portal';
+import { AppShell } from '@/components/layout/app-shell';
 
 export function StudentCreatePage() {
   const { toast } = useToast();
@@ -49,7 +50,7 @@ export function StudentCreatePage() {
   };
 
   return (
-    <>
+    <AppShell>
       <Helmet>
         <title>Novo Aluno | Edunéxia</title>
       </Helmet>
@@ -71,6 +72,6 @@ export function StudentCreatePage() {
           isSubmitting={mutation.isPending}
         />
       </div>
-    </>
+    </AppShell>
   );
 }
