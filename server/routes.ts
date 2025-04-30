@@ -1629,6 +1629,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Adicionar rotas administrativas
   app.use('/api/admin', isAuthenticated, adminRouter);
+  
+  // Adicionar rotas do Portal do Parceiro
+  app.use('/api/partner', isAuthenticated, partnerRouter);
 
   const httpServer = createServer(app);
 
