@@ -304,19 +304,6 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                       >
                         Certificações de Parceiros
                       </Link>
-                      
-                      <button 
-                        onClick={() => {
-                          setCurrentPortal('partner');
-                          setLocation('/partner/dashboard');
-                        }}
-                        className={cn(
-                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors w-full text-left",
-                          "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                        )}
-                      >
-                        Portal do Parceiro
-                      </button>
                     </>
                   )}
                   
