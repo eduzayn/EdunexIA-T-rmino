@@ -28,10 +28,8 @@ export function ClassEditPage({ params }: { params: { id: string } }) {
   // Mutation para atualizar turma
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest(`/api/classes/${classId}`, {
-        method: 'PUT',
-        data,
-      });
+      const response = await apiRequest('PUT', `/api/classes/${classId}`, data);
+      return await response.json();
     },
     onSuccess: () => {
       toast({

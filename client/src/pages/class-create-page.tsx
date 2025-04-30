@@ -18,10 +18,8 @@ export function ClassCreatePage() {
   // Mutation para criar turma
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('/api/classes', {
-        method: 'POST',
-        data,
-      });
+      const response = await apiRequest('POST', '/api/classes', data);
+      return await response.json();
     },
     onSuccess: (data) => {
       toast({
