@@ -20,8 +20,9 @@ export function SubjectCreatePage() {
       console.log("Enviando dados para API:", data);
       
       try {
-        const response = await apiRequest({
-          method: 'POST /api/subjects',
+        // Usando apenas a rota relativa "/api/subjects" sem o método no URL
+        const response = await apiRequest("/api/subjects", {
+          method: 'POST',
           body: JSON.stringify(data),
           headers: { 'Content-Type': 'application/json' }
         });
