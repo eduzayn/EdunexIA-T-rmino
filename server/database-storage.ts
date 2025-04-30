@@ -468,6 +468,153 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
+  
+  // Implementação dos métodos para Classes (Turmas)
+  async getClassById(id: number): Promise<Class | undefined> {
+    try {
+      const [classItem] = await db.select().from(classes).where(eq(classes.id, id));
+      return classItem;
+    } catch (error) {
+      console.error('Erro ao buscar turma por ID:', error);
+      return undefined;
+    }
+  }
+
+  async getClassesByTenant(tenantId: number): Promise<Class[]> {
+    try {
+      return await db.select().from(classes)
+        .where(eq(classes.tenantId, tenantId))
+        .orderBy(classes.name);
+    } catch (error) {
+      console.error('Erro ao buscar turmas por tenant:', error);
+      return [];
+    }
+  }
+
+  async getClassesBySubject(subjectId: number): Promise<Class[]> {
+    try {
+      return await db.select().from(classes)
+        .where(eq(classes.subjectId, subjectId))
+        .orderBy(classes.name);
+    } catch (error) {
+      console.error('Erro ao buscar turmas por disciplina:', error);
+      return [];
+    }
+  }
+
+  async getClassesByTeacher(teacherId: number): Promise<Class[]> {
+    try {
+      return await db.select().from(classes)
+        .where(eq(classes.teacherId, teacherId))
+        .orderBy(classes.name);
+    } catch (error) {
+      console.error('Erro ao buscar turmas por professor:', error);
+      return [];
+    }
+  }
+
+  // Gera um código único para a turma dentro de um tenant
+  private async generateUniqueClassCode(tenantId: number, subjectId: number): Promise<string> {
+    try {
+      // Buscar a disciplina para usar seu título como base para o código
+      const [subject] = await db.select().from(subjects).where(eq(subjects.id, subjectId));
+      
+      // Pegar as duas primeiras letras do título da disciplina (ou 'XX' se não existir)
+      const prefix = subject?.title ? subject.title.slice(0, 2).toUpperCase() : 'XX';
+      
+      // Buscar o maior número de sequência para esse prefixo
+      const result = await db
+        .select({ maxCode: sql`MAX(${classes.code})` })
+        .from(classes)
+        .where(and(
+          eq(classes.tenantId, tenantId),
+          sql`${classes.code} LIKE ${prefix + '%'}`
+        ));
+      
+      let maxSequence = 0;
+      if (result[0]?.maxCode) {
+        // Extrair o número da sequência do código (assumindo formato XX-001)
+        const match = result[0].maxCode.match(/\d+$/);
+        if (match) {
+          maxSequence = parseInt(match[0], 10);
+        }
+      }
+      
+      // Incrementar a sequência e formatá-la com zeros à esquerda
+      const nextSequence = maxSequence + 1;
+      const sequenceFormatted = nextSequence.toString().padStart(3, '0');
+      
+      // Retornar o código no formato XX-001
+      return `${prefix}-${sequenceFormatted}`;
+    } catch (error) {
+      console.error('Erro ao gerar código único para turma:', error);
+      // Fallback para um código aleatório
+      const randomCode = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+      return `XX-${randomCode}`;
+    }
+  }
+
+  async createClass(classData: InsertClass): Promise<Class> {
+    try {
+      // Gerar um código único para a turma se não for fornecido
+      const classCode = classData.code || await this.generateUniqueClassCode(classData.tenantId, classData.subjectId);
+      
+      const [newClass] = await db.insert(classes).values({
+        ...classData,
+        code: classCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        description: classData.description || null,
+        startDate: classData.startDate || null,
+        endDate: classData.endDate || null,
+        maxStudents: classData.maxStudents || null,
+        teacherId: classData.teacherId || null,
+        location: classData.location || null,
+        scheduleInfo: classData.scheduleInfo || null,
+        status: classData.status || "scheduled",
+        isActive: classData.isActive !== undefined ? classData.isActive : true
+      }).returning();
+      
+      return newClass;
+    } catch (error) {
+      console.error('Erro ao criar turma:', error);
+      throw error;
+    }
+  }
+
+  async updateClass(id: number, classData: Partial<InsertClass>): Promise<Class> {
+    try {
+      const updateValues: any = { ...classData, updatedAt: new Date() };
+      
+      const [updatedClass] = await db.update(classes)
+        .set(updateValues)
+        .where(eq(classes.id, id))
+        .returning();
+      
+      if (!updatedClass) {
+        throw new Error('Turma não encontrada');
+      }
+      
+      return updatedClass;
+    } catch (error) {
+      console.error('Erro ao atualizar turma:', error);
+      throw error;
+    }
+  }
+
+  async deleteClass(id: number): Promise<boolean> {
+    try {
+      // Primeiro excluir as matrículas relacionadas à turma
+      await db.delete(classEnrollments).where(eq(classEnrollments.classId, id));
+      
+      // Depois excluir a turma
+      const result = await db.delete(classes).where(eq(classes.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir turma:', error);
+      return false;
+    }
+  }
 
   async getEnrollmentsByStudent(studentId: number): Promise<Enrollment[]> {
     try {
@@ -561,6 +708,74 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+  
+  // Implementação dos métodos para Class Enrollments (Matrículas em Turmas)
+  async getClassEnrollmentsByClass(classId: number): Promise<ClassEnrollment[]> {
+    try {
+      return await db.select().from(classEnrollments)
+        .where(eq(classEnrollments.classId, classId));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas por turma:', error);
+      return [];
+    }
+  }
+
+  async getClassEnrollmentsByStudent(studentId: number): Promise<ClassEnrollment[]> {
+    try {
+      return await db.select().from(classEnrollments)
+        .where(eq(classEnrollments.studentId, studentId));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas por aluno:', error);
+      return [];
+    }
+  }
+
+  async createClassEnrollment(enrollmentData: InsertClassEnrollment): Promise<ClassEnrollment> {
+    try {
+      const [enrollment] = await db.insert(classEnrollments).values({
+        ...enrollmentData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        enrollmentDate: enrollmentData.enrollmentDate || new Date(),
+        status: enrollmentData.status || "active"
+      }).returning();
+      
+      return enrollment;
+    } catch (error) {
+      console.error('Erro ao criar matrícula em turma:', error);
+      throw error;
+    }
+  }
+
+  async updateClassEnrollment(id: number, enrollmentData: Partial<InsertClassEnrollment>): Promise<ClassEnrollment> {
+    try {
+      const updateValues: any = { ...enrollmentData, updatedAt: new Date() };
+      
+      const [updatedEnrollment] = await db.update(classEnrollments)
+        .set(updateValues)
+        .where(eq(classEnrollments.id, id))
+        .returning();
+      
+      if (!updatedEnrollment) {
+        throw new Error('Matrícula não encontrada');
+      }
+      
+      return updatedEnrollment;
+    } catch (error) {
+      console.error('Erro ao atualizar matrícula em turma:', error);
+      throw error;
+    }
+  }
+
+  async deleteClassEnrollment(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(classEnrollments).where(eq(classEnrollments.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir matrícula em turma:', error);
+      return false;
+    }
+  }
 
   async getDashboardStats(tenantId: number): Promise<any> {
     try {
@@ -588,6 +803,11 @@ export class DatabaseStorage implements IStorage {
         .select({ count: sql<number>`count(*)` })
         .from(leads)
         .where(eq(leads.tenantId, tenantId));
+      
+      const classesCount = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(classes)
+        .where(eq(classes.tenantId, tenantId));
       
       // Simplificando a consulta de receita para evitar problemas com as junções complexas
       const revenueResult = await db
@@ -634,6 +854,7 @@ export class DatabaseStorage implements IStorage {
         coursesCount: coursesCount[0]?.count || 0,
         activeEnrollmentsCount: activeEnrollmentsCount[0]?.count || 0,
         leadsCount: leadsCount[0]?.count || 0,
+        classesCount: classesCount[0]?.count || 0,
         revenue: revenueResult[0]?.total || 0,
         recentEnrollments,
         recentLeads,
@@ -646,6 +867,7 @@ export class DatabaseStorage implements IStorage {
         coursesCount: 0,
         activeEnrollmentsCount: 0,
         leadsCount: 0,
+        classesCount: 0,
         revenue: 0,
         recentEnrollments: [],
         recentLeads: [],
