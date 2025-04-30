@@ -25,10 +25,7 @@ export function SubjectEditPage() {
   // Mutação para atualizar disciplina
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest(`/api/subjects/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest('PUT', `/api/subjects/${id}`, data);
       return response;
     },
     onSuccess: () => {
