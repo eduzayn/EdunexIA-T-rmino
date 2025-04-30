@@ -208,17 +208,19 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
               {openGroups.academic && (
                 <div className="pl-12 space-y-2 mt-2">
-                  <Link 
-                    href={`${currentPortal.baseRoute}/courses`}
-                    className={cn(
-                      "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                      isActive(`${currentPortal.baseRoute}/courses`) 
-                        ? "bg-sidebar-accent/70 text-sidebar-foreground" 
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    )}
-                  >
-                    Cursos
-                  </Link>
+                  {currentPortal.id !== 'partner' && (
+                    <Link 
+                      href={`${currentPortal.baseRoute}/courses`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/courses`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Cursos
+                    </Link>
+                  )}
                   
                   {currentPortal.id === 'student' && (
                     <Link 
@@ -408,8 +410,8 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               )}
             </div>
 
-            {/* Commercial Module - Mostrar apenas para admin, hub e partner */}
-            {['admin', 'hub', 'partner'].includes(currentPortal.id) && (
+            {/* Commercial Module - Mostrar apenas para admin e hub */}
+            {['admin', 'hub'].includes(currentPortal.id) && (
               <div className="nav-group">
                 <button 
                   className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
@@ -463,8 +465,8 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </div>
             )}
 
-            {/* Financial Module - Mostrar apenas para admin e partner */}
-            {['admin', 'partner'].includes(currentPortal.id) && (
+            {/* Financial Module - Mostrar apenas para admin */}
+            {['admin'].includes(currentPortal.id) && (
               <div className="nav-group">
                 <button 
                   className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
@@ -513,46 +515,48 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </div>
             )}
 
-            {/* AI Module - Disponível para todos os portais */}
-            <div className="nav-group">
-              <button 
-                className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
-                onClick={() => toggleGroup('ai')}
-              >
-                <div className="flex items-center">
-                  <Bot className="mr-3 h-5 w-5 text-sidebar-foreground/70" />
-                  Inteligência Artificial
-                </div>
-                <ChevronDown 
-                  className={cn(
-                    "h-5 w-5 text-sidebar-foreground/70 transition-transform",
-                    openGroups.ai ? "transform rotate-180" : ""
-                  )} 
-                />
-              </button>
+            {/* AI Module - Disponível para admin, student e teacher */}
+            {['admin', 'student', 'teacher'].includes(currentPortal.id) && (
+              <div className="nav-group">
+                <button 
+                  className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                  onClick={() => toggleGroup('ai')}
+                >
+                  <div className="flex items-center">
+                    <Bot className="mr-3 h-5 w-5 text-sidebar-foreground/70" />
+                    Inteligência Artificial
+                  </div>
+                  <ChevronDown 
+                    className={cn(
+                      "h-5 w-5 text-sidebar-foreground/70 transition-transform",
+                      openGroups.ai ? "transform rotate-180" : ""
+                    )} 
+                  />
+                </button>
 
-              {openGroups.ai && (
-                <div className="pl-9 space-y-1 mt-1">
-                  {/* Módulo IA em desenvolvimento */}
-                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                    <span>Assistente IA</span>
-                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                    <span>Base de conhecimento</span>
-                    <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                  </div>
-                  
-                  {currentPortal.id === 'admin' && (
+                {openGroups.ai && (
+                  <div className="pl-9 space-y-1 mt-1">
+                    {/* Módulo IA em desenvolvimento */}
                     <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Configurações</span>
+                      <span>Assistente IA</span>
                       <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
+                    
+                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                      <span>Base de conhecimento</span>
+                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    </div>
+                    
+                    {currentPortal.id === 'admin' && (
+                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                        <span>Configurações</span>
+                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Productivity Module - Apenas admin e teacher */}
             {['admin', 'teacher'].includes(currentPortal.id) && (
@@ -595,14 +599,16 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </div>
             )}
 
-            {/* Configurações - Para todos os portais */}
-            <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-              <div className="flex items-center">
-                <Settings className="mr-3 h-5 w-5 text-sidebar-foreground/40" />
-                <span>Configurações</span>
+            {/* Configurações - Para admin e teacher */}
+            {['admin', 'teacher'].includes(currentPortal.id) && (
+              <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                <div className="flex items-center">
+                  <Settings className="mr-3 h-5 w-5 text-sidebar-foreground/40" />
+                  <span>Configurações</span>
+                </div>
+                <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
               </div>
-              <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-            </div>
+            )}
           </nav>
         </div>
 
