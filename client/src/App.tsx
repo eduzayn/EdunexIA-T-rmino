@@ -34,6 +34,8 @@ import { AssessmentsPage } from "@/pages/assessments-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { PortalProvider, usePortal } from "./hooks/use-portal";
 import { AuthProvider } from "./hooks/use-auth";
+import StudentCoursesPage from "@/pages/student-courses-page";
+import StudentCourseDetailsPage from "@/pages/student-course-details-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -97,22 +99,8 @@ function Router() {
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
-      <ProtectedRoute path="/student/courses" component={(props) => {
-        const StudentCoursesPage = React.lazy(() => import("@/pages/student-courses-page"));
-        return (
-          <React.Suspense fallback={<div className="p-6">Carregando página de cursos...</div>}>
-            <StudentCoursesPage {...props} />
-          </React.Suspense>
-        );
-      }} />
-      <ProtectedRoute path="/student/courses/:id" component={(props) => {
-        const StudentCourseDetailsPage = React.lazy(() => import("@/pages/student-course-details-page"));
-        return (
-          <React.Suspense fallback={<div className="p-6">Carregando detalhes do curso...</div>}>
-            <StudentCourseDetailsPage {...props} />
-          </React.Suspense>
-        );
-      }} />
+      <ProtectedRoute path="/student/courses" component={StudentCoursesPage} />
+      <ProtectedRoute path="/student/courses/:id" component={StudentCourseDetailsPage} />
       
       {/* Rotas do Portal do Professor */}
       <ProtectedRoute path="/teacher/courses" component={CoursesPage} />
