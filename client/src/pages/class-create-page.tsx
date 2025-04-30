@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet';
 import { usePortal } from '@/hooks/use-portal';
 import { ArrowLeft } from 'lucide-react';
+import { AppShell } from '@/components/layout/app-shell';
 
 export function ClassCreatePage() {
   const { toast } = useToast();
@@ -52,7 +53,7 @@ export function ClassCreatePage() {
   };
 
   return (
-    <>
+    <AppShell>
       <Helmet>
         <title>Nova Turma | Edunéxia</title>
       </Helmet>
@@ -78,6 +79,6 @@ export function ClassCreatePage() {
           />
         </div>
       </div>
-    </>
+    </AppShell>
   );
 }
