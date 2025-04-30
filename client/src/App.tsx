@@ -44,6 +44,8 @@ import PartnerCertificationRequestsPage from "@/pages/partner-certification-requ
 import AdminPartnerCertificationsPage from "@/pages/admin-partner-certifications-page";
 import CertificateTemplatePage from "@/pages/certificate-template-page";
 import AdminPartnerViewPage from "@/pages/admin-partner-view-page";
+import PartnerRegisterStudentPage from "@/pages/partner-register-student-page";
+import PartnerPaymentsPage from "@/pages/partner-payments-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -124,9 +126,10 @@ function Router() {
       
       {/* Rotas do Portal do Parceiro */}
       <ProtectedRoute path="/partner/dashboard" component={PartnerDashboard} />
-      <ProtectedRoute path="/partner/courses" component={CoursesPage} />
+      <ProtectedRoute path="/partner/register-student" component={PartnerRegisterStudentPage} />
       <ProtectedRoute path="/partner/student-documents" component={PartnerStudentDocumentsPage} />
       <ProtectedRoute path="/partner/certification-requests" component={PartnerCertificationRequestsPage} />
+      <ProtectedRoute path="/partner/payments" component={PartnerPaymentsPage} />
       <ProtectedRoute path="/admin/partner-certifications" component={AdminPartnerCertificationsPage} />
       
       {/* Rotas de Certificados */}

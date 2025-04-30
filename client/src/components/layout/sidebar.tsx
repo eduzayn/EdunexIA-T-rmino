@@ -235,9 +235,21 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                   )}
                   
                   {/* Mostrar ou esconder itens com base no tipo de portal */}
-                  {/* Documentos para parceiros */}
+                  {/* Itens para o Portal do Parceiro */}
                   {currentPortal.id === 'partner' && (
                     <>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/register-student`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/register-student`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Cadastrar Aluno
+                      </Link>
+                    
                       <Link 
                         href={`${currentPortal.baseRoute}/student-documents`}
                         className={cn(
@@ -260,6 +272,18 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                         )}
                       >
                         Certificações
+                      </Link>
+                      
+                      <Link 
+                        href={`${currentPortal.baseRoute}/payments`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/payments`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Pagamentos
                       </Link>
                     </>
                   )}
