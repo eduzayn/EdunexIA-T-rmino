@@ -85,10 +85,8 @@ export function PortalProvider({ children }: PortalProviderProps) {
       // Salvar em localStorage para persistir entre sessões
       localStorage.setItem('edunexia-current-portal', portalId);
       
-      // Redirecionar para o dashboard específico quando o portal é alterado para o portal do aluno
-      if (portalId === 'student') {
-        window.location.href = '/student/dashboard';
-      }
+      // Não redirecionamos automaticamente mais, permitindo que a navegação
+      // seja feita pelos links na barra lateral
     }
   };
 
