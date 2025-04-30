@@ -264,7 +264,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                           )}
                         >
-                          Documentos dos Alunos
+                          Documentação
                         </Link>
                       )}
                     </>
