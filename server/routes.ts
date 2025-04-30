@@ -820,6 +820,189 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // ==================== GERENCIAMENTO DE ALUNOS ====================
+  
+  // Listar todos os alunos
+  app.get("/api/students", isAuthenticated, async (req, res, next) => {
+    try {
+      // Apenas administradores e professores podem listar todos os alunos
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem listar todos os alunos" });
+      }
+      
+      const tenantId = req.user?.tenantId;
+      const students = await storage.getStudentsByTenant(tenantId);
+      res.json(students);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Obter um aluno específico pelo ID
+  app.get("/api/students/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      
+      // Verificar permissões: admins, professores ou o próprio aluno
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher' && req.user?.id !== studentId) {
+        return res.status(403).json({ message: "Permissão negada" });
+      }
+      
+      const student = await storage.getStudentById(studentId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Aluno não encontrado" });
+      }
+      
+      // Verificar se o aluno pertence ao mesmo tenant
+      if (student.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      res.json(student);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Criar um novo aluno
+  app.post("/api/students", isAuthenticated, async (req, res, next) => {
+    try {
+      // Apenas administradores podem criar alunos
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem criar alunos" });
+      }
+      
+      // Validar os dados do aluno
+      const userData = insertUserSchema.parse({
+        ...req.body,
+        tenantId: req.user.tenantId,
+        role: 'student' // Forçar o papel como 'student'
+      });
+      
+      // Verificar se já existe um usuário com o mesmo nome de usuário
+      const existingUser = await storage.getUserByUsername(userData.username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Nome de usuário já existe" });
+      }
+      
+      const student = await storage.createUser(userData);
+      res.status(201).json(student);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Atualizar um aluno
+  app.put("/api/students/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      
+      // Obter o aluno para verificar permissões
+      const student = await storage.getStudentById(studentId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Aluno não encontrado" });
+      }
+      
+      // Verificar permissões: apenas admins ou o próprio aluno
+      if (req.user?.role !== 'admin' && req.user?.id !== studentId) {
+        return res.status(403).json({ message: "Permissão negada" });
+      }
+      
+      // Verificar se o aluno pertence ao mesmo tenant
+      if (student.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Validar dados de atualização
+      let userData = req.body;
+      
+      // Se não for admin, restringir campos que podem ser atualizados
+      if (req.user?.role !== 'admin') {
+        // Usuários normais só podem atualizar alguns campos pessoais
+        const { fullName, avatarUrl, email } = req.body;
+        userData = { fullName, avatarUrl, email };
+      }
+      
+      // Garantir que o role permaneça como student
+      userData.role = 'student';
+      
+      // Validar e atualizar
+      const validatedUserData = insertUserSchema.partial().parse({
+        ...userData,
+        updatedAt: new Date()
+      });
+      
+      const updatedStudent = await storage.updateUser(studentId, validatedUserData);
+      res.json(updatedStudent);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Excluir um aluno
+  app.delete("/api/students/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      
+      // Apenas administradores podem excluir alunos
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem excluir alunos" });
+      }
+      
+      // Obter o aluno para verificar permissões
+      const student = await storage.getStudentById(studentId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Aluno não encontrado" });
+      }
+      
+      // Verificar se o aluno pertence ao mesmo tenant
+      if (student.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const deleted = await storage.deleteUser(studentId);
+      if (deleted) {
+        res.status(200).json({ message: "Aluno excluído com sucesso" });
+      } else {
+        res.status(500).json({ message: "Falha ao excluir aluno" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Listar matrículas de um aluno específico em turmas
+  app.get("/api/students/:id/class-enrollments", isAuthenticated, async (req, res, next) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      
+      // Verificar permissões: admins, professores ou o próprio aluno
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher' && req.user?.id !== studentId) {
+        return res.status(403).json({ message: "Permissão negada" });
+      }
+      
+      // Verificar se o aluno existe
+      const student = await storage.getStudentById(studentId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Aluno não encontrado" });
+      }
+      
+      // Verificar se o aluno pertence ao mesmo tenant
+      if (student.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const enrollments = await storage.getClassEnrollmentsByStudent(studentId);
+      res.json(enrollments);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
   // Endpoint para diagnóstico (apenas para desenvolvimento)
   app.get("/api/debug", async (req, res) => {
     try {

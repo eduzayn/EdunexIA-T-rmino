@@ -27,6 +27,16 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, userData: Partial<InsertUser>): Promise<User>;
+  deleteUser(id: number): Promise<boolean>;
+  
+  // Student operations (usuários com role='student')
+  getStudentsByTenant(tenantId: number): Promise<User[]>;
+  getStudentById(id: number): Promise<User | undefined>;
+  
+  // Teacher operations (usuários com role='teacher')
+  getTeachersByTenant(tenantId: number): Promise<User[]>;
+  getTeacherById(id: number): Promise<User | undefined>;
   
   // Tenant operations
   getTenantById(id: number): Promise<Tenant | undefined>;
@@ -131,6 +141,105 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
       throw error;
+    }
+  }
+  
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User> {
+    try {
+      const [updatedUser] = await db.update(users)
+        .set({
+          ...userData,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, id))
+        .returning();
+      
+      if (!updatedUser) {
+        throw new Error('Usuário não encontrado');
+      }
+      
+      return updatedUser;
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error);
+      throw error;
+    }
+  }
+  
+  async deleteUser(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(users).where(eq(users.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
+      return false;
+    }
+  }
+  
+  async getStudentsByTenant(tenantId: number): Promise<User[]> {
+    try {
+      return await db.select()
+        .from(users)
+        .where(
+          and(
+            eq(users.tenantId, tenantId),
+            eq(users.role, 'student')
+          )
+        )
+        .orderBy(users.fullName);
+    } catch (error) {
+      console.error('Erro ao buscar alunos por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getStudentById(id: number): Promise<User | undefined> {
+    try {
+      const [student] = await db.select()
+        .from(users)
+        .where(
+          and(
+            eq(users.id, id),
+            eq(users.role, 'student')
+          )
+        );
+      return student;
+    } catch (error) {
+      console.error('Erro ao buscar aluno por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async getTeachersByTenant(tenantId: number): Promise<User[]> {
+    try {
+      return await db.select()
+        .from(users)
+        .where(
+          and(
+            eq(users.tenantId, tenantId),
+            eq(users.role, 'teacher')
+          )
+        )
+        .orderBy(users.fullName);
+    } catch (error) {
+      console.error('Erro ao buscar professores por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getTeacherById(id: number): Promise<User | undefined> {
+    try {
+      const [teacher] = await db.select()
+        .from(users)
+        .where(
+          and(
+            eq(users.id, id),
+            eq(users.role, 'teacher')
+          )
+        );
+      return teacher;
+    } catch (error) {
+      console.error('Erro ao buscar professor por ID:', error);
+      return undefined;
     }
   }
 
