@@ -590,12 +590,14 @@ export default function StudentDocumentsPage() {
                   </DialogHeader>
                   <div className="space-y-4 pt-4">
                     <div className="space-y-2">
-                      <FormLabel htmlFor="document-type">Tipo de documento</FormLabel>
+                      <label htmlFor="document-type" className="text-sm font-medium">
+                        Tipo de documento
+                      </label>
                       <Select 
                         value={selectedDocumentType} 
                         onValueChange={setSelectedDocumentType}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="document-type">
                           <SelectValue placeholder="Selecione o tipo de documento" />
                         </SelectTrigger>
                         <SelectContent>
@@ -606,7 +608,9 @@ export default function StudentDocumentsPage() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <FormLabel htmlFor="document-file">Arquivo</FormLabel>
+                      <label htmlFor="document-file" className="text-sm font-medium">
+                        Arquivo
+                      </label>
                       <div className="border rounded-md p-2">
                         <input 
                           ref={fileInputRef}
