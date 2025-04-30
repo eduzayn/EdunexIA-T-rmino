@@ -17,7 +17,8 @@ import {
   Users,
   School,
   Building,
-  Award
+  Award,
+  FileText
 } from "lucide-react";
 
 interface SidebarProps {
@@ -32,6 +33,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   const { currentPortal, setCurrentPortal, portals } = usePortal();
   const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({
     academic: true,
+    secretaria: false,
   });
 
   // Ícones para cada tipo de portal
@@ -349,21 +351,44 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                       >
                         Alunos
                       </Link>
-                      
-                      {currentPortal.id === 'admin' && (
-                        <Link 
-                          href={`${currentPortal.baseRoute}/student-documents`}
-                          className={cn(
-                            "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                            isActive(`${currentPortal.baseRoute}/student-documents`) 
-                              ? "bg-sidebar-accent/70 text-sidebar-foreground" 
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                          )}
-                        >
-                          Documentação
-                        </Link>
-                      )}
                     </>
+                  )}
+                  
+                  {/* Secretaria - Apenas para o portal administrativo */}
+                  {currentPortal.id === 'admin' && (
+                    <div className="nav-group">
+                      <button 
+                        className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                        onClick={() => toggleGroup('secretaria')}
+                      >
+                        <div className="flex items-center">
+                          <FileText className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                          Secretaria
+                        </div>
+                        <ChevronDown 
+                          className={cn(
+                            "h-5 w-5 text-sidebar-foreground/70 transition-transform",
+                            openGroups.secretaria ? "transform rotate-180" : ""
+                          )} 
+                        />
+                      </button>
+                      
+                      {openGroups.secretaria && (
+                        <div className="pl-9 space-y-1 mt-1">
+                          <Link 
+                            href={`${currentPortal.baseRoute}/student-documents`}
+                            className={cn(
+                              "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                              isActive(`${currentPortal.baseRoute}/student-documents`) 
+                                ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                                : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                            )}
+                          >
+                            Documentação
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   )}
                   
                   {['admin', 'hub'].includes(currentPortal.id) && (
