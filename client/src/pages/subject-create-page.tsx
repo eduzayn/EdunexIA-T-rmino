@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { SubjectForm } from '@/components/subjects/subject-form';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ export function SubjectCreatePage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { currentPortal } = usePortal();
+  const queryClient = useQueryClient();
 
   // Mutação para criar disciplina
   const createMutation = useMutation({
@@ -36,6 +37,9 @@ export function SubjectCreatePage() {
       }
     },
     onSuccess: () => {
+      // Invalidar o cache para forçar uma nova busca das disciplinas
+      queryClient.invalidateQueries({ queryKey: ['/api/subjects'] });
+      
       toast({
         title: 'Disciplina criada',
         description: 'A disciplina foi criada com sucesso.',
