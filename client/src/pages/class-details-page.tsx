@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet';
 import { usePortal } from '@/hooks/use-portal';
 import { AppShell } from '@/components/layout/app-shell';
-import { ArrowLeft, Users, Calendar, MapPin, Clock, Pencil, BookOpen, School, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Users, Calendar, MapPin, Clock, Pencil, BookOpen, School, AlertTriangle, FileText } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +22,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AssessmentsList from '@/components/assessments/assessments-list';
+import { useAuth } from "@/hooks/use-auth";
 
 export function ClassDetailsPage({ params }: { params: { id: string } }) {
   const classId = parseInt(params.id);
@@ -29,6 +31,7 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { currentPortal } = usePortal();
+  const { user } = useAuth();
   
   // Buscar dados da turma
   const { data: classItem, isLoading: isLoadingClass, error: classError } = useQuery({
@@ -46,6 +49,13 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
   // Buscar alunos matriculados na turma
   const { data: enrollments = [], isLoading: isLoadingEnrollments } = useQuery({
     queryKey: [`/api/classes/${classId}/enrollments`],
+    enabled: !!classId,
+    refetchOnWindowFocus: false,
+  });
+  
+  // Buscar avaliações da turma
+  const { data: assessments = [], isLoading: isLoadingAssessments } = useQuery({
+    queryKey: [`/api/classes/${classId}/assessments`],
     enabled: !!classId,
     refetchOnWindowFocus: false,
   });

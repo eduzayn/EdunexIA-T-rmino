@@ -26,6 +26,9 @@ import TeachersPage from "@/pages/teachers-page";
 import TeacherDetailsPage from "@/pages/teacher-details-page";
 import TeacherCreatePage from "@/pages/teacher-create-page";
 import TeacherEditPage from "@/pages/teacher-edit-page";
+import AssessmentDetailsPage from "@/pages/assessment-details-page";
+import AssessmentNewPage from "@/pages/assessment-new-page";
+import AssessmentEditPage from "@/pages/assessment-edit-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { PortalProvider, usePortal } from "./hooks/use-portal";
 import { AuthProvider } from "./hooks/use-auth";
@@ -59,6 +62,11 @@ function Router() {
       <ProtectedRoute path="/admin/classes/new" component={ClassCreatePage} />
       <ProtectedRoute path="/admin/classes/:id/edit" component={ClassEditPage} />
       <ProtectedRoute path="/admin/classes/:id" component={ClassDetailsPage} />
+      
+      {/* Rotas de Avaliações */}
+      <ProtectedRoute path="/admin/classes/:classId/assessments/new" component={AssessmentNewPage} />
+      <ProtectedRoute path="/admin/assessments/:id/edit" component={AssessmentEditPage} />
+      <ProtectedRoute path="/admin/assessments/:id" component={AssessmentDetailsPage} />
       
       {/* Rotas de Alunos */}
       <ProtectedRoute path="/admin/students" component={StudentsPage} />
