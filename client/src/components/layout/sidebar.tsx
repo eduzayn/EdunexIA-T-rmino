@@ -33,6 +33,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   const { currentPortal, setCurrentPortal, portals } = usePortal();
   const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({
     academic: true,
+    secretary: false,
   });
 
   // Ícones para cada tipo de portal
@@ -398,6 +399,50 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               )}
             </div>
 
+            {/* Secretary Module - Apenas para admin */}
+            {currentPortal.id === 'admin' && (
+              <div className="nav-group">
+                <button 
+                  className={cn(
+                    "flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-md transition-colors",
+                    "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )} 
+                  onClick={() => toggleGroup('secretary')}
+                >
+                  <div className="flex items-center">
+                    <FileText className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                    Secretaria
+                  </div>
+                  <ChevronDown 
+                    className={cn(
+                      "h-5 w-5 text-sidebar-foreground/70 transition-transform",
+                      openGroups.secretary ? "transform rotate-180" : ""
+                    )} 
+                  />
+                </button>
+
+                {openGroups.secretary && (
+                  <div className="pl-12 space-y-2 mt-2">
+                    {/* Itens da secretaria em desenvolvimento */}
+                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                      <span>Matrícula</span>
+                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                      <span>Histórico Escolar</span>
+                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                      <span>Declarações</span>
+                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
             {/* Commercial Module - Mostrar apenas para admin e hub */}
             {['admin', 'hub'].includes(currentPortal.id) && (
               <div className="nav-group">
