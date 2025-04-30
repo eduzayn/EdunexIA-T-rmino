@@ -14,6 +14,7 @@ import { db } from "./db";
 import { tenants, users } from "@shared/schema";
 import { log } from "./vite";
 import { sql } from "drizzle-orm";
+import { studentRouter } from "./student-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
