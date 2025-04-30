@@ -171,3 +171,164 @@ adminRouter.get('/student-documents/:id/download', async (req: Request, res: Res
     return res.status(500).json({ message: 'Erro ao baixar documento' });
   }
 });
+
+// Interface para solicitações de certificação
+interface CertificationRequest {
+  id: number;
+  studentId: number;
+  studentName: string;
+  courseId: number;
+  courseName: string;
+  partnerName: string;
+  requestDate: string;
+  status: "pending" | "approved" | "rejected";
+  comments?: string;
+  certificateUrl?: string;
+  documents?: StudentDocument[];
+}
+
+// Endpoint para listar todas as solicitações de certificação
+adminRouter.get('/partner-certifications', async (req: Request, res: Response) => {
+  try {
+    // Dados mockados para desenvolvimento
+    const certificationRequests: CertificationRequest[] = [
+      {
+        id: 1,
+        studentId: 101,
+        studentName: "João Silva",
+        courseId: 201,
+        courseName: "Desenvolvimento Web com React",
+        partnerName: "Instituto Tecnológico ABC",
+        requestDate: "2025-04-15T10:30:00Z",
+        status: "approved",
+        certificateUrl: "/api/admin/certificates/101-201",
+        documents: [
+          {
+            id: 1,
+            studentId: 101,
+            studentName: "João Silva",
+            title: "RG",
+            documentType: "rg",
+            uploadDate: "2025-04-10T10:00:00Z",
+            fileSize: "1.2 MB",
+            status: "approved",
+            downloadUrl: "/api/admin/student-documents/1/download"
+          },
+          {
+            id: 2,
+            studentId: 101,
+            studentName: "João Silva",
+            title: "Comprovante de Endereço",
+            documentType: "address_proof",
+            uploadDate: "2025-04-15T14:30:00Z",
+            fileSize: "3.5 MB",
+            status: "approved",
+            downloadUrl: "/api/admin/student-documents/2/download"
+          }
+        ]
+      },
+      {
+        id: 2,
+        studentId: 102,
+        studentName: "Maria Oliveira",
+        courseId: 202,
+        courseName: "Python para Ciência de Dados",
+        partnerName: "Instituto Tecnológico ABC",
+        requestDate: "2025-04-22T14:45:00Z",
+        status: "pending",
+        documents: [
+          {
+            id: 3,
+            studentId: 102,
+            studentName: "Maria Oliveira",
+            title: "Certificado de Conclusão do Ensino Médio",
+            documentType: "high_school_certificate",
+            uploadDate: "2025-04-18T09:15:00Z",
+            fileSize: "2.8 MB",
+            status: "approved",
+            downloadUrl: "/api/admin/student-documents/3/download"
+          }
+        ]
+      },
+      {
+        id: 3,
+        studentId: 104,
+        studentName: "Ana Beatriz",
+        courseId: 203,
+        courseName: "UX/UI Design",
+        partnerName: "Escola de Design XYZ",
+        requestDate: "2025-04-25T09:15:00Z",
+        status: "rejected",
+        comments: "Documentação incompleta. Falta histórico escolar.",
+        documents: [
+          {
+            id: 5,
+            studentId: 104,
+            studentName: "Ana Beatriz",
+            title: "Diploma de Graduação",
+            documentType: "graduation_diploma",
+            uploadDate: "2025-04-22T16:40:00Z",
+            fileSize: "4.2 MB",
+            status: "approved",
+            downloadUrl: "/api/admin/student-documents/5/download"
+          }
+        ]
+      }
+    ];
+    
+    return res.json(certificationRequests);
+  } catch (error) {
+    console.error('Erro ao buscar solicitações de certificação:', error);
+    return res.status(500).json({ message: 'Erro ao buscar solicitações de certificação' });
+  }
+});
+
+// Endpoint para aprovar uma solicitação de certificação
+adminRouter.post('/partner-certifications/:id/approve', async (req: Request, res: Response) => {
+  try {
+    const requestId = parseInt(req.params.id);
+    
+    // Aqui você implementaria a lógica real de aprovação da certificação
+    // Por exemplo:
+    // await storage.approveCertificationRequest(requestId);
+    
+    return res.json({ 
+      success: true, 
+      message: 'Solicitação de certificação aprovada com sucesso',
+      certificateUrl: `/api/certificates/${requestId}` 
+    });
+  } catch (error) {
+    console.error('Erro ao aprovar solicitação de certificação:', error);
+    return res.status(500).json({ message: 'Erro ao aprovar solicitação' });
+  }
+});
+
+// Endpoint para rejeitar uma solicitação de certificação
+adminRouter.post('/partner-certifications/:id/reject', async (req: Request, res: Response) => {
+  try {
+    const requestId = parseInt(req.params.id);
+    
+    // Validar o corpo da requisição
+    const validation = documentFeedbackSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({ 
+        message: 'Dados inválidos', 
+        errors: validation.error.format() 
+      });
+    }
+    
+    const { comments } = validation.data;
+    
+    // Aqui você implementaria a lógica real de rejeição da certificação
+    // Por exemplo:
+    // await storage.rejectCertificationRequest(requestId, comments);
+    
+    return res.json({ 
+      success: true, 
+      message: 'Solicitação de certificação rejeitada com sucesso' 
+    });
+  } catch (error) {
+    console.error('Erro ao rejeitar solicitação de certificação:', error);
+    return res.status(500).json({ message: 'Erro ao rejeitar solicitação' });
+  }
+});
