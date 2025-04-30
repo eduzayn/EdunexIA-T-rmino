@@ -28,6 +28,7 @@ import TeacherCreatePage from "@/pages/teacher-create-page";
 import TeacherEditPage from "@/pages/teacher-edit-page";
 import AssessmentDetailsPage from "@/pages/assessment-details-page";
 import AssessmentNewPage from "@/pages/assessment-new-page";
+import StudentDashboard from "@/pages/student-dashboard";
 import AssessmentEditPage from "@/pages/assessment-edit-page";
 import { AssessmentsPage } from "@/pages/assessments-page";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -84,6 +85,7 @@ function Router() {
       <ProtectedRoute path="/admin/teachers/:id" component={TeacherDetailsPage} />
       
       {/* Rotas do Portal do Aluno */}
+      <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
       <ProtectedRoute path="/student/courses" component={CoursesPage} />
       <ProtectedRoute path="/student/courses/:id" component={CourseDetailsPage} />
       

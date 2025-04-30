@@ -142,6 +142,22 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               <LayoutDashboard className="mr-4 h-5 w-5" />
               Dashboard
             </Link>
+            
+            {/* Link específico para o dashboard do aluno */}
+            {currentPortal.id === 'student' && (
+              <Link 
+                href="/student/dashboard" 
+                className={cn(
+                  "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
+                  isActive("/student/dashboard") 
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <LayoutDashboard className="mr-4 h-5 w-5" />
+                Meu Dashboard
+              </Link>
+            )}
 
             {/* Academic Module */}
             <div className="nav-group">
