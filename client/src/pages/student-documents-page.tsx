@@ -347,8 +347,9 @@ export default function StudentDocumentsPage() {
         </div>
 
         <Tabs defaultValue="requests" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="requests">Minhas Solicitações</TabsTrigger>
+            <TabsTrigger value="uploads">Meus Documentos</TabsTrigger>
             <TabsTrigger value="library">Biblioteca de Documentos</TabsTrigger>
           </TabsList>
           
