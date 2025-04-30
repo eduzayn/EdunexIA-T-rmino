@@ -9,6 +9,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@shared/schema';
 import { usePortal } from '@/hooks/use-portal';
+import { AppShell } from '@/components/layout/app-shell';
 
 export function StudentEditPage() {
   const { toast } = useToast();
@@ -65,36 +66,40 @@ export function StudentEditPage() {
 
   if (isLoading) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="flex flex-col items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Carregando dados do aluno...</p>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="flex flex-col items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Carregando dados do aluno...</p>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   if (error || !student) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <h2 className="text-lg font-medium text-red-800 mb-2">Erro ao carregar dados</h2>
-          <p className="text-red-600 mb-4">
-            {error ? error.toString() : 'Aluno não encontrado'}
-          </p>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(`${currentPortal.baseRoute}/students`)}
-          >
-            Voltar para lista de alunos
-          </Button>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <h2 className="text-lg font-medium text-red-800 mb-2">Erro ao carregar dados</h2>
+            <p className="text-red-600 mb-4">
+              {error ? error.toString() : 'Aluno não encontrado'}
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate(`${currentPortal.baseRoute}/students`)}
+            >
+              Voltar para lista de alunos
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <>
+    <AppShell>
       <Helmet>
         <title>Editar Aluno | Edunéxia</title>
       </Helmet>
@@ -122,6 +127,6 @@ export function StudentEditPage() {
           isEditMode={true}
         />
       </div>
-    </>
+    </AppShell>
   );
 }
