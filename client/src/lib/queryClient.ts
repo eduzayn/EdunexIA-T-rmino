@@ -8,39 +8,45 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest(
-  urlOrOptions: string | { method: string; body?: string; headers?: Record<string, string> },
+  method: string,
+  url: string,
+  data?: any,
   options?: RequestInit,
 ): Promise<Response> {
-  let url: string;
-  let requestOptions: RequestInit;
-
-  if (typeof urlOrOptions === 'string') {
-    url = urlOrOptions;
-    requestOptions = options || {};
-  } else {
-    url = urlOrOptions.method.includes(' ') 
-      ? urlOrOptions.method.split(' ')[1] 
-      : urlOrOptions.method;
-    requestOptions = {
-      method: urlOrOptions.method.includes(' ') 
-        ? urlOrOptions.method.split(' ')[0] 
-        : 'GET',
-      body: urlOrOptions.body,
-      headers: urlOrOptions.headers,
-    };
-  }
-
-  const res = await fetch(url, {
-    ...requestOptions,
+  console.log(`API Request: ${method} ${url}`, data);
+  
+  // Configure as opções da requisição
+  const requestOptions: RequestInit = {
+    method,
     headers: {
       'Content-Type': 'application/json',
-      ...requestOptions.headers,
+      ...options?.headers,
     },
     credentials: 'include',
-  });
-
-  await throwIfResNotOk(res);
-  return res;
+    ...options,
+  };
+  
+  // Adicionar dados ao corpo da requisição se fornecidos
+  if (data !== undefined) {
+    requestOptions.body = JSON.stringify(data);
+  }
+  
+  try {
+    console.log(`Enviando requisição para ${url}`, requestOptions);
+    const res = await fetch(url, requestOptions);
+    
+    console.log(`Resposta de ${url}:`, {
+      status: res.status,
+      statusText: res.statusText,
+      headers: Object.fromEntries([...res.headers.entries()]),
+    });
+    
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    console.error(`Erro na requisição para ${url}:`, error);
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

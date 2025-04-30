@@ -83,8 +83,17 @@ export default function AuthPage() {
 
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     console.log("Login submit - valores:", values);
-    loginMutation.mutate(values);
-    console.log("Login submit - mutation chamada");
+    try {
+      const cleanValues = {
+        username: values.username.trim(),
+        password: values.password
+      };
+      console.log("Login submit - valores limpos:", cleanValues);
+      loginMutation.mutate(cleanValues);
+      console.log("Login submit - mutation chamada");
+    } catch (error) {
+      console.error("Erro ao processar login:", error);
+    }
   };
 
   const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {

@@ -38,10 +38,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       console.log("loginMutation - Iniciando login com:", credentials.username);
-      const res = await apiRequest("POST", "/api/login", credentials);
-      const data = await res.json();
-      console.log("loginMutation - Resposta do servidor:", data);
-      return data;
+      try {
+        const res = await apiRequest("POST", "/api/login", credentials);
+        console.log("loginMutation - Resposta bruta:", res);
+        
+        // Verificar se a resposta é JSON
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          console.log("loginMutation - Resposta do servidor (JSON):", data);
+          return data;
+        } else {
+          // Se não for JSON, exibir erro
+          const text = await res.text();
+          console.error("loginMutation - Resposta não-JSON:", text);
+          throw new Error("Resposta inválida do servidor");
+        }
+      } catch (error) {
+        console.error("loginMutation - Erro ao processar requisição:", error);
+        throw error;
+      }
     },
     onSuccess: (user: SelectUser) => {
       console.log("loginMutation - Login bem sucedido:", user);
@@ -57,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("loginMutation - Erro no login:", error);
       toast({
         title: "Falha no login",
-        description: error.message,
+        description: error.message || "Ocorreu um erro durante o login.",
         variant: "destructive",
       });
     },
