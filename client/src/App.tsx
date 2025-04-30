@@ -20,6 +20,7 @@ import { ClassEditPage } from "@/pages/class-edit-page";
 import { ClassDetailsPage } from "@/pages/class-details-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { PortalProvider, usePortal } from "./hooks/use-portal";
+import { AuthProvider } from "./hooks/use-auth";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -76,9 +77,11 @@ function Router() {
 
 function AppWithProviders() {
   return (
-    <PortalProvider>
-      <Router />
-    </PortalProvider>
+    <AuthProvider>
+      <PortalProvider>
+        <Router />
+      </PortalProvider>
+    </AuthProvider>
   );
 }
 

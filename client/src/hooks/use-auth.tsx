@@ -8,6 +8,8 @@ import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+type LoginData = Pick<InsertUser, "username" | "password">;
+
 type AuthContextType = {
   user: SelectUser | null;
   isLoading: boolean;
@@ -17,9 +19,15 @@ type AuthContextType = {
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
 };
 
-type LoginData = Pick<InsertUser, "username" | "password">;
-
-export const AuthContext = createContext<AuthContextType | null>(null);
+// Criando contexto com valor padrão para evitar problemas de HMR
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoading: false,
+  error: null,
+  loginMutation: {} as UseMutationResult<SelectUser, Error, LoginData>,
+  logoutMutation: {} as UseMutationResult<void, Error, void>,
+  registerMutation: {} as UseMutationResult<SelectUser, Error, InsertUser>,
+});
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   console.log("AuthProvider - Inicializando");

@@ -52,9 +52,7 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
   // Mutation para excluir turma
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest(`/api/classes/${classId}`, {
-        method: 'DELETE',
-      });
+      await apiRequest('DELETE', `/api/classes/${classId}`);
     },
     onSuccess: () => {
       toast({
