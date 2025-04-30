@@ -15,6 +15,7 @@ import { tenants, users } from "@shared/schema";
 import { log } from "./vite";
 import { sql } from "drizzle-orm";
 import { studentRouter } from "./student-routes";
+import { adminRouter } from "./admin-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
@@ -1624,6 +1625,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Adicionar rotas do Portal do Aluno
   app.use('/api/student', isAuthenticated, studentRouter);
+  
+  // Adicionar rotas administrativas
+  app.use('/api/admin', isAuthenticated, adminRouter);
 
   const httpServer = createServer(app);
 
