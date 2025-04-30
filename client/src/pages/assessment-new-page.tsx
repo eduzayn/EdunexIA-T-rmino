@@ -1,30 +1,36 @@
 import { AppShell } from "@/components/layout/app-shell";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import AssessmentForm from "@/components/assessments/assessment-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
+import { Helmet } from "react-helmet";
 
 export default function AssessmentNewPage() {
   const { classId } = useParams<{ classId: string }>();
-  const [, navigate] = useLocation();
-  const classIdNumber = parseInt(classId);
+  const [location, navigate] = useLocation();
   
-  // Consultar classe para garantir que existe e obter metadados
+  // Verificar se estamos na rota centralizada (sem classId) ou na rota específica de turma
+  const isFromCentralView = !classId;
+  const classIdNumber = classId ? parseInt(classId) : undefined;
+  
+  // Consultar classe para garantir que existe e obter metadados (apenas se tiver classId)
   const { 
     data: classData, 
     isLoading, 
     error 
   } = useQuery({
-    queryKey: [`/api/classes/${classIdNumber}`],
-    enabled: !isNaN(classIdNumber),
+    queryKey: classIdNumber ? [`/api/classes/${classIdNumber}`] : null,
+    enabled: classIdNumber !== undefined && !isNaN(classIdNumber as number),
   });
 
-  if (error) {
+  if (classIdNumber && error) {
     return (
       <AppShell>
+        <Helmet>
+          <title>Erro ao Criar Avaliação | Edunéxia</title>
+        </Helmet>
         <div className="container py-6">
           <Card>
             <CardHeader>
@@ -50,9 +56,12 @@ export default function AssessmentNewPage() {
     );
   }
 
-  if (isLoading) {
+  if (classIdNumber && isLoading) {
     return (
       <AppShell>
+        <Helmet>
+          <title>Criando Avaliação | Edunéxia</title>
+        </Helmet>
         <div className="container py-6">
           <Card>
             <CardHeader>
@@ -72,8 +81,11 @@ export default function AssessmentNewPage() {
 
   return (
     <AppShell>
+      <Helmet>
+        <title>Nova Avaliação | Edunéxia</title>
+      </Helmet>
       <div className="container py-6">
-        <AssessmentForm classId={classIdNumber} />
+        <AssessmentForm classId={classIdNumber} isFromCentralView={isFromCentralView} />
       </div>
     </AppShell>
   );

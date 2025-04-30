@@ -17,13 +17,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Assessment, InsertAssessment, insertAssessmentSchema } from "@shared/schema";
 import { useEffect, useMemo } from "react";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Save } from "lucide-react";
+import { AlertCircle, ArrowLeft, Save } from "lucide-react";
 import { format } from "date-fns";
 
 // Tradução dos tipos de avaliação
@@ -39,14 +39,26 @@ const assessmentTypes = [
 // Props para o formulário de avaliação
 interface AssessmentFormProps {
   assessment?: Assessment;
-  classId: number;
+  classId?: number;
   isEdit?: boolean;
+  isFromCentralView?: boolean;
 }
 
-export default function AssessmentForm({ assessment, classId, isEdit = false }: AssessmentFormProps) {
+export default function AssessmentForm({ 
+  assessment, 
+  classId, 
+  isEdit = false, 
+  isFromCentralView = false 
+}: AssessmentFormProps) {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Buscar todas as turmas para a seleção (apenas quando estamos na visão centralizada)
+  const { data: classes } = useQuery({
+    queryKey: ['/api/classes'],
+    enabled: isFromCentralView
+  });
 
   // Extender o schema para validação dos campos de data
   const extendedSchema = useMemo(() => {
@@ -91,7 +103,7 @@ export default function AssessmentForm({ assessment, classId, isEdit = false }: 
       const res = await apiRequest(method, endpoint, data);
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: isEdit ? "Avaliação atualizada" : "Avaliação criada",
         description: isEdit 
@@ -101,13 +113,23 @@ export default function AssessmentForm({ assessment, classId, isEdit = false }: 
       });
       
       // Invalidar consultas relevantes
-      queryClient.invalidateQueries({ queryKey: [`/api/classes/${classId}/assessments`] });
+      if (classId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/classes/${classId}/assessments`] });
+      }
+      
+      // Invalidar também a consulta de todas as avaliações
+      queryClient.invalidateQueries({ queryKey: ['/api/assessments'] });
+      
       if (isEdit && assessment?.id) {
         queryClient.invalidateQueries({ queryKey: [`/api/assessments/${assessment.id}`] });
       }
       
-      // Navegar de volta para a página de detalhes da turma
-      navigate(`/admin/classes/${classId}`);
+      // Navegar de volta conforme o contexto
+      if (isFromCentralView) {
+        navigate('/admin/assessments');
+      } else if (classId) {
+        navigate(`/admin/classes/${classId}`);
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -130,7 +152,10 @@ export default function AssessmentForm({ assessment, classId, isEdit = false }: 
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={() => navigate(`/admin/classes/${classId}`)}
+            onClick={() => isFromCentralView 
+              ? navigate('/admin/assessments')
+              : navigate(`/admin/classes/${classId}`)
+            }
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -185,6 +210,38 @@ export default function AssessmentForm({ assessment, classId, isEdit = false }: 
               />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Seletor de turma - apenas na visão centralizada */}
+                {isFromCentralView && (
+                  <FormField
+                    control={form.control}
+                    name="classId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Turma</FormLabel>
+                        <Select 
+                          value={field.value ? String(field.value) : undefined}
+                          onValueChange={(value) => field.onChange(Number(value))}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione uma turma" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {classes?.map((cls: any) => (
+                              <SelectItem key={cls.id} value={String(cls.id)}>
+                                {cls.name} - {cls.code}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Turma à qual esta avaliação será aplicada</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                
                 <FormField
                   control={form.control}
                   name="type"
@@ -358,7 +415,10 @@ export default function AssessmentForm({ assessment, classId, isEdit = false }: 
               <Button 
                 variant="outline" 
                 type="button" 
-                onClick={() => navigate(`/admin/classes/${classId}`)}
+                onClick={() => isFromCentralView 
+                  ? navigate('/admin/assessments')
+                  : navigate(`/admin/classes/${classId}`)
+                }
               >
                 Cancelar
               </Button>
