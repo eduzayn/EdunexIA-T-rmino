@@ -27,6 +27,10 @@ export const classStatusEnum = pgEnum('class_status', [
   'scheduled', 'in_progress', 'completed', 'cancelled'
 ]);
 
+export const assessmentTypeEnum = pgEnum('assessment_type', [
+  'exam', 'assignment', 'project', 'quiz', 'presentation', 'participation'
+]);
+
 // Tenants (Educational institutions)
 export const tenants = pgTable('tenants', {
   id: serial('id').primaryKey(),
@@ -244,6 +248,46 @@ export const classEnrollments = pgTable('class_enrollments', {
   };
 });
 
+// Assessments (Avaliações)
+export const assessments = pgTable('assessments', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  classId: integer('class_id').references(() => classes.id, { onDelete: 'cascade' }).notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  type: assessmentTypeEnum('type').notNull(),
+  totalPoints: integer('total_points').notNull().default(100),
+  weight: integer('weight').notNull().default(1), // Peso da avaliação no cálculo da nota final
+  dueDate: timestamp('due_date'),
+  availableFrom: timestamp('available_from'),
+  availableTo: timestamp('available_to'),
+  isActive: boolean('is_active').default(true).notNull(),
+  instructions: text('instructions'),
+  createdBy: integer('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Assessment Results (Notas/Resultados de Avaliações)
+export const assessmentResults = pgTable('assessment_results', {
+  id: serial('id').primaryKey(),
+  assessmentId: integer('assessment_id').references(() => assessments.id, { onDelete: 'cascade' }).notNull(),
+  studentId: integer('student_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  score: integer('score'),
+  feedback: text('feedback'),
+  submittedAt: timestamp('submitted_at'),
+  gradedAt: timestamp('graded_at'),
+  gradedBy: integer('graded_by').references(() => users.id, { onDelete: 'set null' }),
+  status: text('status').default('pending').notNull(), // pending, submitted, graded
+  attachmentUrl: text('attachment_url'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    uniqueAssessmentResult: unique().on(table.assessmentId, table.studentId),
+  };
+});
+
 // Create insert/select schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -340,3 +384,24 @@ export type InsertClass = z.infer<typeof insertClassSchema>;
 
 export type ClassEnrollment = typeof classEnrollments.$inferSelect;
 export type InsertClassEnrollment = z.infer<typeof insertClassEnrollmentSchema>;
+
+// Schemas para Assessments (Avaliações)
+export const insertAssessmentSchema = createInsertSchema(assessments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAssessmentResultSchema = createInsertSchema(assessmentResults).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  gradedAt: true,
+  submittedAt: true,
+});
+
+export type Assessment = typeof assessments.$inferSelect;
+export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
+
+export type AssessmentResult = typeof assessmentResults.$inferSelect;
+export type InsertAssessmentResult = z.infer<typeof insertAssessmentResultSchema>;
