@@ -6,9 +6,9 @@ import fs from 'fs';
 
 export const partnerRouter = Router();
 
-// Middleware para verificar se o usuário é um parceiro
+// Middleware para verificar se o usuário é um parceiro ou admin
 function isPartner(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated() && req.user && req.user.role === 'certification_partner') {
+  if (req.isAuthenticated() && req.user && (req.user.role === 'certification_partner' || req.user.role === 'admin')) {
     next();
   } else {
     res.status(403).json({ error: 'Acesso negado. É necessário ser um parceiro para acessar este recurso.' });
