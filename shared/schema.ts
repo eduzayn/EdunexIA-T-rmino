@@ -23,6 +23,10 @@ export const leadStatusEnum = pgEnum('lead_status', [
   'new', 'contacted', 'qualified', 'converted', 'lost'
 ]);
 
+export const classStatusEnum = pgEnum('class_status', [
+  'scheduled', 'in_progress', 'completed', 'cancelled'
+]);
+
 // Tenants (Educational institutions)
 export const tenants = pgTable('tenants', {
   id: serial('id').primaryKey(),
@@ -199,6 +203,47 @@ export const productivityLogs = pgTable('productivity_logs', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Classes (Turmas)
+export const classes = pgTable('classes', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  subjectId: integer('subject_id').references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
+  courseId: integer('course_id').references(() => courses.id),
+  name: text('name').notNull(),
+  code: text('code').notNull(),
+  description: text('description'),
+  startDate: timestamp('start_date'),
+  endDate: timestamp('end_date'),
+  maxStudents: integer('max_students'),
+  teacherId: integer('teacher_id').references(() => users.id),
+  status: classStatusEnum('status').default('scheduled').notNull(),
+  location: text('location'), // Pode ser uma sala física ou link de aula online
+  scheduleInfo: json('schedule_info'), // Para armazenar informações de horário (dias da semana, hora)
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    codeUnique: unique().on(table.code, table.tenantId), // garantir que o código é único por tenant
+  };
+});
+
+// Matriculas de alunos em turmas específicas
+export const classEnrollments = pgTable('class_enrollments', {
+  id: serial('id').primaryKey(),
+  classId: integer('class_id').references(() => classes.id, { onDelete: 'cascade' }).notNull(),
+  studentId: integer('student_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  enrollmentId: integer('enrollment_id').references(() => enrollments.id), // Opcional - referência à matrícula no curso
+  enrollmentDate: timestamp('enrollment_date').defaultNow().notNull(),
+  status: enrollmentStatusEnum('status').default('active').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    uniqueClassEnrollment: unique().on(table.classId, table.studentId),
+  };
+});
+
 // Create insert/select schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -276,3 +321,22 @@ export const insertSubjectSchema = createInsertSchema(subjects).omit({
 
 export type Subject = typeof subjects.$inferSelect;
 export type InsertSubject = z.infer<typeof insertSubjectSchema>;
+
+// Schemas para Classes (Turmas)
+export const insertClassSchema = createInsertSchema(classes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertClassEnrollmentSchema = createInsertSchema(classEnrollments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Class = typeof classes.$inferSelect;
+export type InsertClass = z.infer<typeof insertClassSchema>;
+
+export type ClassEnrollment = typeof classEnrollments.$inferSelect;
+export type InsertClassEnrollment = z.infer<typeof insertClassEnrollmentSchema>;

@@ -6,13 +6,15 @@ import {
   Lesson, InsertLesson,
   Enrollment, InsertEnrollment,
   Lead, InsertLead,
-  Subject, InsertSubject
+  Subject, InsertSubject,
+  Class, InsertClass,
+  ClassEnrollment, InsertClassEnrollment
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { 
   users, tenants, courses, modules, lessons, enrollments, leads, subjects,
-  lessonProgress, payments,
+  lessonProgress, payments, classes, classEnrollments,
   aiKnowledgeBase, productivityLogs
 } from "@shared/schema";
 import session from "express-session";
@@ -49,6 +51,22 @@ export interface IStorage {
   createModule(module: InsertModule): Promise<Module>;
   updateModule(id: number, moduleData: Partial<InsertModule>): Promise<Module>;
   deleteModule(id: number): Promise<boolean>;
+  
+  // Class operations (Turmas)
+  getClassById(id: number): Promise<Class | undefined>;
+  getClassesByTenant(tenantId: number): Promise<Class[]>;
+  getClassesBySubject(subjectId: number): Promise<Class[]>;
+  getClassesByTeacher(teacherId: number): Promise<Class[]>;
+  createClass(classData: InsertClass): Promise<Class>;
+  updateClass(id: number, classData: Partial<InsertClass>): Promise<Class>;
+  deleteClass(id: number): Promise<boolean>;
+  
+  // Class Enrollment operations (Matrículas em Turmas)
+  getClassEnrollmentsByClass(classId: number): Promise<ClassEnrollment[]>;
+  getClassEnrollmentsByStudent(studentId: number): Promise<ClassEnrollment[]>;
+  createClassEnrollment(enrollment: InsertClassEnrollment): Promise<ClassEnrollment>;
+  updateClassEnrollment(id: number, enrollmentData: Partial<InsertClassEnrollment>): Promise<ClassEnrollment>;
+  deleteClassEnrollment(id: number): Promise<boolean>;
   
   // Enrollment operations
   getEnrollmentsByStudent(studentId: number): Promise<Enrollment[]>;
