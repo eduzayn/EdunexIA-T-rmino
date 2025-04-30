@@ -20,7 +20,7 @@ function isStudent(req: Request, res: Response, next: NextFunction) {
 }
 
 // Obter cursos do aluno
-studentRouter.get('/courses', isStudent, async (req: Request, res: Response) => {
+studentRouter.get('/courses', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     
@@ -114,6 +114,8 @@ studentRouter.get('/courses', isStudent, async (req: Request, res: Response) => 
 // Obter matrículas em turmas do aluno
 studentRouter.get('/class-enrollments', async (req: Request, res: Response) => {
   try {
+    console.log("Chamada para /class-enrollments recebida. Usuário:", req.user);
+    
     const userId = req.user?.id;
     
     if (!userId) {
@@ -122,6 +124,7 @@ studentRouter.get('/class-enrollments', async (req: Request, res: Response) => {
     
     // Se for admin, retornar dados simulados para teste
     if (req.user?.role === 'admin') {
+      console.log("Usuário é admin, retornando dados simulados");
       // Retornando dados simulados para facilitar testes
       return res.json([
         {
