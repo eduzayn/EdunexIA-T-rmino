@@ -17,7 +17,8 @@ import {
   Users,
   School,
   Building,
-  Award
+  Award,
+  FileText
 } from "lucide-react";
 
 interface SidebarProps {
