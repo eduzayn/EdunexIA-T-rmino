@@ -18,7 +18,15 @@ export function ClassCreatePage() {
   // Mutation para criar turma
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/classes', data);
+      // Converter as strings de data em objetos Date para o servidor
+      const formattedData = {
+        ...data,
+        // Converter strings para objetos Date que o Zod espera
+        startDate: data.startDate ? new Date(data.startDate) : null,
+        endDate: data.endDate ? new Date(data.endDate) : null
+      };
+      
+      const response = await apiRequest('POST', '/api/classes', formattedData);
       return await response.json();
     },
     onSuccess: (data) => {

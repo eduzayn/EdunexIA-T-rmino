@@ -32,13 +32,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   console.log("AuthProvider - Inicializando");
   
+  // Verificar o usuário atual
   const {
     data: user,
     error,
     isLoading,
+    refetch
   } = useQuery<SelectUser | null, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
+    staleTime: 0, // Não reutilizar cache
+    retry: false,
   });
 
   console.log("AuthProvider - Estado atual:", { user, isLoading, error });
@@ -69,13 +73,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       console.log("loginMutation - Login bem sucedido:", user);
+      
+      // Atualizar o cache e forçar refetch
       queryClient.setQueryData(["/api/user"], user);
-      // Forçar refetch dos dados do usuário
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Forçar refetch explícito para garantir atualização
+      refetch();
+      
+      // Mostrar mensagem de sucesso
       toast({
         title: "Login realizado com sucesso",
         description: `Bem-vindo(a), ${user.fullName}!`,
       });
+      
+      // Programar um redirecionamento forçado após 500ms para garantir que as atualizações sejam aplicadas
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
     },
     onError: (error: Error) => {
       console.error("loginMutation - Erro no login:", error);
@@ -93,11 +108,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
+      // Atualizar o cache e forçar refetch
       queryClient.setQueryData(["/api/user"], user);
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Forçar refetch explícito para garantir atualização
+      refetch();
+      
       toast({
         title: "Conta criada com sucesso",
         description: `Bem-vindo(a) ao Edunéxia, ${user.fullName}!`,
       });
+      
+      // Programar um redirecionamento forçado após 500ms
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
