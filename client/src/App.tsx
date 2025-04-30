@@ -14,6 +14,10 @@ import { SubjectsPage } from "@/pages/subjects-page";
 import { SubjectCreatePage } from "@/pages/subject-create-page";
 import { SubjectEditPage } from "@/pages/subject-edit-page";
 import { SubjectDetailsPage } from "@/pages/subject-details-page";
+import { ClassesPage } from "@/pages/classes-page";
+import { ClassCreatePage } from "@/pages/class-create-page";
+import { ClassEditPage } from "@/pages/class-edit-page";
+import { ClassDetailsPage } from "@/pages/class-details-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { PortalProvider, usePortal } from "./hooks/use-portal";
 
@@ -40,6 +44,12 @@ function Router() {
       <ProtectedRoute path="/admin/subjects/new" component={SubjectCreatePage} />
       <ProtectedRoute path="/admin/subjects/:id/edit" component={SubjectEditPage} />
       <ProtectedRoute path="/admin/subjects/:id" component={SubjectDetailsPage} />
+      
+      {/* Rotas de Turmas */}
+      <ProtectedRoute path="/admin/classes" component={ClassesPage} />
+      <ProtectedRoute path="/admin/classes/new" component={ClassCreatePage} />
+      <ProtectedRoute path="/admin/classes/:id/edit" component={ClassEditPage} />
+      <ProtectedRoute path="/admin/classes/:id" component={ClassDetailsPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/courses" component={CoursesPage} />
