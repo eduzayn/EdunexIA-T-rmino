@@ -41,8 +41,19 @@ function Router() {
   
   return (
     <Switch>
-      {/* Rotas comuns a todos os portais */}
-      <ProtectedRoute path="/" component={Dashboard} />
+      {/* Rota principal - Dashboard administrativo (exceto para estudantes) */}
+      <ProtectedRoute path="/" component={(props) => {
+        const { currentPortal } = usePortal();
+        
+        // Se for um estudante, redirecionar para o dashboard do aluno
+        if (currentPortal.id === 'student') {
+          window.location.href = '/student/dashboard';
+          return null;
+        }
+        
+        // Se não for estudante, mostrar o dashboard administrativo
+        return <Dashboard {...props} />;
+      }} />
       <Route path="/auth" component={AuthPage} />
       
       {/* Rotas do Portal Administrativo */}

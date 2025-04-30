@@ -130,18 +130,21 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
           {/* Navigation Menu */}
           <nav className="space-y-2">
-            <Link 
-              href="/" 
-              className={cn(
-                "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
-                isActive("/") 
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground" 
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <LayoutDashboard className="mr-4 h-5 w-5" />
-              Dashboard
-            </Link>
+            {/* Link para o Dashboard administrativo - não mostrar para estudantes */}
+            {currentPortal.id !== 'student' && (
+              <Link 
+                href="/" 
+                className={cn(
+                  "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
+                  isActive("/") 
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <LayoutDashboard className="mr-4 h-5 w-5" />
+                Dashboard
+              </Link>
+            )}
             
             {/* Link específico para o dashboard do aluno */}
             {currentPortal.id === 'student' && (

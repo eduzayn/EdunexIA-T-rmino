@@ -82,8 +82,13 @@ export function PortalProvider({ children }: PortalProviderProps) {
     const portal = PORTALS.find(p => p.id === portalId);
     if (portal) {
       setCurrentPortalState(portal);
-      // Poderia salvar em localStorage para persistir entre sessões
+      // Salvar em localStorage para persistir entre sessões
       localStorage.setItem('edunexia-current-portal', portalId);
+      
+      // Redirecionar para o dashboard específico quando o portal é alterado para o portal do aluno
+      if (portalId === 'student') {
+        window.location.href = '/student/dashboard';
+      }
     }
   };
 
