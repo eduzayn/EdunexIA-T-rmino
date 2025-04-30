@@ -1003,6 +1003,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // ==================== GERENCIAMENTO DE PROFESSORES ====================
+  
+  // Listar todos os professores
+  app.get("/api/teachers", isAuthenticated, async (req, res, next) => {
+    try {
+      // Apenas administradores podem listar todos os professores
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem listar todos os professores" });
+      }
+      
+      const tenantId = req.user?.tenantId;
+      const teachers = await storage.getTeachersByTenant(tenantId);
+      res.json(teachers);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Obter um professor específico pelo ID
+  app.get("/api/teachers/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const teacherId = parseInt(req.params.id);
+      
+      // Verificar permissões: admins ou o próprio professor
+      if (req.user?.role !== 'admin' && req.user?.id !== teacherId) {
+        return res.status(403).json({ message: "Permissão negada" });
+      }
+      
+      // Verificar se o professor existe
+      const teacher = await storage.getTeacherById(teacherId);
+      
+      if (!teacher) {
+        return res.status(404).json({ message: "Professor não encontrado" });
+      }
+      
+      // Verificar se o professor pertence ao mesmo tenant
+      if (teacher.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      res.json(teacher);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Criar um novo professor
+  app.post("/api/teachers", isAuthenticated, async (req, res, next) => {
+    try {
+      // Apenas administradores podem criar professores
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem criar professores" });
+      }
+      
+      const teacherData = insertUserSchema.parse({
+        ...req.body,
+        tenantId: req.user.tenantId,
+        role: 'teacher'
+      });
+      
+      const teacher = await storage.createUser(teacherData);
+      res.status(201).json(teacher);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Atualizar um professor existente
+  app.put("/api/teachers/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const teacherId = parseInt(req.params.id);
+      
+      // Verificar permissões: admins ou o próprio professor
+      if (req.user?.role !== 'admin' && req.user?.id !== teacherId) {
+        return res.status(403).json({ message: "Permissão negada" });
+      }
+      
+      // Verificar se o professor existe
+      const teacher = await storage.getTeacherById(teacherId);
+      
+      if (!teacher) {
+        return res.status(404).json({ message: "Professor não encontrado" });
+      }
+      
+      // Verificar se o professor pertence ao mesmo tenant
+      if (teacher.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Não permitir alteração do role
+      const { role, ...updateData } = req.body;
+      
+      const updatedTeacher = await storage.updateUser(teacherId, updateData);
+      res.json(updatedTeacher);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Excluir um professor
+  app.delete("/api/teachers/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      // Apenas administradores podem excluir professores
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas administradores podem excluir professores" });
+      }
+      
+      const teacherId = parseInt(req.params.id);
+      
+      // Verificar se o professor existe
+      const teacher = await storage.getTeacherById(teacherId);
+      
+      if (!teacher) {
+        return res.status(404).json({ message: "Professor não encontrado" });
+      }
+      
+      // Verificar se o professor pertence ao mesmo tenant
+      if (teacher.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const success = await storage.deleteUser(teacherId);
+      
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ message: "Falha ao excluir professor" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Listar turmas de um professor específico
+  app.get("/api/teachers/:id/classes", isAuthenticated, async (req, res, next) => {
+    try {
+      const teacherId = parseInt(req.params.id);
+      
+      // Verificar permissões: admins ou o próprio professor
+      if (req.user?.role !== 'admin' && req.user?.id !== teacherId) {
+        return res.status(403).json({ message: "Permissão negada" });
+      }
+      
+      // Verificar se o professor existe
+      const teacher = await storage.getTeacherById(teacherId);
+      
+      if (!teacher) {
+        return res.status(404).json({ message: "Professor não encontrado" });
+      }
+      
+      // Verificar se o professor pertence ao mesmo tenant
+      if (teacher.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const classes = await storage.getClassesByTeacher(teacherId);
+      res.json(classes);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
   // Endpoint para diagnóstico (apenas para desenvolvimento)
   app.get("/api/debug", async (req, res) => {
     try {
