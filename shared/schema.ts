@@ -270,7 +270,6 @@ export type InsertLesson = z.infer<typeof insertLessonSchema>;
 // Schema para Subjects (Disciplinas)
 export const insertSubjectSchema = createInsertSchema(subjects).omit({
   id: true,
-  code: true, // Omitir o código, pois será gerado pelo sistema
   createdAt: true,
   updatedAt: true,
 });

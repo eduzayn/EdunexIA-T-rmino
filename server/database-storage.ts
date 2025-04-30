@@ -239,10 +239,9 @@ export class DatabaseStorage implements IStorage {
         workload: subjectData.workload || null,
         area: subjectData.area || null,
         isActive: subjectData.isActive !== undefined ? subjectData.isActive : true,
-        // Vamos adicionar valores para as colunas criadas_at e updated_at diretamente no SQL
-        // usando Drizzle SQL para garantir que sejam definidas na inserção
-        created_at: sql`NOW()`,
-        updated_at: sql`NOW()`
+        // Usamos os nomes corretos das colunas conforme definido no schema.ts
+        createdAt: new Date(),
+        updatedAt: new Date()
       }).returning();
       return subject;
     } catch (error) {
@@ -262,8 +261,8 @@ export class DatabaseStorage implements IStorage {
       if (subjectData.area !== undefined) updateValues.area = subjectData.area;
       if (subjectData.isActive !== undefined) updateValues.isActive = subjectData.isActive;
       
-      // Adicionamos um timestamp gerado pelo SQL para updated_at
-      updateValues.updated_at = sql`NOW()`;
+      // Adicionamos um timestamp para updatedAt
+      updateValues.updatedAt = new Date();
       
       const [updatedSubject] = await db.update(subjects)
         .set(updateValues)
