@@ -72,15 +72,26 @@ export function ClassesList() {
 
   if (!classes || classes.length === 0) {
     return (
-      <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
-        <Users className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-        <h3 className="text-lg font-medium mb-2">Nenhuma turma encontrada</h3>
-        <p className="text-gray-500 mb-4">Não há turmas cadastradas para este tenant.</p>
-        <Button asChild>
-          <Link to={`${currentPortal.baseRoute}/classes/new`}>
-            Criar primeira turma
-          </Link>
+      <div>
+        <Button 
+          variant="ghost" 
+          className="mb-4 -ml-2 flex items-center text-gray-600 hover:text-gray-900"
+          onClick={() => navigate(`${currentPortal.baseRoute}/dashboard`)}
+        >
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          Voltar para Dashboard
         </Button>
+        
+        <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
+          <Users className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-lg font-medium mb-2">Nenhuma turma encontrada</h3>
+          <p className="text-gray-500 mb-4">Não há turmas cadastradas para este tenant.</p>
+          <Button asChild>
+            <Link to={`${currentPortal.baseRoute}/classes/new`}>
+              Criar primeira turma
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
