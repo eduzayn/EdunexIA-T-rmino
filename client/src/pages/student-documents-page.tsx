@@ -91,6 +91,7 @@ export default function StudentDocumentsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [selectedDocumentType, setSelectedDocumentType] = useState("");
   const [uploadingDocument, setUploadingDocument] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("requests");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Formulário para solicitação de documento
@@ -401,81 +402,150 @@ export default function StudentDocumentsPage() {
             </p>
           </div>
           
-          <Dialog open={isRequestOpen} onOpenChange={setIsRequestOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <FilePlus className="mr-2 h-4 w-4" />
-                Solicitar Documento
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Solicitar documento acadêmico</DialogTitle>
-                <DialogDescription>
-                  Preencha os campos abaixo para solicitar um novo documento. Você será notificado quando o documento estiver disponível.
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-                  <FormField
-                    control={form.control}
-                    name="documentType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de documento</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+          {activeTab === "requests" ? (
+            <Dialog open={isRequestOpen} onOpenChange={setIsRequestOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <FilePlus className="mr-2 h-4 w-4" />
+                  Solicitar Documento
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Solicitar documento acadêmico</DialogTitle>
+                  <DialogDescription>
+                    Preencha os campos abaixo para solicitar um novo documento. Você será notificado quando o documento estiver disponível.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+                    <FormField
+                      control={form.control}
+                      name="documentType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo de documento</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione o tipo de documento" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.entries(documentTypes).map(([value, label]) => (
+                                <SelectItem key={value} value={value}>{label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="justification"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Justificativa ou observações (opcional)</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o tipo de documento" />
-                            </SelectTrigger>
+                            <Textarea 
+                              placeholder="Insira qualquer informação adicional relevante para a solicitação" 
+                              {...field} 
+                            />
                           </FormControl>
-                          <SelectContent>
-                            {Object.entries(documentTypes).map(([value, label]) => (
-                              <SelectItem key={value} value={value}>{label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="justification"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Justificativa ou observações (opcional)</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Insira qualquer informação adicional relevante para a solicitação" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Se escolheu "Outro", especifique qual documento deseja.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormDescription>
+                            Se escolheu "Outro", especifique qual documento deseja.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button 
+                        type="submit" 
+                        disabled={requestDocumentMutation.isPending}
+                      >
+                        {requestDocumentMutation.isPending ? "Enviando..." : "Enviar solicitação"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          ) : activeTab === "personal" ? (
+            <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Enviar Documento
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Enviar documento pessoal</DialogTitle>
+                  <DialogDescription>
+                    Selecione o tipo de documento e faça o upload do arquivo. Documentos enviados passarão por análise antes de serem aprovados.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <label htmlFor="document-type" className="text-sm font-medium">
+                      Tipo de documento
+                    </label>
+                    <Select 
+                      value={selectedDocumentType} 
+                      onValueChange={setSelectedDocumentType}
+                    >
+                      <SelectTrigger id="document-type">
+                        <SelectValue placeholder="Selecione o tipo de documento" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(personalDocumentTypes).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="document-file" className="text-sm font-medium">
+                      Arquivo
+                    </label>
+                    <div className="border rounded-md p-2">
+                      <input 
+                        ref={fileInputRef}
+                        type="file" 
+                        id="document-file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="w-full text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Formatos aceitos: PDF, JPG, JPEG, PNG. Tamanho máximo: 5MB.
+                    </p>
+                  </div>
                   <DialogFooter>
                     <Button 
-                      type="submit" 
-                      disabled={requestDocumentMutation.isPending}
+                      type="button" 
+                      onClick={handleUploadDocument}
+                      disabled={uploadingDocument}
                     >
-                      {requestDocumentMutation.isPending ? "Enviando..." : "Enviar solicitação"}
+                      {uploadingDocument ? "Enviando..." : "Enviar documento"}
                     </Button>
                   </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+                </div>
+              </DialogContent>
+            </Dialog>
+          ) : null}
         </div>
 
-        <Tabs defaultValue="requests" className="w-full">
+        <Tabs 
+          defaultValue="requests" 
+          className="w-full"
+          onValueChange={(value) => setActiveTab(value)}
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="requests">Minhas Solicitações</TabsTrigger>
-            <TabsTrigger value="uploads">Meus Documentos</TabsTrigger>
+            <TabsTrigger value="personal">Meus Documentos</TabsTrigger>
             <TabsTrigger value="library">Biblioteca de Documentos</TabsTrigger>
           </TabsList>
           
