@@ -2,9 +2,9 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
-import { Pencil, Trash2, BookOpen, AreaChart } from 'lucide-react';
+import { Pencil, Trash2, BookOpen, AreaChart, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
@@ -25,6 +25,7 @@ export function SubjectsList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { currentPortal } = usePortal();
+  const [, navigate] = useLocation();
   
   // Buscar disciplinas
   const { data: subjects, isLoading, error } = useQuery({
