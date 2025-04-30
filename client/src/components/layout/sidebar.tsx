@@ -197,6 +197,20 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     Cursos
                   </Link>
                   
+                  {currentPortal.id === 'student' && (
+                    <Link 
+                      href={`${currentPortal.baseRoute}/documents`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/documents`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Documentos
+                    </Link>
+                  )}
+                  
                   {/* Mostrar ou esconder itens com base no tipo de portal */}
                   {['admin', 'teacher'].includes(currentPortal.id) && (
                     <>
