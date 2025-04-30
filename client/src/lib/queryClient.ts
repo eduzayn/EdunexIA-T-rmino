@@ -2,8 +2,27 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    try {
+      // Tenta ler e analisar o corpo da resposta como JSON primeiro
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const json = await res.json();
+        throw new Error(json.message || `${res.status}: ${res.statusText}`);
+      } else {
+        // Verifica se o texto parece HTML
+        const text = await res.text();
+        if (text.trim().startsWith('<!DOCTYPE html>') || text.trim().startsWith('<html>')) {
+          throw new Error(`${res.status}: Erro no servidor. Contate o suporte.`);
+        } else {
+          throw new Error(`${res.status}: ${text || res.statusText}`);
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(`${res.status}: ${res.statusText}`);
+    }
   }
 }
 
