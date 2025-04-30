@@ -231,13 +231,18 @@ export class DatabaseStorage implements IStorage {
 
   async createSubject(subjectData: InsertSubject): Promise<Subject> {
     try {
+      // Vamos verificar o schema atual da tabela subjects para usar somente os campos existentes
       const [subject] = await db.insert(subjects).values({
         tenantId: subjectData.tenantId,
         title: subjectData.title,
         description: subjectData.description || null,
         workload: subjectData.workload || null,
         area: subjectData.area || null,
-        isActive: subjectData.isActive !== undefined ? subjectData.isActive : true
+        isActive: subjectData.isActive !== undefined ? subjectData.isActive : true,
+        // Vamos adicionar valores para as colunas criadas_at e updated_at diretamente no SQL
+        // usando Drizzle SQL para garantir que sejam definidas na inserção
+        created_at: sql`NOW()`,
+        updated_at: sql`NOW()`
       }).returning();
       return subject;
     } catch (error) {
@@ -248,11 +253,20 @@ export class DatabaseStorage implements IStorage {
 
   async updateSubject(id: number, subjectData: Partial<InsertSubject>): Promise<Subject> {
     try {
+      // Ajustamos para usar os campos específicos sem dependência de updatedAt
+      const updateValues: any = {};
+      
+      if (subjectData.title !== undefined) updateValues.title = subjectData.title;
+      if (subjectData.description !== undefined) updateValues.description = subjectData.description;
+      if (subjectData.workload !== undefined) updateValues.workload = subjectData.workload;
+      if (subjectData.area !== undefined) updateValues.area = subjectData.area;
+      if (subjectData.isActive !== undefined) updateValues.isActive = subjectData.isActive;
+      
+      // Adicionamos um timestamp gerado pelo SQL para updated_at
+      updateValues.updated_at = sql`NOW()`;
+      
       const [updatedSubject] = await db.update(subjects)
-        .set({
-          ...subjectData,
-          updatedAt: new Date()
-        })
+        .set(updateValues)
         .where(eq(subjects.id, id))
         .returning();
       
