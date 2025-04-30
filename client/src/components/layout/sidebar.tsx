@@ -212,6 +212,51 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                   )}
                   
                   {/* Mostrar ou esconder itens com base no tipo de portal */}
+                  {/* Documentos para parceiros */}
+                  {currentPortal.id === 'partner' && (
+                    <>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/student-documents`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/student-documents`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Documentação
+                      </Link>
+                      
+                      <Link 
+                        href={`${currentPortal.baseRoute}/certification-requests`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/certification-requests`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Certificações
+                      </Link>
+                    </>
+                  )}
+                  
+                  {/* Certificações para administradores */}
+                  {currentPortal.id === 'admin' && (
+                    <Link 
+                      href={`${currentPortal.baseRoute}/partner-certifications`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/partner-certifications`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Certificações de Parceiros
+                    </Link>
+                  )}
+                  
+                  {/* Disciplinas e turmas para professores e administradores */}
                   {['admin', 'teacher'].includes(currentPortal.id) && (
                     <>
                       <Link 

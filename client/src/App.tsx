@@ -38,6 +38,10 @@ import StudentCoursesPage from "@/pages/student-courses-page";
 import StudentCourseDetailsPage from "@/pages/student-course-details-page";
 import StudentDocumentsPage from "@/pages/student-documents-page";
 import AdminStudentDocumentsPage from "@/pages/admin-student-documents-page";
+import PartnerDashboard from "@/pages/partner-dashboard";
+import PartnerStudentDocumentsPage from "@/pages/partner-student-documents-page";
+import PartnerCertificationRequestsPage from "@/pages/partner-certification-requests-page";
+import AdminPartnerCertificationsPage from "@/pages/admin-partner-certifications-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -116,7 +120,11 @@ function Router() {
       <ProtectedRoute path="/hub/courses" component={CoursesPage} />
       
       {/* Rotas do Portal do Parceiro */}
+      <ProtectedRoute path="/partner/dashboard" component={PartnerDashboard} />
       <ProtectedRoute path="/partner/courses" component={CoursesPage} />
+      <ProtectedRoute path="/partner/student-documents" component={PartnerStudentDocumentsPage} />
+      <ProtectedRoute path="/partner/certification-requests" component={PartnerCertificationRequestsPage} />
+      <ProtectedRoute path="/admin/partner-certifications" component={AdminPartnerCertificationsPage} />
       
       {/* Rota para página não encontrada */}
       <Route path="/:rest*">
