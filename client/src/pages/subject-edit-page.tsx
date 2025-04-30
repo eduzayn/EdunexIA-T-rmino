@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { usePortal } from '@/hooks/use-portal';
 import { Helmet } from 'react-helmet';
+import { AppShell } from '@/components/layout/app-shell';
 
 export function SubjectEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -53,48 +54,54 @@ export function SubjectEditPage() {
 
   if (isLoading) {
     return (
-      <div className="container p-4 mx-auto">
-        <p className="text-gray-500">Carregando detalhes da disciplina...</p>
-      </div>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <p className="text-gray-500">Carregando detalhes da disciplina...</p>
+        </div>
+      </AppShell>
     );
   }
 
   if (error) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
-          <p>Erro ao carregar disciplina: {(error as Error).message}</p>
-          <Button 
-            variant="outline" 
-            className="mt-2"
-            onClick={() => navigate(`${currentPortal.baseRoute}/subjects`)}
-          >
-            Voltar para lista
-          </Button>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
+            <p>Erro ao carregar disciplina: {(error as Error).message}</p>
+            <Button 
+              variant="outline" 
+              className="mt-2"
+              onClick={() => navigate(`${currentPortal.baseRoute}/subjects`)}
+            >
+              Voltar para lista
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   if (!subject) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 p-4 rounded-md">
-          <p>Disciplina não encontrada.</p>
-          <Button 
-            variant="outline" 
-            className="mt-2"
-            onClick={() => navigate(`${currentPortal.baseRoute}/subjects`)}
-          >
-            Voltar para lista
-          </Button>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 p-4 rounded-md">
+            <p>Disciplina não encontrada.</p>
+            <Button 
+              variant="outline" 
+              className="mt-2"
+              onClick={() => navigate(`${currentPortal.baseRoute}/subjects`)}
+            >
+              Voltar para lista
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <>
+    <AppShell>
       <Helmet>
         <title>Editar Disciplina | Edunéxia</title>
       </Helmet>
@@ -120,6 +127,6 @@ export function SubjectEditPage() {
           </div>
         </div>
       </div>
-    </>
+    </AppShell>
   );
 }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { usePortal } from '@/hooks/use-portal';
 import { Helmet } from 'react-helmet';
+import { AppShell } from '@/components/layout/app-shell';
 
 export function SubjectCreatePage() {
   const [, navigate] = useLocation();
@@ -21,12 +22,8 @@ export function SubjectCreatePage() {
       console.log("Enviando dados para API:", data);
       
       try {
-        // Usando apenas a rota relativa "/api/subjects" sem o método no URL
-        const response = await apiRequest("/api/subjects", {
-          method: 'POST',
-          body: JSON.stringify(data),
-          headers: { 'Content-Type': 'application/json' }
-        });
+        // Usando o método correto com apiRequest
+        const response = await apiRequest('POST', "/api/subjects", data);
         
         const responseData = await response.json();
         console.log("Resposta da API:", responseData);
@@ -61,7 +58,7 @@ export function SubjectCreatePage() {
   };
 
   return (
-    <>
+    <AppShell>
       <Helmet>
         <title>Nova Disciplina | Edunéxia</title>
       </Helmet>
@@ -86,6 +83,6 @@ export function SubjectCreatePage() {
           </div>
         </div>
       </div>
-    </>
+    </AppShell>
   );
 }
