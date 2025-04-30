@@ -40,11 +40,13 @@ export const PartnerPortalView: React.FC = () => {
   );
   
   const toggleView = () => {
-    setIsPartnerView(!isPartnerView);
+    // Alternar o estado
+    const newIsPartnerView = !isPartnerView;
+    setIsPartnerView(newIsPartnerView);
     
-    if (currentRouteMap) {
-      const [_, routes] = currentRouteMap;
-      navigate(isPartnerView ? routes.admin : routes.partner);
+    // Se a mudança for para visualização de admin, voltar para o dashboard admin
+    if (!newIsPartnerView) {
+      navigate('/admin/dashboard');
     }
   };
   
@@ -91,15 +93,10 @@ export const AdminPartnerViewPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ProtectedRoute 
-                  path="/partner/dashboard"
-                  component={() => (
-                    <iframe 
-                      src="/partner/dashboard" 
-                      className="w-full min-h-[600px] border-0"
-                      title="Portal do Parceiro - Dashboard"
-                    />
-                  )}
+                <iframe 
+                  src="/partner/dashboard" 
+                  className="w-full min-h-[600px] border-0"
+                  title="Portal do Parceiro - Dashboard"
                 />
               </CardContent>
               <CardFooter>
@@ -122,15 +119,10 @@ export const AdminPartnerViewPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ProtectedRoute 
-                  path="/partner/student-documents"
-                  component={() => (
-                    <iframe 
-                      src="/partner/student-documents" 
-                      className="w-full min-h-[600px] border-0"
-                      title="Portal do Parceiro - Documentos"
-                    />
-                  )}
+                <iframe 
+                  src="/partner/student-documents" 
+                  className="w-full min-h-[600px] border-0"
+                  title="Portal do Parceiro - Documentos"
                 />
               </CardContent>
               <CardFooter>
@@ -153,15 +145,10 @@ export const AdminPartnerViewPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ProtectedRoute 
-                  path="/partner/certification-requests"
-                  component={() => (
-                    <iframe 
-                      src="/partner/certification-requests" 
-                      className="w-full min-h-[600px] border-0"
-                      title="Portal do Parceiro - Certificações"
-                    />
-                  )}
+                <iframe 
+                  src="/partner/certification-requests" 
+                  className="w-full min-h-[600px] border-0"
+                  title="Portal do Parceiro - Certificações"
                 />
               </CardContent>
               <CardFooter>
