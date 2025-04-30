@@ -20,13 +20,12 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 
 // Estender o schema para validação do formulário
-const teacherFormSchema = insertUserSchema.omit({
-  role: true,
-  tenantId: true,
-  password: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
+const teacherFormSchema = z.object({
+  username: z.string().min(3, { message: "Nome de usuário deve ter pelo menos 3 caracteres" }),
+  email: z.string().email({ message: "E-mail inválido" }),
+  fullName: z.string().min(3, { message: "Nome completo deve ter pelo menos 3 caracteres" }),
+  isActive: z.boolean().default(true),
+  avatarUrl: z.string().nullable().optional(),
   password: z.string().min(8, {
     message: "A senha deve ter pelo menos 8 caracteres",
   }).optional(),
@@ -75,7 +74,7 @@ export default function TeacherForm({ initialData, onSubmit, isLoading }: Teache
     // Se não houver senha, remova o campo password
     const submissionData = formData.password ? formData : { ...formData, password: undefined };
     
-    await onSubmit(submissionData as TeacherFormData);
+    await onSubmit(submissionData);
   };
 
   return (
