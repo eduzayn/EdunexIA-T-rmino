@@ -1622,6 +1622,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Adicionar rotas do Portal do Aluno
+  app.use('/api/student', isAuthenticated, studentRouter);
+
   const httpServer = createServer(app);
 
   return httpServer;
