@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./database-storage";
 import { z } from "zod";
-import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema, insertModuleSchema, insertLessonSchema, insertSubjectSchema, insertClassSchema, insertClassEnrollmentSchema } from "@shared/schema";
+import { insertCourseSchema, insertEnrollmentSchema, insertLeadSchema, insertModuleSchema, insertLessonSchema, insertSubjectSchema, insertClassSchema, insertClassEnrollmentSchema, insertUserSchema } from "@shared/schema";
 import { testDatabaseConnection } from "./db";
 import { db } from "./db";
 import { tenants, users } from "@shared/schema";
