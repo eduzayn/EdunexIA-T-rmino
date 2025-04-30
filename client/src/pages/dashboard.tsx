@@ -80,30 +80,30 @@ export default function Dashboard() {
         <Helmet>
           <title>Dashboard | Edunéxia</title>
         </Helmet>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
+        <div className="w-full px-2 sm:px-4 lg:px-6 max-w-[100rem] mx-auto">
+          <div className="py-4">
             <Skeleton className="h-9 w-64 mb-2" />
             <Skeleton className="h-5 w-96" />
           </div>
           
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
             {[...Array(4)].map((_, i) => (
               <Skeleton key={i} className="h-32 w-full" />
             ))}
           </div>
           
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mb-8">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 mb-6">
             <div className="lg:col-span-2">
-              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-80 w-full" />
             </div>
-            <Skeleton className="h-96 w-full" />
+            <Skeleton className="h-80 w-full" />
           </div>
           
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 mb-6">
             <div className="lg:col-span-2">
-              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-80 w-full" />
             </div>
-            <Skeleton className="h-96 w-full" />
+            <Skeleton className="h-80 w-full" />
           </div>
         </div>
       </AppShell>
@@ -114,7 +114,7 @@ export default function Dashboard() {
   if (!dashboardStats) {
     return (
       <AppShell>
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-6rem)]">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
           <h2 className="text-xl font-semibold">Carregando dados do dashboard...</h2>
           <p className="text-muted-foreground">Por favor, aguarde um momento</p>
@@ -128,9 +128,9 @@ export default function Dashboard() {
       <Helmet>
         <title>Dashboard | Edunéxia</title>
       </Helmet>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0">
+      <div className="w-full px-2 sm:px-4 lg:px-6 max-w-[100rem] mx-auto">
         {/* Page Header */}
-        <div className="pt-1 pb-3">
+        <div className="pt-2 pb-4">
           <h1 className="text-2xl font-semibold">Dashboard Administrativo</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Visão geral do sistema educacional Edunéxia
@@ -138,7 +138,7 @@ export default function Dashboard() {
         </div>
         
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
           <StatsCard
             title="Alunos Ativos"
             value={dashboardStats?.activeStudents?.toString() || "0"}
@@ -185,7 +185,7 @@ export default function Dashboard() {
         </div>
         
         {/* Middle Section */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mb-8">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 mb-6">
           <div className="lg:col-span-2">
             <ActivityFeed activities={dashboardStats?.recentActivity || []} />
           </div>
@@ -215,7 +215,7 @@ export default function Dashboard() {
         </div>
         
         {/* Bottom Section */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mb-8">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 mb-6">
           <div className="lg:col-span-2">
             <EnrollmentsTable 
               enrollments={dashboardStats?.latestEnrollments || []}
