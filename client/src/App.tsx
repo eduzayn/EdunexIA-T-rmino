@@ -36,6 +36,7 @@ import { PortalProvider, usePortal } from "./hooks/use-portal";
 import { AuthProvider } from "./hooks/use-auth";
 import StudentCoursesPage from "@/pages/student-courses-page";
 import StudentCourseDetailsPage from "@/pages/student-course-details-page";
+import StudentDocumentsPage from "@/pages/student-documents-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -101,6 +102,7 @@ function Router() {
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
       <ProtectedRoute path="/student/courses" component={StudentCoursesPage} />
       <ProtectedRoute path="/student/courses/:id" component={StudentCourseDetailsPage} />
+      <ProtectedRoute path="/student/documents" component={StudentDocumentsPage} />
       
       {/* Rotas do Portal do Professor */}
       <ProtectedRoute path="/teacher/courses" component={CoursesPage} />
