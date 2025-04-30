@@ -57,48 +57,54 @@ export function ClassEditPage({ params }: { params: { id: string } }) {
 
   if (isLoading) {
     return (
-      <div className="container p-4 mx-auto">
-        <p className="text-gray-500">Carregando detalhes da turma...</p>
-      </div>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <p className="text-gray-500">Carregando detalhes da turma...</p>
+        </div>
+      </AppShell>
     );
   }
 
   if (error) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
-          <p>Erro ao carregar turma: {(error as Error).message}</p>
-          <Button 
-            variant="outline" 
-            className="mt-2"
-            onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
-          >
-            Voltar para lista
-          </Button>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
+            <p>Erro ao carregar turma: {(error as Error).message}</p>
+            <Button 
+              variant="outline" 
+              className="mt-2"
+              onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
+            >
+              Voltar para lista
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   if (!classData) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 p-4 rounded-md">
-          <p>Turma não encontrada.</p>
-          <Button 
-            variant="outline" 
-            className="mt-2"
-            onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
-          >
-            Voltar para lista
-          </Button>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 p-4 rounded-md">
+            <p>Turma não encontrada.</p>
+            <Button 
+              variant="outline" 
+              className="mt-2"
+              onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
+            >
+              Voltar para lista
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <>
+    <AppShell>
       <Helmet>
         <title>Editar Turma | Edunéxia</title>
       </Helmet>
@@ -125,6 +131,6 @@ export function ClassEditPage({ params }: { params: { id: string } }) {
           />
         </div>
       </div>
-    </>
+    </AppShell>
   );
 }
