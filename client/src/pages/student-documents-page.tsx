@@ -642,72 +642,7 @@ export default function StudentDocumentsPage() {
           </TabsContent>
           
           {/* Aba de Meus Documentos */}
-          <TabsContent value="uploads" className="space-y-4 pt-4">
-            <div className="flex justify-end mb-4">
-              <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Enviar Documento
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Enviar documento pessoal</DialogTitle>
-                    <DialogDescription>
-                      Selecione o tipo de documento e faça o upload do arquivo. Documentos enviados passarão por análise antes de serem aprovados.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                      <label htmlFor="document-type" className="text-sm font-medium">
-                        Tipo de documento
-                      </label>
-                      <Select 
-                        value={selectedDocumentType} 
-                        onValueChange={setSelectedDocumentType}
-                      >
-                        <SelectTrigger id="document-type">
-                          <SelectValue placeholder="Selecione o tipo de documento" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(personalDocumentTypes).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>{label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="document-file" className="text-sm font-medium">
-                        Arquivo
-                      </label>
-                      <div className="border rounded-md p-2">
-                        <input 
-                          ref={fileInputRef}
-                          type="file" 
-                          id="document-file"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          className="w-full text-sm"
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Formatos aceitos: PDF, JPG, JPEG, PNG. Tamanho máximo: 5MB.
-                      </p>
-                    </div>
-                    <DialogFooter>
-                      <Button 
-                        type="button" 
-                        onClick={handleUploadDocument}
-                        disabled={uploadingDocument}
-                      >
-                        {uploadingDocument ? "Enviando..." : "Enviar documento"}
-                      </Button>
-                    </DialogFooter>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-            
+          <TabsContent value="personal" className="space-y-4 pt-4">
             {isPersonalDocumentsLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
