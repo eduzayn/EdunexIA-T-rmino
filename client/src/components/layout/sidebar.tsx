@@ -241,17 +241,33 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                   )}
                   
                   {['admin', 'hub'].includes(currentPortal.id) && (
-                    <Link 
-                      href={`${currentPortal.baseRoute}/students`}
-                      className={cn(
-                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                        isActive(`${currentPortal.baseRoute}/students`) 
-                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    <>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/students`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/students`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Alunos
+                      </Link>
+                      
+                      {currentPortal.id === 'admin' && (
+                        <Link 
+                          href={`${currentPortal.baseRoute}/student-documents`}
+                          className={cn(
+                            "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                            isActive(`${currentPortal.baseRoute}/student-documents`) 
+                              ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                          )}
+                        >
+                          Documentos dos Alunos
+                        </Link>
                       )}
-                    >
-                      Alunos
-                    </Link>
+                    </>
                   )}
                   
                   {['admin', 'hub'].includes(currentPortal.id) && (
