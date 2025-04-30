@@ -17,6 +17,7 @@ import { sql } from "drizzle-orm";
 import { studentRouter } from "./student-routes";
 import { adminRouter } from "./admin-routes";
 import { partnerRouter } from "./partner-routes";
+import { certificateRouter } from "./certificate-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
@@ -1632,6 +1633,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Adicionar rotas do Portal do Parceiro
   app.use('/api/partner', isAuthenticated, partnerRouter);
+  
+  // Adicionar rotas de certificados
+  app.use('/api/certificates', certificateRouter);
 
   const httpServer = createServer(app);
 
