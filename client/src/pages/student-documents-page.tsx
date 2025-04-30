@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Helmet } from "react-helmet";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/layout/app-shell";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Calendar, Clock, Download, File, FileCheck, FilePlus, FileText } from "lucide-react";
+import { AlertCircle, Calendar, Clock, Download, File, FileCheck, FilePlus, FileText, Upload, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
@@ -64,6 +64,18 @@ interface LibraryDocument {
   fileSize: string;
 }
 
+// Tipo para documento pessoal do aluno
+interface PersonalDocument {
+  id: number;
+  title: string;
+  documentType: string;
+  uploadDate: string;
+  fileSize: string;
+  status: "pending" | "approved" | "rejected";
+  comments?: string;
+  downloadUrl: string;
+}
+
 // Schema de validação para nova solicitação de documento
 const documentRequestSchema = z.object({
   documentType: z.string({
@@ -76,6 +88,10 @@ export default function StudentDocumentsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isRequestOpen, setIsRequestOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [selectedDocumentType, setSelectedDocumentType] = useState("");
+  const [uploadingDocument, setUploadingDocument] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Formulário para solicitação de documento
   const form = useForm<z.infer<typeof documentRequestSchema>>({
@@ -120,6 +136,51 @@ export default function StudentDocumentsPage() {
           status: "processing"
         }
       ] as DocumentRequest[];
+    },
+    gcTime: 1000 * 60 * 5, // 5 minutos
+    staleTime: 1000 * 60 * 2, // 2 minutos
+  });
+
+  // Buscar documentos pessoais do aluno
+  const {
+    data: personalDocuments = [],
+    isLoading: isPersonalDocumentsLoading,
+    error: personalDocumentsError
+  } = useQuery<PersonalDocument[]>({
+    queryKey: ['/api/student/personal-documents'],
+    // Por ora, vamos usar dados simulados até implementarmos a API real
+    queryFn: async () => {
+      // Simulando dados para visualização
+      return [
+        {
+          id: 1,
+          title: "RG",
+          documentType: "rg",
+          uploadDate: "2025-04-10T10:00:00Z",
+          fileSize: "1.2 MB",
+          status: "approved",
+          downloadUrl: "#"
+        },
+        {
+          id: 2,
+          title: "Comprovante de Endereço",
+          documentType: "address_proof",
+          uploadDate: "2025-04-15T14:30:00Z",
+          fileSize: "3.5 MB",
+          status: "pending",
+          downloadUrl: "#"
+        },
+        {
+          id: 3,
+          title: "Certificado de Conclusão do Ensino Médio",
+          documentType: "high_school_certificate",
+          uploadDate: "2025-04-18T09:15:00Z",
+          fileSize: "2.8 MB",
+          status: "rejected",
+          comments: "Documento ilegível. Por favor, envie uma cópia mais clara.",
+          downloadUrl: "#"
+        }
+      ] as PersonalDocument[];
     },
     gcTime: 1000 * 60 * 5, // 5 minutos
     staleTime: 1000 * 60 * 2, // 2 minutos
@@ -202,6 +263,66 @@ export default function StudentDocumentsPage() {
     requestDocumentMutation.mutate(data);
   };
 
+  // Mutação para fazer upload de documento pessoal
+  const uploadDocumentMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      // Na implementação real, isto seria uma chamada API para upload do arquivo
+      // return apiRequest('/api/student/personal-documents', 'POST', formData, true);
+      
+      // Por ora, apenas simulamos o sucesso após um delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return { success: true, id: Math.floor(Math.random() * 1000) + 10 };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Documento enviado com sucesso",
+        description: "Seu documento foi enviado e está aguardando análise.",
+      });
+      setIsUploadDialogOpen(false);
+      setSelectedDocumentType("");
+      setUploadingDocument(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/student/personal-documents'] });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Erro ao enviar documento",
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao enviar seu documento. Tente novamente mais tarde."
+      });
+      setUploadingDocument(false);
+    }
+  });
+
+  // Função para iniciar o upload de documentos
+  const handleUploadDocument = () => {
+    if (!selectedDocumentType || !fileInputRef.current?.files?.length) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao enviar documento",
+        description: "Por favor, selecione um tipo de documento e escolha um arquivo."
+      });
+      return;
+    }
+
+    setUploadingDocument(true);
+    
+    const formData = new FormData();
+    formData.append('documentType', selectedDocumentType);
+    formData.append('file', fileInputRef.current.files[0]);
+    
+    uploadDocumentMutation.mutate(formData);
+  };
+
+  // Mapeamento dos tipos de documentos pessoais
+  const personalDocumentTypes = {
+    rg: "RG",
+    cpf: "CPF",
+    address_proof: "Comprovante de Endereço",
+    high_school_certificate: "Certificado de Conclusão do Ensino Médio",
+    graduation_diploma: "Diploma de Graduação",
+    graduation_transcript: "Histórico de Graduação"
+  };
+
   // Função para exibir o status da solicitação de forma amigável
   const renderRequestStatus = (status: string) => {
     const statusConfig: Record<string, { label: string, color: string, icon: React.ReactNode }> = {
@@ -224,6 +345,11 @@ export default function StudentDocumentsPage() {
         label: "Recusado", 
         color: "bg-red-100 text-red-800 border-none", 
         icon: <AlertCircle className="h-3.5 w-3.5 mr-1" />
+      },
+      approved: { 
+        label: "Aprovado", 
+        color: "bg-green-100 text-green-800 border-none", 
+        icon: <CheckCircle className="h-3.5 w-3.5 mr-1" />
       }
     };
 
@@ -438,6 +564,154 @@ export default function StudentDocumentsPage() {
                           </a>
                         </Button>
                       )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Aba de Meus Documentos */}
+          <TabsContent value="uploads" className="space-y-4 pt-4">
+            <div className="flex justify-end mb-4">
+              <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Enviar Documento
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Enviar documento pessoal</DialogTitle>
+                    <DialogDescription>
+                      Selecione o tipo de documento e faça o upload do arquivo. Documentos enviados passarão por análise antes de serem aprovados.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <FormLabel htmlFor="document-type">Tipo de documento</FormLabel>
+                      <Select 
+                        value={selectedDocumentType} 
+                        onValueChange={setSelectedDocumentType}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o tipo de documento" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(personalDocumentTypes).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>{label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <FormLabel htmlFor="document-file">Arquivo</FormLabel>
+                      <div className="border rounded-md p-2">
+                        <input 
+                          ref={fileInputRef}
+                          type="file" 
+                          id="document-file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          className="w-full text-sm"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Formatos aceitos: PDF, JPG, JPEG, PNG. Tamanho máximo: 5MB.
+                      </p>
+                    </div>
+                    <DialogFooter>
+                      <Button 
+                        type="button" 
+                        onClick={handleUploadDocument}
+                        disabled={uploadingDocument}
+                      >
+                        {uploadingDocument ? "Enviando..." : "Enviar documento"}
+                      </Button>
+                    </DialogFooter>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            {isPersonalDocumentsLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader className="pb-2">
+                      <Skeleton className="h-5 w-2/5" />
+                      <Skeleton className="h-4 w-1/4" />
+                    </CardHeader>
+                    <CardContent>
+                      <Skeleton className="h-4 w-3/4" />
+                      <div className="flex justify-between mt-3">
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-6 w-1/5" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : personalDocumentsError ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-4">
+                    <AlertCircle className="mx-auto h-12 w-12 text-destructive mb-3" />
+                    <p className="text-destructive text-lg font-medium">Erro ao carregar documentos</p>
+                    <p className="text-muted-foreground mt-1">
+                      Ocorreu um erro ao carregar seus documentos pessoais. Tente novamente mais tarde.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : personalDocuments.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-6">
+                    <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
+                    <p className="text-lg font-medium">Nenhum documento enviado</p>
+                    <p className="text-muted-foreground mt-1 mb-4">
+                      Você ainda não enviou nenhum documento pessoal.
+                    </p>
+                    <Button onClick={() => setIsUploadDialogOpen(true)}>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Enviar documento
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {personalDocuments.map((document) => (
+                  <Card key={document.id}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between">
+                        <CardTitle className="text-lg">{document.title}</CardTitle>
+                        {renderRequestStatus(document.status)}
+                      </div>
+                      <CardDescription>
+                        <div className="flex items-center">
+                          <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                          <span>Enviado em {formatDate(document.uploadDate)}</span>
+                        </div>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {document.comments && (
+                        <>
+                          <p className="text-sm font-medium">Observações:</p>
+                          <p className="text-sm text-muted-foreground mb-3">{document.comments}</p>
+                        </>
+                      )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground">{document.fileSize}</span>
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={document.downloadUrl} target="_blank" rel="noopener noreferrer">
+                            <Download className="mr-2 h-3.5 w-3.5" />
+                            Baixar
+                          </a>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}

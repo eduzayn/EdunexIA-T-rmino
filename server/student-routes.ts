@@ -335,7 +335,90 @@ studentRouter.post('/document-requests', async (req: Request, res: Response) => 
   }
 });
 
-// Endpoint para documentos da biblioteca (simulado por enquanto)
+// Endpoint para obter documentos pessoais do aluno (simulado por enquanto)
+studentRouter.get('/personal-documents', async (req: Request, res: Response) => {
+  try {
+    // Em uma implementação real, isso buscaria os documentos pessoais do aluno no banco de dados
+    // Por enquanto, estamos retornando dados simulados
+    const personalDocuments = [
+      {
+        id: 1,
+        title: "RG",
+        documentType: "rg",
+        uploadDate: "2025-04-10T10:00:00Z",
+        fileSize: "1.2 MB",
+        status: "approved",
+        downloadUrl: "#"
+      },
+      {
+        id: 2,
+        title: "Comprovante de Endereço",
+        documentType: "address_proof",
+        uploadDate: "2025-04-15T14:30:00Z",
+        fileSize: "3.5 MB",
+        status: "pending",
+        downloadUrl: "#"
+      },
+      {
+        id: 3,
+        title: "Certificado de Conclusão do Ensino Médio",
+        documentType: "high_school_certificate",
+        uploadDate: "2025-04-18T09:15:00Z",
+        fileSize: "2.8 MB",
+        status: "rejected",
+        comments: "Documento ilegível. Por favor, envie uma cópia mais clara.",
+        downloadUrl: "#"
+      }
+    ];
+    
+    res.json(personalDocuments);
+  } catch (error) {
+    console.error('Erro ao buscar documentos pessoais:', error);
+    res.status(500).json({ error: 'Erro ao buscar documentos pessoais' });
+  }
+});
+
+// Endpoint para upload de documento pessoal (simulado por enquanto)
+studentRouter.post('/personal-documents', async (req: Request, res: Response) => {
+  try {
+    const { documentType } = req.body;
+    
+    // Validação básica
+    if (!documentType) {
+      return res.status(400).json({ error: 'Tipo de documento é obrigatório' });
+    }
+    
+    // Simulando processamento do upload de arquivo
+    // Em uma implementação real, o arquivo seria processado, verificado e armazenado
+    
+    // Mapeamento de tipos de documento para títulos
+    const documentTitles: Record<string, string> = {
+      rg: "RG",
+      cpf: "CPF",
+      address_proof: "Comprovante de Endereço",
+      high_school_certificate: "Certificado de Conclusão do Ensino Médio",
+      graduation_diploma: "Diploma de Graduação",
+      graduation_transcript: "Histórico de Graduação"
+    };
+    
+    // Simular um atraso para parecer uma operação real
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    res.status(201).json({
+      id: Math.floor(Math.random() * 1000) + 10,
+      title: documentTitles[documentType] || "Documento",
+      documentType,
+      uploadDate: new Date().toISOString(),
+      fileSize: "1.5 MB", // Simulado
+      status: "pending",
+      downloadUrl: "#"
+    });
+  } catch (error) {
+    console.error('Erro ao fazer upload de documento pessoal:', error);
+    res.status(500).json({ error: 'Erro ao processar o upload do documento' });
+  }
+});
+
 studentRouter.get('/library-documents', async (req: Request, res: Response) => {
   try {
     // Em uma implementação real, isso buscaria os documentos da biblioteca do banco de dados
