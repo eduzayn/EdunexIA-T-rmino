@@ -31,7 +31,7 @@ export default function PartnerPaymentsPage() {
 
   // Filtra os pagamentos com base na aba ativa e na busca
   const filteredPayments = React.useMemo(() => {
-    const allPayments = payments || [];
+    const allPayments = Array.isArray(payments) ? payments : [];
     
     return allPayments.filter((payment: any) => {
       // Filtro por status
@@ -43,9 +43,9 @@ export default function PartnerPaymentsPage() {
       if (searchQuery.trim() !== '') {
         const query = searchQuery.toLowerCase();
         return (
-          payment.description.toLowerCase().includes(query) ||
-          payment.studentName.toLowerCase().includes(query) ||
-          payment.certificationType.toLowerCase().includes(query)
+          (payment.description?.toLowerCase() || '').includes(query) ||
+          (payment.studentName?.toLowerCase() || '').includes(query) ||
+          (payment.certificationType?.toLowerCase() || '').includes(query)
         );
       }
       
