@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AssessmentsList from '@/components/assessments/assessments-list';
-import { useAuth } from "@/hooks/use-auth";
 
 export function ClassDetailsPage({ params }: { params: { id: string } }) {
   const classId = parseInt(params.id);
@@ -31,7 +30,6 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { currentPortal } = usePortal();
-  const { user } = useAuth();
   
   // Buscar dados da turma
   const { data: classItem, isLoading: isLoadingClass, error: classError } = useQuery({
@@ -241,6 +239,14 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="assessments">
+              Avaliações
+              {assessments.length > 0 && (
+                <Badge variant="secondary" className="ml-2 bg-gray-100 text-gray-700">
+                  {assessments.length}
+                </Badge>
+              )}
+            </TabsTrigger>
           </TabsList>
           
           {/* Aba de Informações */}
@@ -379,6 +385,36 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
                       ))}
                     </div>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Aba de Avaliações */}
+          <TabsContent value="assessments">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">Avaliações da Turma</h3>
+                  <Button asChild>
+                    <Link 
+                      to={`${currentPortal.baseRoute}/assessments/new?classId=${classId}`}
+                      href={`${currentPortal.baseRoute}/assessments/new?classId=${classId}`}
+                      className="flex items-center gap-1"
+                    >
+                      <FileText className="h-4 w-4" />
+                      Nova Avaliação
+                    </Link>
+                  </Button>
+                </div>
+                
+                {isLoadingAssessments ? (
+                  <p className="text-gray-500">Carregando avaliações...</p>
+                ) : (
+                  <AssessmentsList 
+                    assessments={assessments} 
+                    baseUrl={currentPortal.baseRoute} 
+                  />
                 )}
               </CardContent>
             </Card>
