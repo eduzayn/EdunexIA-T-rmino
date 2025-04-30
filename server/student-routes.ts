@@ -120,8 +120,8 @@ studentRouter.get('/class-enrollments', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Usuário não identificado' });
     }
     
-    // Se for admin ou não for estudante, retornar dados simulados para teste
-    if (req.user?.role === 'admin' || req.user?.role !== 'student') {
+    // Se for admin, retornar dados simulados para teste
+    if (req.user?.role === 'admin') {
       // Retornando dados simulados para facilitar testes
       return res.json([
         {
@@ -177,7 +177,7 @@ studentRouter.get('/class-enrollments', async (req: Request, res: Response) => {
 });
 
 // Obter detalhes de um curso específico do aluno
-studentRouter.get('/courses/:id', isStudent, async (req: Request, res: Response) => {
+studentRouter.get('/courses/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const courseId = parseInt(req.params.id);
@@ -226,7 +226,7 @@ studentRouter.get('/courses/:id', isStudent, async (req: Request, res: Response)
 });
 
 // Endpoint para avisos e notificações (simulado por enquanto)
-studentRouter.get('/notifications', isStudent, async (req: Request, res: Response) => {
+studentRouter.get('/notifications', async (req: Request, res: Response) => {
   try {
     // Em uma implementação real, isso buscaria avisos do banco de dados
     // Por enquanto, estamos retornando dados simulados
@@ -246,7 +246,7 @@ studentRouter.get('/notifications', isStudent, async (req: Request, res: Respons
 });
 
 // Endpoint para dados financeiros (simulado por enquanto)
-studentRouter.get('/financial', isStudent, async (req: Request, res: Response) => {
+studentRouter.get('/financial', async (req: Request, res: Response) => {
   try {
     // Em uma implementação real, isso buscaria dados financeiros do banco de dados
     // Por enquanto, estamos retornando dados simulados
@@ -266,7 +266,7 @@ studentRouter.get('/financial', isStudent, async (req: Request, res: Response) =
 });
 
 // Endpoint para solicitações de documentos do aluno (simulado por enquanto)
-studentRouter.get('/document-requests', isStudent, async (req: Request, res: Response) => {
+studentRouter.get('/document-requests', async (req: Request, res: Response) => {
   try {
     // Em uma implementação real, isso buscaria as solicitações de documentos do banco de dados
     // Por enquanto, estamos retornando dados simulados
@@ -303,7 +303,7 @@ studentRouter.get('/document-requests', isStudent, async (req: Request, res: Res
 });
 
 // Endpoint para criar uma solicitação de documento (simulado por enquanto)
-studentRouter.post('/document-requests', isStudent, async (req: Request, res: Response) => {
+studentRouter.post('/document-requests', async (req: Request, res: Response) => {
   try {
     const { documentType, justification } = req.body;
     
@@ -333,7 +333,7 @@ studentRouter.post('/document-requests', isStudent, async (req: Request, res: Re
 });
 
 // Endpoint para documentos da biblioteca (simulado por enquanto)
-studentRouter.get('/library-documents', isStudent, async (req: Request, res: Response) => {
+studentRouter.get('/library-documents', async (req: Request, res: Response) => {
   try {
     // Em uma implementação real, isso buscaria os documentos da biblioteca do banco de dados
     // Por enquanto, estamos retornando dados simulados
