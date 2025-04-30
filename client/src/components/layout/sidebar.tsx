@@ -292,22 +292,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     </>
                   )}
                   
-                  {/* Certificações para administradores */}
-                  {currentPortal.id === 'admin' && (
-                    <>
-                      <Link 
-                        href={`${currentPortal.baseRoute}/partner-certifications`}
-                        className={cn(
-                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                          isActive(`${currentPortal.baseRoute}/partner-certifications`) 
-                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                        )}
-                      >
-                        Certificações de Parceiros
-                      </Link>
-                    </>
-                  )}
+                  {/* Certificações para administradores - Link movido para a seção Secretaria */}
                   
                   {/* Disciplinas e turmas para professores e administradores */}
                   {['admin', 'teacher'].includes(currentPortal.id) && (
@@ -432,6 +417,18 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                       )}
                     >
                       Documentação
+                    </Link>
+                    
+                    <Link 
+                      href={`${currentPortal.baseRoute}/partner-certifications`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/partner-certifications`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Certificações de Parceiros
                     </Link>
                   </div>
                 )}
