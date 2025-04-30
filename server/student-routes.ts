@@ -28,6 +28,49 @@ studentRouter.get('/courses', isStudent, async (req: Request, res: Response) => 
       return res.status(401).json({ error: 'Usuário não identificado' });
     }
     
+    // Para administradores, retornar dados simulados para testes
+    if (req.user?.role === 'admin') {
+      return res.json([
+        {
+          id: 1,
+          tenantId: 1,
+          name: 'Desenvolvimento Web Full Stack',
+          description: 'Curso completo de desenvolvimento web com front-end e back-end',
+          code: 'WEB-001',
+          imageUrl: null,
+          status: 'active',
+          createdAt: '2025-01-15T10:00:00Z',
+          progress: 65,
+          subjectsCount: 3
+        },
+        {
+          id: 2,
+          tenantId: 1,
+          name: 'Data Science e Inteligência Artificial',
+          description: 'Fundamentos e aplicações práticas de ciência de dados e IA',
+          code: 'DATA-002',
+          imageUrl: null,
+          status: 'active',
+          createdAt: '2025-02-01T10:00:00Z',
+          progress: 32,
+          subjectsCount: 4
+        },
+        {
+          id: 3,
+          tenantId: 1,
+          name: 'Design UX/UI',
+          description: 'Princípios de design de interfaces e experiência do usuário',
+          code: 'UX-003',
+          imageUrl: null,
+          status: 'active',
+          createdAt: '2025-03-10T10:00:00Z',
+          progress: 18,
+          subjectsCount: 2
+        }
+      ]);
+    }
+    
+    // Para estudantes reais (não admin)
     // Buscar matrículas do aluno e depois os cursos relacionados
     const enrollments = await storage.getEnrollmentsByStudent(userId);
     
@@ -75,6 +118,41 @@ studentRouter.get('/class-enrollments', isStudent, async (req: Request, res: Res
     
     if (!userId) {
       return res.status(401).json({ error: 'Usuário não identificado' });
+    }
+    
+    // Se for admin, retornar dados simulados para teste
+    if (req.user?.role === 'admin') {
+      // Retornando dados simulados para facilitar testes
+      return res.json([
+        {
+          id: 101,
+          studentId: userId,
+          classId: 201,
+          enrollmentDate: '2025-03-01T10:00:00Z',
+          status: 'active',
+          class: {
+            id: 201,
+            name: 'Turma A - Web Development',
+            code: 'WD-2025-A',
+            startDate: '2025-03-01T00:00:00Z',
+            endDate: '2025-06-30T00:00:00Z'
+          }
+        },
+        {
+          id: 102,
+          studentId: userId,
+          classId: 202,
+          enrollmentDate: '2025-04-15T09:30:00Z',
+          status: 'active',
+          class: {
+            id: 202,
+            name: 'Turma B - Data Science',
+            code: 'DS-2025-B',
+            startDate: '2025-04-15T00:00:00Z',
+            endDate: '2025-08-15T00:00:00Z'
+          }
+        }
+      ]);
     }
     
     const enrollments = await storage.getClassEnrollmentsByStudent(userId);

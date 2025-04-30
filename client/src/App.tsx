@@ -50,8 +50,7 @@ function Router() {
         
         // Se for um estudante, redirecionar para o dashboard do aluno
         if (currentPortal.id === 'student') {
-          window.location.href = '/student/dashboard';
-          return null;
+          return <StudentDashboard {...props} />;
         }
         
         // Se não for estudante, mostrar o dashboard administrativo
