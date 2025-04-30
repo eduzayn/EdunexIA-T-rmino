@@ -22,6 +22,10 @@ import { StudentsPage } from "@/pages/students-page";
 import { StudentCreatePage } from "@/pages/student-create-page";
 import { StudentEditPage } from "@/pages/student-edit-page";
 import { StudentDetailsPage } from "@/pages/student-details-page";
+import TeachersPage from "@/pages/teachers-page";
+import TeacherDetailsPage from "@/pages/teacher-details-page";
+import TeacherCreatePage from "@/pages/teacher-create-page";
+import TeacherEditPage from "@/pages/teacher-edit-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { PortalProvider, usePortal } from "./hooks/use-portal";
 import { AuthProvider } from "./hooks/use-auth";
@@ -61,6 +65,12 @@ function Router() {
       <ProtectedRoute path="/admin/students/new" component={StudentCreatePage} />
       <ProtectedRoute path="/admin/students/:id/edit" component={StudentEditPage} />
       <ProtectedRoute path="/admin/students/:id" component={StudentDetailsPage} />
+      
+      {/* Rotas de Professores */}
+      <ProtectedRoute path="/admin/teachers" component={TeachersPage} />
+      <ProtectedRoute path="/admin/teachers/new" component={TeacherCreatePage} />
+      <ProtectedRoute path="/admin/teachers/:id/edit" component={TeacherEditPage} />
+      <ProtectedRoute path="/admin/teachers/:id" component={TeacherDetailsPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/courses" component={CoursesPage} />
