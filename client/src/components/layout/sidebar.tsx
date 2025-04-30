@@ -68,7 +68,30 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   };
 
   const handlePortalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCurrentPortal(e.target.value as PortalType);
+    const newPortalId = e.target.value as PortalType;
+    const newPortal = portals.find(p => p.id === newPortalId);
+    
+    if (newPortal) {
+      setCurrentPortal(newPortalId);
+      
+      // Redirecionar para o dashboard do novo portal
+      if (newPortalId === 'partner') {
+        // Redirecionar para o dashboard do parceiro
+        setLocation('/partner/dashboard');
+      } else if (newPortalId === 'student') {
+        // Redirecionar para o dashboard do aluno
+        setLocation('/student/dashboard');
+      } else if (newPortalId === 'admin') {
+        // Redirecionar para o dashboard administrativo
+        setLocation('/admin/dashboard');
+      } else if (newPortalId === 'teacher') {
+        // Redirecionar para o dashboard do professor
+        setLocation('/teacher/dashboard');
+      } else if (newPortalId === 'hub') {
+        // Redirecionar para o dashboard do polo
+        setLocation('/hub/dashboard');
+      }
+    }
   };
 
   const sidebarClasses = cn(
@@ -256,17 +279,18 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                         Certificações de Parceiros
                       </Link>
                       
-                      <Link 
-                        href={`${currentPortal.baseRoute}/partner-view`}
+                      <button 
+                        onClick={() => {
+                          setCurrentPortal('partner');
+                          setLocation('/partner/dashboard');
+                        }}
                         className={cn(
-                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                          isActive(`${currentPortal.baseRoute}/partner-view`) 
-                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors w-full text-left",
+                          "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                         )}
                       >
                         Portal do Parceiro
-                      </Link>
+                      </button>
                     </>
                   )}
                   

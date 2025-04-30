@@ -30,6 +30,7 @@ export const AdminPartnerViewPage: React.FC = () => {
   
   // Função para retornar ao Portal Administrativo
   const returnToAdmin = () => {
+    setCurrentPortal('admin');
     navigate('/admin/dashboard');
   };
   

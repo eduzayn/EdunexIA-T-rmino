@@ -44,12 +44,13 @@ export const PartnerPortalButton: React.FC = () => {
     
     // Se a mudança for para visualização de admin, voltar para o dashboard admin
     if (!newIsPartnerView) {
+      // Muda para o portal admin e navega para o dashboard
+      setCurrentPortal('admin');
       navigate('/admin/dashboard');
     } else {
-      // Se a mudança for para visualização de parceiro, navegar para a visualização de parceiro
-      const partnerRoute = currentRouteMap?.[1].partner || '/partner/dashboard';
-      // Não mudamos o portal atual, apenas navegamos para a rota correspondente
-      navigate('/admin/partner-view');
+      // Se a mudança for para visualização de parceiro, realmente muda para o portal do parceiro
+      setCurrentPortal('partner');
+      navigate('/partner/dashboard');
     }
   };
   
