@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet';
 import { usePortal } from '@/hooks/use-portal';
 import { ArrowLeft } from 'lucide-react';
+import { AppShell } from '@/components/layout/app-shell';
 
 export function ClassEditPage({ params }: { params: { id: string } }) {
   const classId = parseInt(params.id);

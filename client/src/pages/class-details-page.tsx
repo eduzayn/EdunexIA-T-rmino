@@ -8,6 +8,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet';
 import { usePortal } from '@/hooks/use-portal';
+import { AppShell } from '@/components/layout/app-shell';
 import { ArrowLeft, Users, Calendar, MapPin, Clock, Pencil, BookOpen, School, AlertTriangle } from 'lucide-react';
 import {
   AlertDialog,
@@ -73,43 +74,49 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
 
   if (isLoadingClass) {
     return (
-      <div className="container p-4 mx-auto">
-        <p className="text-gray-500">Carregando detalhes da turma...</p>
-      </div>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <p className="text-gray-500">Carregando detalhes da turma...</p>
+        </div>
+      </AppShell>
     );
   }
 
   if (classError) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
-          <p>Erro ao carregar turma: {(classError as Error).message}</p>
-          <Button 
-            variant="outline" 
-            className="mt-2"
-            onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
-          >
-            Voltar para lista
-          </Button>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
+            <p>Erro ao carregar turma: {(classError as Error).message}</p>
+            <Button 
+              variant="outline" 
+              className="mt-2"
+              onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
+            >
+              Voltar para lista
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   if (!classItem) {
     return (
-      <div className="container p-4 mx-auto">
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 p-4 rounded-md">
-          <p>Turma não encontrada.</p>
-          <Button 
-            variant="outline" 
-            className="mt-2"
-            onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
-          >
-            Voltar para lista
-          </Button>
+      <AppShell>
+        <div className="container p-4 mx-auto">
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 p-4 rounded-md">
+            <p>Turma não encontrada.</p>
+            <Button 
+              variant="outline" 
+              className="mt-2"
+              onClick={() => navigate(`${currentPortal.baseRoute}/classes`)}
+            >
+              Voltar para lista
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
@@ -141,7 +148,7 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <>
+    <AppShell>
       <Helmet>
         <title>{classItem.name} | Turmas | Edunéxia</title>
       </Helmet>
@@ -368,6 +375,6 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
           </TabsContent>
         </Tabs>
       </div>
-    </>
+    </AppShell>
   );
 }
