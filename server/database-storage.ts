@@ -8,14 +8,16 @@ import {
   Lead, InsertLead,
   Subject, InsertSubject,
   Class, InsertClass,
-  ClassEnrollment, InsertClassEnrollment
+  ClassEnrollment, InsertClassEnrollment,
+  Assessment, InsertAssessment,
+  AssessmentResult, InsertAssessmentResult
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { 
   users, tenants, courses, modules, lessons, enrollments, leads, subjects,
   lessonProgress, payments, classes, classEnrollments,
-  aiKnowledgeBase, productivityLogs
+  aiKnowledgeBase, productivityLogs, assessments, assessmentResults
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -83,6 +85,22 @@ export interface IStorage {
   getEnrollmentsByTeacher(teacherId: number): Promise<Enrollment[]>;
   getEnrollmentsByTenant(tenantId: number): Promise<Enrollment[]>;
   createEnrollment(enrollment: InsertEnrollment): Promise<Enrollment>;
+  
+  // Assessment operations (Avaliações)
+  getAssessmentById(id: number): Promise<Assessment | undefined>;
+  getAssessmentsByClass(classId: number): Promise<Assessment[]>;
+  getAssessmentsByTenant(tenantId: number): Promise<Assessment[]>;
+  createAssessment(assessment: InsertAssessment): Promise<Assessment>;
+  updateAssessment(id: number, assessmentData: Partial<InsertAssessment>): Promise<Assessment>;
+  deleteAssessment(id: number): Promise<boolean>;
+  
+  // Assessment Results operations (Resultados de Avaliações)
+  getAssessmentResultById(id: number): Promise<AssessmentResult | undefined>;
+  getAssessmentResultsByAssessment(assessmentId: number): Promise<AssessmentResult[]>;
+  getAssessmentResultsByStudent(studentId: number): Promise<AssessmentResult[]>;
+  createAssessmentResult(result: InsertAssessmentResult): Promise<AssessmentResult>;
+  updateAssessmentResult(id: number, resultData: Partial<InsertAssessmentResult>): Promise<AssessmentResult>;
+  deleteAssessmentResult(id: number): Promise<boolean>;
   
   // Lead operations
   getLeadsByTenant(tenantId: number): Promise<Lead[]>;
@@ -982,6 +1000,177 @@ export class DatabaseStorage implements IStorage {
         recentLeads: [],
         popularCourses: []
       };
+    }
+  }
+
+  // Assessment operations (Avaliações)
+  async getAssessmentById(id: number): Promise<Assessment | undefined> {
+    try {
+      const [assessment] = await db.select().from(assessments).where(eq(assessments.id, id));
+      return assessment;
+    } catch (error) {
+      console.error('Erro ao buscar avaliação por ID:', error);
+      return undefined;
+    }
+  }
+
+  async getAssessmentsByClass(classId: number): Promise<Assessment[]> {
+    try {
+      return await db.select().from(assessments)
+        .where(eq(assessments.classId, classId))
+        .orderBy(desc(assessments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar avaliações por turma:', error);
+      return [];
+    }
+  }
+
+  async getAssessmentsByTenant(tenantId: number): Promise<Assessment[]> {
+    try {
+      return await db.select().from(assessments)
+        .where(eq(assessments.tenantId, tenantId))
+        .orderBy(desc(assessments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar avaliações por tenant:', error);
+      return [];
+    }
+  }
+
+  async createAssessment(assessmentData: InsertAssessment): Promise<Assessment> {
+    try {
+      const [assessment] = await db.insert(assessments).values({
+        ...assessmentData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isActive: assessmentData.isActive ?? true,
+        description: assessmentData.description || null,
+        availableFrom: assessmentData.availableFrom || null,
+        availableTo: assessmentData.availableTo || null,
+        instructions: assessmentData.instructions || null,
+        dueDate: assessmentData.dueDate || null
+      }).returning();
+      
+      return assessment;
+    } catch (error) {
+      console.error('Erro ao criar avaliação:', error);
+      throw error;
+    }
+  }
+
+  async updateAssessment(id: number, assessmentData: Partial<InsertAssessment>): Promise<Assessment> {
+    try {
+      const [updatedAssessment] = await db.update(assessments)
+        .set({
+          ...assessmentData,
+          updatedAt: new Date()
+        })
+        .where(eq(assessments.id, id))
+        .returning();
+      
+      if (!updatedAssessment) {
+        throw new Error('Avaliação não encontrada');
+      }
+      
+      return updatedAssessment;
+    } catch (error) {
+      console.error('Erro ao atualizar avaliação:', error);
+      throw error;
+    }
+  }
+
+  async deleteAssessment(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(assessments).where(eq(assessments.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir avaliação:', error);
+      return false;
+    }
+  }
+
+  // Assessment Results operations (Resultados de Avaliações)
+  async getAssessmentResultById(id: number): Promise<AssessmentResult | undefined> {
+    try {
+      const [result] = await db.select().from(assessmentResults).where(eq(assessmentResults.id, id));
+      return result;
+    } catch (error) {
+      console.error('Erro ao buscar resultado de avaliação por ID:', error);
+      return undefined;
+    }
+  }
+
+  async getAssessmentResultsByAssessment(assessmentId: number): Promise<AssessmentResult[]> {
+    try {
+      return await db.select().from(assessmentResults)
+        .where(eq(assessmentResults.assessmentId, assessmentId))
+        .orderBy(assessmentResults.submittedAt);
+    } catch (error) {
+      console.error('Erro ao buscar resultados por avaliação:', error);
+      return [];
+    }
+  }
+
+  async getAssessmentResultsByStudent(studentId: number): Promise<AssessmentResult[]> {
+    try {
+      return await db.select().from(assessmentResults)
+        .where(eq(assessmentResults.studentId, studentId))
+        .orderBy(desc(assessmentResults.submittedAt));
+    } catch (error) {
+      console.error('Erro ao buscar resultados de avaliação por aluno:', error);
+      return [];
+    }
+  }
+
+  async createAssessmentResult(resultData: InsertAssessmentResult): Promise<AssessmentResult> {
+    try {
+      const [result] = await db.insert(assessmentResults).values({
+        ...resultData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        submittedAt: resultData.submittedAt || new Date(),
+        gradedAt: resultData.gradedAt || null,
+        feedback: resultData.feedback || null,
+        attachmentUrl: resultData.attachmentUrl || null,
+        status: resultData.status || 'pending'
+      }).returning();
+      
+      return result;
+    } catch (error) {
+      console.error('Erro ao criar resultado de avaliação:', error);
+      throw error;
+    }
+  }
+
+  async updateAssessmentResult(id: number, resultData: Partial<InsertAssessmentResult>): Promise<AssessmentResult> {
+    try {
+      const [updatedResult] = await db.update(assessmentResults)
+        .set({
+          ...resultData,
+          updatedAt: new Date(),
+          // Se o professor está atribuindo uma nota, adicionar a data de correção
+          ...(resultData.score !== undefined && { gradedAt: new Date() })
+        })
+        .where(eq(assessmentResults.id, id))
+        .returning();
+      
+      if (!updatedResult) {
+        throw new Error('Resultado de avaliação não encontrado');
+      }
+      
+      return updatedResult;
+    } catch (error) {
+      console.error('Erro ao atualizar resultado de avaliação:', error);
+      throw error;
+    }
+  }
+
+  async deleteAssessmentResult(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(assessmentResults).where(eq(assessmentResults.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir resultado de avaliação:', error);
+      return false;
     }
   }
 }
