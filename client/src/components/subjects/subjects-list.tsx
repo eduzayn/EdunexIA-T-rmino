@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Subject } from '@shared/schema';
+import type { Subject } from '@shared/schema';
 import { usePortal } from '@/hooks/use-portal';
 
 export function SubjectsList() {
@@ -28,7 +28,7 @@ export function SubjectsList() {
   const [, navigate] = useLocation();
   
   // Buscar disciplinas
-  const { data: subjects, isLoading, error } = useQuery({
+  const { data: subjects = [], isLoading, error } = useQuery<Subject[]>({
     queryKey: ['/api/subjects'],
     refetchOnWindowFocus: false,
   });
@@ -89,6 +89,15 @@ export function SubjectsList() {
 
   return (
     <div className="space-y-4">
+      <Button 
+        variant="ghost" 
+        className="mb-2 -ml-2 flex items-center text-gray-600 hover:text-gray-900"
+        onClick={() => navigate(`${currentPortal.baseRoute}`)}
+      >
+        <ArrowLeft className="mr-1 h-4 w-4" />
+        Voltar ao dashboard
+      </Button>
+        
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Disciplinas</h2>
         <Button asChild>
@@ -109,7 +118,7 @@ export function SubjectsList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {subjects.map((subject: Subject) => (
+          {subjects.map((subject) => (
             <TableRow key={subject.id}>
               <TableCell className="font-medium">{subject.title}</TableCell>
               <TableCell>{subject.area || '—'}</TableCell>
