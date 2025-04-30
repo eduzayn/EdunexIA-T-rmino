@@ -16,14 +16,18 @@ import { usePortal } from "@/hooks/use-portal";
 // Interface para os cursos com progresso do aluno
 interface StudentCourse {
   id: number;
-  title: string;
-  shortDescription: string | null;
-  area: string | null;
-  progress: number;
-  subjectsCount: number;
-  price: number | null;
-  imageUrl: string | null;
-  status: string;
+  name: string;  // Mudado de 'title' para 'name' para corresponder à API
+  description?: string;
+  shortDescription?: string | null;
+  area?: string | null;
+  progress?: number;
+  subjectsCount?: number;
+  price?: number | null;
+  imageUrl?: string | null;
+  status?: string;
+  code?: string;
+  tenantId?: number;
+  createdAt?: string;
 }
 
 export default function StudentCoursesPage() {
@@ -43,13 +47,16 @@ export default function StudentCoursesPage() {
   });
 
   // Filtrar cursos baseado na busca
-  const filteredCourses = courses.filter(course => 
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (course.shortDescription && course.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredCourses = courses.filter(course => {
+    const courseName = course.name || '';
+    const courseDesc = course.shortDescription || course.description || '';
+    
+    return courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           courseDesc.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   // Função para renderizar placeholder de imagem
-  const renderPlaceholderImage = (courseTitle: string) => {
+  const renderPlaceholderImage = (courseName: string) => {
     const colors = [
       "bg-blue-100 text-blue-800",
       "bg-purple-100 text-purple-800",
@@ -57,8 +64,8 @@ export default function StudentCoursesPage() {
       "bg-green-100 text-green-800",
       "bg-yellow-100 text-yellow-800"
     ];
-    const color = colors[courseTitle.length % colors.length];
-    const initials = courseTitle
+    const color = colors[courseName.length % colors.length];
+    const initials = courseName
       .split(" ")
       .slice(0, 2)
       .map(word => word[0])
@@ -181,14 +188,14 @@ export default function StudentCoursesPage() {
                     {course.imageUrl ? (
                       <img 
                         src={course.imageUrl} 
-                        alt={course.title} 
+                        alt={course.name} 
                         className="h-40 w-full object-cover rounded-t-lg"
                       />
-                    ) : renderPlaceholderImage(course.title)}
+                    ) : renderPlaceholderImage(course.name)}
                     
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
-                        <CardTitle className="text-lg">{course.title}</CardTitle>
+                        <CardTitle className="text-lg">{course.name}</CardTitle>
                         <Badge className="bg-blue-100 text-blue-800 border-none">
                           {getAreaName(course.area)}
                         </Badge>
@@ -236,13 +243,13 @@ export default function StudentCoursesPage() {
                       {course.imageUrl ? (
                         <img 
                           src={course.imageUrl} 
-                          alt={course.title} 
+                          alt={course.name} 
                           className="h-40 md:h-auto md:w-48 object-cover md:rounded-l-lg md:rounded-t-none rounded-t-lg"
                         />
                       ) : (
                         <div className={`h-40 md:h-auto md:w-48 flex items-center justify-center bg-blue-100 text-blue-800 md:rounded-l-lg md:rounded-t-none rounded-t-lg`}>
                           <span className="text-3xl font-bold">
-                            {course.title.charAt(0).toUpperCase()}
+                            {course.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
@@ -250,7 +257,7 @@ export default function StudentCoursesPage() {
                       <div className="flex-grow p-4">
                         <div className="flex justify-between">
                           <div>
-                            <h3 className="text-lg font-semibold">{course.title}</h3>
+                            <h3 className="text-lg font-semibold">{course.name}</h3>
                             <Badge className="mt-1 bg-blue-100 text-blue-800 border-none">
                               {getAreaName(course.area)}
                             </Badge>
