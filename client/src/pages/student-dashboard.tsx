@@ -132,7 +132,7 @@ export default function StudentDashboard() {
 
   // Filtrar as notificações recentes
   const recentNotifications = notifications
-    .sort((a, b) => {
+    .sort((a: Notification, b: Notification) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
       return dateB.getTime() - dateA.getTime();
@@ -141,8 +141,8 @@ export default function StudentDashboard() {
 
   // Calcular o saldo financeiro
   const pendingAmount = financialItems
-    .filter(item => item.status === 'pending' || item.status === 'overdue')
-    .reduce((total, item) => total + item.amount, 0);
+    .filter((item: FinancialItem) => item.status === 'pending' || item.status === 'overdue')
+    .reduce((total: number, item: FinancialItem) => total + item.amount, 0);
 
   // Formatar valores em reais
   const formatCurrency = (value: number) => {
@@ -167,7 +167,7 @@ export default function StudentDashboard() {
           <div>
             <Badge variant="outline" className="ml-2">
               <Bell className="h-4 w-4 mr-1" />
-              {notifications.filter(n => n.isNew).length} novos avisos
+              {notifications.filter((n: Notification) => n.isNew).length} novos avisos
             </Badge>
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function StudentDashboard() {
                 <p>Você ainda não está matriculado em nenhum curso.</p>
               ) : (
                 <div className="space-y-4">
-                  {courses.slice(0, 3).map((course) => (
+                  {courses.slice(0, 3).map((course: Course) => (
                     <div key={course.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold">{course.title}</h3>
