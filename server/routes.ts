@@ -1276,6 +1276,336 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Assessments (Avaliações)
+  // Listar avaliações por turma
+  app.get("/api/classes/:classId/assessments", isAuthenticated, async (req, res, next) => {
+    try {
+      const classId = parseInt(req.params.classId);
+      
+      // Verificar se a turma existe
+      const classData = await storage.getClassById(classId);
+      if (!classData) {
+        return res.status(404).json({ message: "Turma não encontrada" });
+      }
+      
+      // Verificar se o usuário tem acesso a esta turma (mesmo tenant)
+      if (classData.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para acessar esta turma" });
+      }
+      
+      const assessments = await storage.getAssessmentsByClass(classId);
+      res.json(assessments);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Obter uma avaliação específica
+  app.get("/api/assessments/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const assessmentId = parseInt(req.params.id);
+      const assessment = await storage.getAssessmentById(assessmentId);
+      
+      if (!assessment) {
+        return res.status(404).json({ message: "Avaliação não encontrada" });
+      }
+      
+      // Verificar permissão (mesmo tenant)
+      if (assessment.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para acessar esta avaliação" });
+      }
+      
+      res.json(assessment);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Criar uma nova avaliação
+  app.post("/api/assessments", isAuthenticated, async (req, res, next) => {
+    try {
+      // Apenas professores e admins podem criar avaliações
+      if (req.user?.role !== 'teacher' && req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Apenas professores e administradores podem criar avaliações" });
+      }
+      
+      const assessmentData = insertAssessmentSchema.parse({
+        ...req.body,
+        tenantId: req.user.tenantId,
+        createdBy: req.user.id
+      });
+      
+      // Verificar se a turma existe e pertence ao mesmo tenant
+      const classData = await storage.getClassById(assessmentData.classId);
+      if (!classData) {
+        return res.status(404).json({ message: "Turma não encontrada" });
+      }
+      
+      if (classData.tenantId !== req.user.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para criar avaliações para esta turma" });
+      }
+      
+      // Se o usuário for professor, verificar se ele é o professor da turma
+      if (req.user.role === 'teacher' && classData.teacherId !== req.user.id) {
+        return res.status(403).json({ message: "Apenas o professor responsável pela turma pode criar avaliações para ela" });
+      }
+      
+      const assessment = await storage.createAssessment(assessmentData);
+      res.status(201).json(assessment);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Atualizar uma avaliação existente
+  app.put("/api/assessments/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const assessmentId = parseInt(req.params.id);
+      
+      // Verificar se a avaliação existe
+      const assessment = await storage.getAssessmentById(assessmentId);
+      if (!assessment) {
+        return res.status(404).json({ message: "Avaliação não encontrada" });
+      }
+      
+      // Verificar permissão (mesmo tenant)
+      if (assessment.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para editar esta avaliação" });
+      }
+      
+      // Se for professor, verificar se ele é o criador da avaliação
+      if (req.user.role === 'teacher' && assessment.createdBy !== req.user.id) {
+        return res.status(403).json({ message: "Apenas o criador da avaliação ou administradores podem editá-la" });
+      }
+      
+      const assessmentData = insertAssessmentSchema.partial().parse({
+        ...req.body,
+        tenantId: req.user.tenantId
+      });
+      
+      const updatedAssessment = await storage.updateAssessment(assessmentId, assessmentData);
+      res.json(updatedAssessment);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Excluir uma avaliação
+  app.delete("/api/assessments/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const assessmentId = parseInt(req.params.id);
+      
+      // Verificar se a avaliação existe
+      const assessment = await storage.getAssessmentById(assessmentId);
+      if (!assessment) {
+        return res.status(404).json({ message: "Avaliação não encontrada" });
+      }
+      
+      // Verificar permissão (mesmo tenant)
+      if (assessment.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para excluir esta avaliação" });
+      }
+      
+      // Se for professor, verificar se ele é o criador da avaliação
+      if (req.user.role === 'teacher' && assessment.createdBy !== req.user.id) {
+        return res.status(403).json({ message: "Apenas o criador da avaliação ou administradores podem excluí-la" });
+      }
+      
+      const success = await storage.deleteAssessment(assessmentId);
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ message: "Erro ao excluir avaliação" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Assessment Results (Resultados de Avaliações)
+  // Listar resultados de uma avaliação
+  app.get("/api/assessments/:assessmentId/results", isAuthenticated, async (req, res, next) => {
+    try {
+      const assessmentId = parseInt(req.params.assessmentId);
+      
+      // Verificar se a avaliação existe
+      const assessment = await storage.getAssessmentById(assessmentId);
+      if (!assessment) {
+        return res.status(404).json({ message: "Avaliação não encontrada" });
+      }
+      
+      // Verificar permissão (mesmo tenant)
+      if (assessment.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para acessar os resultados desta avaliação" });
+      }
+      
+      // Alunos só podem ver seus próprios resultados
+      if (req.user.role === 'student') {
+        const result = await storage.getAssessmentResultsByAssessment(assessmentId)
+          .then(results => results.filter(r => r.studentId === req.user?.id));
+        return res.json(result);
+      }
+      
+      // Professores só podem ver resultados de suas próprias avaliações
+      if (req.user.role === 'teacher') {
+        // Verificar se esta avaliação foi criada pelo professor atual
+        if (assessment.createdBy !== req.user.id) {
+          return res.status(403).json({ message: "Você não tem permissão para acessar os resultados desta avaliação" });
+        }
+      }
+      
+      const results = await storage.getAssessmentResultsByAssessment(assessmentId);
+      res.json(results);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Obter resultados de um estudante específico
+  app.get("/api/students/:studentId/assessment-results", isAuthenticated, async (req, res, next) => {
+    try {
+      const studentId = parseInt(req.params.studentId);
+      
+      // Alunos só podem ver seus próprios resultados
+      if (req.user?.role === 'student' && req.user.id !== studentId) {
+        return res.status(403).json({ message: "Você só pode visualizar seus próprios resultados" });
+      }
+      
+      // Verificar se o estudante existe e pertence ao mesmo tenant
+      const student = await storage.getStudentById(studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Estudante não encontrado" });
+      }
+      
+      if (student.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para acessar os resultados deste estudante" });
+      }
+      
+      const results = await storage.getAssessmentResultsByStudent(studentId);
+      res.json(results);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Criar um resultado de avaliação
+  app.post("/api/assessment-results", isAuthenticated, async (req, res, next) => {
+    try {
+      // Todos podem submeter resultados, mas alunos só podem submeter para si próprios
+      const resultData = insertAssessmentResultSchema.parse(req.body);
+      
+      // Se for aluno, só pode submeter para si mesmo
+      if (req.user?.role === 'student' && resultData.studentId !== req.user.id) {
+        return res.status(403).json({ message: "Você só pode submeter resultados para si mesmo" });
+      }
+      
+      // Verificar se a avaliação existe
+      const assessment = await storage.getAssessmentById(resultData.assessmentId);
+      if (!assessment) {
+        return res.status(404).json({ message: "Avaliação não encontrada" });
+      }
+      
+      // Verificar permissão (mesmo tenant)
+      if (assessment.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para submeter resultados para esta avaliação" });
+      }
+      
+      // Verificar se o estudante existe e pertence ao mesmo tenant
+      const student = await storage.getStudentById(resultData.studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Estudante não encontrado" });
+      }
+      
+      if (student.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para submeter resultados para este estudante" });
+      }
+      
+      const result = await storage.createAssessmentResult(resultData);
+      res.status(201).json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Atualizar um resultado de avaliação (ex: professor atribuindo nota)
+  app.put("/api/assessment-results/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const resultId = parseInt(req.params.id);
+      
+      // Verificar se o resultado existe
+      const result = await storage.getAssessmentResultById(resultId);
+      if (!result) {
+        return res.status(404).json({ message: "Resultado não encontrado" });
+      }
+      
+      // Alunos só podem atualizar seus próprios resultados e não podem atribuir notas
+      if (req.user?.role === 'student') {
+        if (result.studentId !== req.user.id) {
+          return res.status(403).json({ message: "Você só pode atualizar seus próprios resultados" });
+        }
+        
+        // Alunos não podem atribuir ou modificar notas
+        if (req.body.score !== undefined || req.body.gradedBy !== undefined) {
+          return res.status(403).json({ message: "Estudantes não podem atribuir notas" });
+        }
+      }
+      
+      // Verificar se o professor tem permissão para avaliar esta turma
+      if (req.user?.role === 'teacher') {
+        const assessment = await storage.getAssessmentById(result.assessmentId);
+        if (!assessment) {
+          return res.status(404).json({ message: "Avaliação não encontrada" });
+        }
+        
+        // Verificar se o professor é o criador da avaliação
+        if (assessment.createdBy !== req.user.id) {
+          return res.status(403).json({ message: "Apenas o professor que criou a avaliação pode atribuir notas" });
+        }
+      }
+      
+      const resultData = insertAssessmentResultSchema.partial().parse({
+        ...req.body,
+        // Se estiver atribuindo nota, registrar quem avaliou
+        ...(req.body.score !== undefined && { gradedBy: req.user?.id })
+      });
+      
+      const updatedResult = await storage.updateAssessmentResult(resultId, resultData);
+      res.json(updatedResult);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Excluir um resultado de avaliação
+  app.delete("/api/assessment-results/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const resultId = parseInt(req.params.id);
+      
+      // Verificar se o resultado existe
+      const result = await storage.getAssessmentResultById(resultId);
+      if (!result) {
+        return res.status(404).json({ message: "Resultado não encontrado" });
+      }
+      
+      // Verificar se é admin ou o professor que criou a avaliação
+      if (req.user?.role !== 'admin') {
+        const assessment = await storage.getAssessmentById(result.assessmentId);
+        if (!assessment || assessment.createdBy !== req.user?.id) {
+          return res.status(403).json({ message: "Apenas administradores ou o professor que criou a avaliação podem excluir resultados" });
+        }
+      }
+      
+      const success = await storage.deleteAssessmentResult(resultId);
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ message: "Erro ao excluir resultado de avaliação" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
