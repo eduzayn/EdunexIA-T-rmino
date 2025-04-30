@@ -81,7 +81,6 @@ export const courses = pgTable('courses', {
 export const subjects = pgTable('subjects', {
   id: serial('id').primaryKey(),
   tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
-  code: text('code').notNull(),
   title: text('title').notNull(),
   description: text('description'),
   workload: integer('workload'), // Carga horária em horas
@@ -89,10 +88,6 @@ export const subjects = pgTable('subjects', {
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-}, (table) => {
-  return {
-    codeUnique: unique().on(table.code, table.tenantId), // garantir que o código é único por tenant
-  };
 });
 
 // Modules (Sections of a course)
