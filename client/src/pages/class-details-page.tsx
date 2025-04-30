@@ -413,7 +413,8 @@ export function ClassDetailsPage({ params }: { params: { id: string } }) {
                 ) : (
                   <AssessmentsList 
                     assessments={assessments} 
-                    baseUrl={currentPortal.baseRoute} 
+                    classId={classId}
+                    userRole={currentPortal.role}
                   />
                 )}
               </CardContent>
