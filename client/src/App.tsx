@@ -49,7 +49,7 @@ import PartnerRegisterStudentPage from "@/pages/partner-register-student-page";
 import PartnerPaymentsPage from "@/pages/partner-payments-page";
 import TeacherDashboard from "@/pages/teacher-dashboard";
 import TeacherPortalButton from "@/components/admin/teacher-portal-button";
-import HubPortalButton from "@/components/admin/hub-portal-button";
+
 import HubDashboard from "@/pages/hub-dashboard";
 import AdminHubViewPage from "@/pages/admin-hub-view-page";
 
@@ -179,17 +179,12 @@ function PortalViewButtons() {
   
   return (
     <>
-      {/* Adicionar botões de visualização dos portais nas rotas administrativas */}
+      {/* Adicionar botão de visualização do Portal do Professor nas rotas administrativas*/}
       {currentLocation.startsWith('/admin/') && 
        !currentLocation.startsWith('/admin/partner-view') && 
        !currentLocation.startsWith('/admin/teacher-view') && 
        !currentLocation.startsWith('/admin/hub-view') && (
-        <>
-          <TeacherPortalButton />
-          <div className="fixed bottom-4 right-20 z-50">
-            <HubPortalButton />
-          </div>
-        </>
+        <TeacherPortalButton />
       )}
     </>
   );
