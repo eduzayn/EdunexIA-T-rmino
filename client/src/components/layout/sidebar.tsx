@@ -34,6 +34,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({
     academic: true,
     secretary: false,
+    partnerships: false,
   });
 
   // Ícones para cada tipo de portal
@@ -407,20 +408,6 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                       <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
                     </div>
                     
-                    {currentPortal.id === 'admin' && (
-                      <Link 
-                        href={`/admin/partner-payments`}
-                        className={cn(
-                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                          isActive(`/admin/partner-payments`) 
-                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                        )}
-                      >
-                        Pagamentos de Certificações
-                      </Link>
-                    )}
-                    
                     <Link 
                       href={`${currentPortal.baseRoute}/student-documents`}
                       className={cn(
@@ -432,12 +419,40 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     >
                       Documentação
                     </Link>
-                    
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* ADM Parcerias - Apenas para admin */}
+            {currentPortal.id === 'admin' && (
+              <div className="nav-group">
+                <button 
+                  className={cn(
+                    "flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-md transition-colors",
+                    "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )} 
+                  onClick={() => toggleGroup('partnerships')}
+                >
+                  <div className="flex items-center">
+                    <Award className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                    ADM Parcerias
+                  </div>
+                  <ChevronDown 
+                    className={cn(
+                      "h-5 w-5 text-sidebar-foreground/70 transition-transform",
+                      openGroups.partnerships ? "transform rotate-180" : ""
+                    )} 
+                  />
+                </button>
+
+                {openGroups.partnerships && (
+                  <div className="pl-12 space-y-2 mt-2">
                     <Link 
-                      href={`${currentPortal.baseRoute}/partner-certifications`}
+                      href={`/admin/partner-certifications`}
                       className={cn(
                         "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                        isActive(`${currentPortal.baseRoute}/partner-certifications`) 
+                        isActive(`/admin/partner-certifications`) 
                           ? "bg-sidebar-accent/70 text-sidebar-foreground" 
                           : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                       )}
@@ -446,15 +461,15 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     </Link>
                     
                     <Link 
-                      href={`${currentPortal.baseRoute}/teacher-view`}
+                      href={`/admin/partner-payments`}
                       className={cn(
                         "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                        isActive(`${currentPortal.baseRoute}/teacher-view`) 
+                        isActive(`/admin/partner-payments`) 
                           ? "bg-sidebar-accent/70 text-sidebar-foreground" 
                           : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                       )}
                     >
-                      Portal do Professor
+                      Pagamentos de Certificações
                     </Link>
                   </div>
                 )}
