@@ -154,6 +154,32 @@ async function pushSchema() {
         "duration" INTEGER,
         "created_at" TIMESTAMP NOT NULL
       );
+      
+      CREATE TABLE IF NOT EXISTS "simplified_enrollments" (
+        "id" SERIAL PRIMARY KEY,
+        "tenant_id" INTEGER NOT NULL REFERENCES "tenants"("id") ON DELETE CASCADE,
+        "course_id" INTEGER NOT NULL REFERENCES "courses"("id") ON DELETE CASCADE,
+        "student_id" INTEGER REFERENCES "users"("id"),
+        "student_name" VARCHAR NOT NULL,
+        "student_email" VARCHAR NOT NULL,
+        "student_cpf" VARCHAR NOT NULL,
+        "student_phone" VARCHAR,
+        "polo_id" INTEGER REFERENCES "users"("id"),
+        "consultant_id" INTEGER REFERENCES "users"("id"),
+        "amount" INTEGER NOT NULL,
+        "installments" INTEGER NOT NULL DEFAULT 1,
+        "external_reference" VARCHAR,
+        "payment_url" VARCHAR,
+        "asaas_customer_id" VARCHAR,
+        "asaas_payment_id" VARCHAR,
+        "status" VARCHAR NOT NULL DEFAULT 'pending',
+        "expiration_date" TIMESTAMP,
+        "source_channel" VARCHAR,
+        "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "completed_at" TIMESTAMP,
+        "cancelled_at" TIMESTAMP
+      );
     `);
     
     console.log('Verificando indexes...');
@@ -172,6 +198,9 @@ async function pushSchema() {
       CREATE INDEX IF NOT EXISTS "idx_payments_enrollment_id" ON "payments" ("enrollment_id");
       CREATE INDEX IF NOT EXISTS "idx_leads_tenant_id" ON "leads" ("tenant_id");
       CREATE INDEX IF NOT EXISTS "idx_productivity_logs_user_id" ON "productivity_logs" ("user_id");
+      CREATE INDEX IF NOT EXISTS "idx_simplified_enrollments_tenant_id" ON "simplified_enrollments" ("tenant_id");
+      CREATE INDEX IF NOT EXISTS "idx_simplified_enrollments_course_id" ON "simplified_enrollments" ("course_id");
+      CREATE INDEX IF NOT EXISTS "idx_simplified_enrollments_status" ON "simplified_enrollments" ("status");
     `);
     
     console.log('Schema atualizado com sucesso!');

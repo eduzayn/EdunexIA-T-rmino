@@ -397,7 +397,7 @@ export default function SimplifiedEnrollmentPage() {
                                 </FormControl>
                                 <SelectContent>
                                   {isLoadingCourses ? (
-                                    <SelectItem value="">Carregando cursos...</SelectItem>
+                                    <SelectItem value="loading">Carregando cursos...</SelectItem>
                                   ) : (
                                     courses.map((course: any) => (
                                       <SelectItem key={course.id} value={course.id.toString()}>
