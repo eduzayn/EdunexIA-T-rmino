@@ -3,6 +3,15 @@ import { storage } from './database-storage';
 import { z } from 'zod';
 import { insertSimplifiedEnrollmentSchema } from '@shared/schema';
 import { paymentService } from './services/payment-service';
+// Tipos para req.user
+interface AuthUser {
+  id: number;
+  tenantId: number;
+  username: string;
+  role: string;
+  // outros campos do usuário...
+}
+
 // Middleware para autenticação
 const isAuthenticated = (req: any, res: any, next: any) => {
   if (req.isAuthenticated()) {
@@ -121,11 +130,21 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
 // Rota para listar matrículas simplificadas por tenant
 router.get('/simplified-enrollments', isAuthenticated, async (req, res) => {
   try {
-    const tenantId = Number(req.query.tenantId);
+    // Obter tenantId da query ou do usuário autenticado
+    let tenantId = Number(req.query.tenantId);
+    
+    // Se não foi fornecido na query, tentar obter do usuário autenticado
+    if (!tenantId && req.user) {
+      const authUser = req.user as AuthUser;
+      tenantId = authUser.tenantId;
+      console.log(`Obtendo tenant do usuário autenticado: ${tenantId}`);
+    }
+    
     if (!tenantId) {
       return res.status(400).json({ error: 'Tenant ID é obrigatório' });
     }
     
+    console.log(`Listando matrículas para o tenant ID: ${tenantId}`);
     const enrollments = await storage.getSimplifiedEnrollmentsByTenant(tenantId);
     return res.json(enrollments);
   } catch (error) {
