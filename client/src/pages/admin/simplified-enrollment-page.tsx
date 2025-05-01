@@ -107,16 +107,16 @@ export default function SimplifiedEnrollmentPage() {
   const [selectedTab, setSelectedTab] = useState("new");
   
   // Consultas
-  const { data: courses, isLoading: isLoadingCourses } = useQuery({
+  const { data: courses = [], isLoading: isLoadingCourses } = useQuery<any[]>({
     queryKey: ['/api/courses'],
     retry: 1,
   });
   
-  const { data: enrollments, isLoading: isLoadingEnrollments, refetch: refetchEnrollments } = useQuery({
+  const { data: enrollments = [], isLoading: isLoadingEnrollments, refetch: refetchEnrollments } = useQuery<SimplifiedEnrollment[]>({
     queryKey: ['/api/simplified-enrollments', user?.tenantId],
     enabled: !!user?.tenantId,
     queryFn: async () => {
-      const response = await apiRequest(`/api/simplified-enrollments?tenantId=${user?.tenantId}`);
+      const response = await fetch(`/api/simplified-enrollments?tenantId=${user?.tenantId}`);
       return await response.json();
     }
   });
@@ -124,8 +124,11 @@ export default function SimplifiedEnrollmentPage() {
   // Mutação para criar matrícula
   const createEnrollmentMutation = useMutation({
     mutationFn: async (formData: any) => {
-      const response = await apiRequest("/api/simplified-enrollments", {
+      const response = await fetch("/api/simplified-enrollments", {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(formData),
       });
       
@@ -225,7 +228,7 @@ export default function SimplifiedEnrollmentPage() {
   
   // Manipular mudança no campo de curso
   const handleCourseChange = (courseId: string) => {
-    const selectedCourse = courses?.find((c: any) => c.id.toString() === courseId);
+    const selectedCourse = courses.find((c: any) => c.id.toString() === courseId);
     if (selectedCourse && selectedCourse.price) {
       form.setValue("amount", selectedCourse.price.toString());
     }
@@ -396,7 +399,7 @@ export default function SimplifiedEnrollmentPage() {
                                   {isLoadingCourses ? (
                                     <SelectItem value="">Carregando cursos...</SelectItem>
                                   ) : (
-                                    courses?.map((course: any) => (
+                                    courses.map((course: any) => (
                                       <SelectItem key={course.id} value={course.id.toString()}>
                                         {course.title}
                                       </SelectItem>
@@ -517,14 +520,14 @@ export default function SimplifiedEnrollmentPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {enrollments?.filter((e: SimplifiedEnrollment) => 
+                      {enrollments.filter((e: SimplifiedEnrollment) => 
                         ['pending', 'waiting_payment'].includes(e.status)
                       ).map((enrollment: SimplifiedEnrollment) => (
                         <TableRow key={enrollment.id}>
                           <TableCell className="font-medium">{enrollment.id}</TableCell>
                           <TableCell>{enrollment.studentName}</TableCell>
                           <TableCell>
-                            {courses?.find((c: any) => c.id === enrollment.courseId)?.title || 
+                            {courses.find((c: any) => c.id === enrollment.courseId)?.title || 
                              `Curso #${enrollment.courseId}`}
                           </TableCell>
                           <TableCell>{formatCurrency(enrollment.amount)}</TableCell>
@@ -545,7 +548,7 @@ export default function SimplifiedEnrollmentPage() {
                         </TableRow>
                       ))}
                       
-                      {enrollments?.filter((e: SimplifiedEnrollment) => 
+                      {enrollments.filter((e: SimplifiedEnrollment) => 
                         ['pending', 'waiting_payment'].includes(e.status)
                       ).length === 0 && (
                         <TableRow>
@@ -589,12 +592,12 @@ export default function SimplifiedEnrollmentPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {enrollments?.map((enrollment: SimplifiedEnrollment) => (
+                      {enrollments.map((enrollment: SimplifiedEnrollment) => (
                         <TableRow key={enrollment.id}>
                           <TableCell className="font-medium">{enrollment.id}</TableCell>
                           <TableCell>{enrollment.studentName}</TableCell>
                           <TableCell>
-                            {courses?.find((c: any) => c.id === enrollment.courseId)?.title || 
+                            {courses.find((c: any) => c.id === enrollment.courseId)?.title || 
                              `Curso #${enrollment.courseId}`}
                           </TableCell>
                           <TableCell>{formatCurrency(enrollment.amount)}</TableCell>
@@ -615,7 +618,7 @@ export default function SimplifiedEnrollmentPage() {
                         </TableRow>
                       ))}
                       
-                      {enrollments?.length === 0 && (
+                      {enrollments.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                             Nenhuma matrícula encontrada
