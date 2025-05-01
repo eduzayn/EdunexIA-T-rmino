@@ -251,7 +251,7 @@ class PaymentService {
   }
   
   /**
-   * Cria um checkout para matrícula simplificada
+   * Cria um link de pagamento para matrícula simplificada
    */
   async createMatriculaCheckout(data: {
     customer: AsaasCustomer | string,
@@ -264,8 +264,8 @@ class PaymentService {
     dueDate?: string // formato YYYY-MM-DD
   }): Promise<{ paymentUrl: string, paymentId: string }> {
     try {
-      // Gerar data de vencimento (10 dias a partir de hoje caso não seja fornecida)
-      const dueDate = data.dueDate || this.generateDueDate(10);
+      // Gerar data de vencimento (30 dias a partir de hoje caso não seja fornecida)
+      const dueDate = data.dueDate || this.generateDueDate(30);
       
       // Preparar cliente
       const customerId = typeof data.customer === 'string' 
@@ -273,57 +273,40 @@ class PaymentService {
         : data.customer.id;
       
       // Descrição do pagamento
-      const description = `Matrícula: ${data.courseTitle} - Aluno: ${data.studentName}`;
+      const description = `Matrícula no curso: ${data.courseTitle}`;
       
-      // Referência externa para rastreamento
-      const externalReference = `matricula-${data.enrollmentId}`;
-      
-      // Configurar máximo de parcelas (até 12)
-      const maxInstallmentCount = Math.min(data.installments || 1, 12);
+      // Nome para o link de pagamento
+      const linkName = `Matrícula #${data.enrollmentId} - ${data.studentName}`;
       
       // Verificar o método de pagamento selecionado
       const selectedPaymentMethod = data.paymentMethod || 'UNDEFINED';
       
       // Log para debug
-      console.log(`Preparando checkout com método de pagamento: ${selectedPaymentMethod}`);
-      console.log(`Cliente ID: ${customerId}, Valor: ${data.value}, Parcelas: ${maxInstallmentCount}`);
+      console.log(`Preparando link de pagamento com método de pagamento: ${selectedPaymentMethod}`);
+      console.log(`Cliente ID: ${customerId}, Valor: ${data.value}, Link: ${linkName}`);
       
-      // Criar configuração base do checkout
-      const checkoutData: CreateCheckoutPayload = {
-        customer: customerId,
-        value: data.value,
-        dueDate: dueDate,
+      // Criar payload para o link de pagamento
+      const paymentLinkData = {
+        name: linkName,
         description: description,
-        externalReference: externalReference,
-        maxInstallmentCount: maxInstallmentCount,
-        installmentCount: data.installments,
+        value: data.value,
+        billingType: selectedPaymentMethod,
+        chargeType: 'DETACHED',
+        dueDateLimitDays: 30,
+        maxInstallmentCount: data.installments || 1,
         notificationEnabled: true,
-        // Definir o método de pagamento específico ou permitir que o cliente escolha
-        billingType: selectedPaymentMethod as 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX',
-        // Configurações para cartão (aplicável apenas se billingType for UNDEFINED ou CREDIT_CARD)
-        creditCardEnabled: selectedPaymentMethod === 'UNDEFINED' || selectedPaymentMethod === 'CREDIT_CARD',
-        creditCardBrandList: ['VISA', 'MASTERCARD', 'AMEX', 'ELO', 'HIPERCARD'],
-        creditCardMaxInstallmentCount: maxInstallmentCount,
-        // Juros e multa para boleto (aplicável apenas se billingType for UNDEFINED ou BOLETO)
-        boletos: {
-          chargeType: 'DETACHED',
-          interest: {
-            value: 1 // 1% ao mês
-          },
-          fine: {
-            value: 2 // 2% sobre o valor
-          }
-        }
+        endDate: null, // Link sem data de expiração
+        externalReference: `matricula-${data.enrollmentId}`
       };
       
-      // URL para o checkout
-      const checkoutUrl = `${this.apiUrl}/v3/checkouts`;
-      console.log(`Criando checkout em: ${checkoutUrl}`);
-      console.log(`Dados do checkout: ${JSON.stringify(checkoutData).substring(0, 300)}...`);
+      // URL para criar o link de pagamento
+      const paymentLinkUrl = `${this.apiUrl}/v3/paymentLinks`;
+      console.log(`Criando link de pagamento em: ${paymentLinkUrl}`);
+      console.log(`Dados do link de pagamento: ${JSON.stringify(paymentLinkData).substring(0, 300)}...`);
       
       const response = await axios.post(
-        checkoutUrl,
-        checkoutData,
+        paymentLinkUrl,
+        paymentLinkData,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -335,16 +318,22 @@ class PaymentService {
       );
       
       // Log para debug
-      console.log(`Status da resposta do checkout: ${response.status}`);
-      console.log(`Resposta do checkout: ${JSON.stringify(response.data).substring(0, 300)}...`);
+      console.log(`Status da resposta do link: ${response.status}`);
+      console.log(`Resposta do link: ${JSON.stringify(response.data).substring(0, 300)}...`);
       
       return {
-        paymentUrl: response.data.invoiceUrl,
+        paymentUrl: response.data.url,
         paymentId: response.data.id
       };
     } catch (error: any) {
-      console.error('Erro ao criar checkout no Asaas:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.errors?.[0]?.description || 'Erro ao criar checkout');
+      console.error('Erro ao criar link de pagamento no Asaas:', error.response?.data || error.message);
+      
+      // Se a resposta tiver detalhes de erro, exibi-los
+      if (error.response?.data?.errors) {
+        console.error('Detalhes do erro Asaas:', JSON.stringify(error.response.data.errors));
+      }
+      
+      throw new Error(error.response?.data?.errors?.[0]?.description || 'Erro ao criar link de pagamento');
     }
   }
 

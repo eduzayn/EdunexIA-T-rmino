@@ -46,6 +46,15 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
     const enrollment = await storage.createSimplifiedEnrollment(enrollmentData);
     
     try {
+      // Log dos dados da matrícula para debug
+      console.log('Dados da matrícula para pagamento:', {
+        courseId: enrollmentData.courseId,
+        studentName: enrollmentData.studentName,
+        studentCpf: enrollmentData.studentCpf,
+        amount: enrollmentData.amount,
+        paymentMethod: enrollmentData.paymentMethod || 'UNDEFINED'
+      });
+      
       // Criar cliente no Asaas ou recuperar existente
       const customer = await paymentService.getOrCreateCustomer({
         name: enrollmentData.studentName,
@@ -54,8 +63,13 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
         phone: enrollmentData.studentPhone,
       });
       
-      // Criar checkout para pagamento
-      const checkout = await paymentService.createMatriculaCheckout({
+      console.log('Cliente criado/recuperado no Asaas:', { 
+        id: customer.id, 
+        name: customer.name 
+      });
+      
+      // Criar link de pagamento para a matrícula
+      const paymentLink = await paymentService.createMatriculaCheckout({
         customer: customer,
         enrollmentId: enrollment.id,
         courseTitle: course.title,
@@ -65,14 +79,19 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
         paymentMethod: enrollmentData.paymentMethod
       });
       
+      console.log('Link de pagamento criado:', { 
+        id: paymentLink.paymentId, 
+        url: paymentLink.paymentUrl 
+      });
+      
       // Atualizar matrícula com dados do pagamento
       const updatedEnrollment = await storage.updateSimplifiedEnrollmentStatus(
         enrollment.id,
         'waiting_payment',
         {
-          paymentUrl: checkout.paymentUrl,
+          paymentUrl: paymentLink.paymentUrl,
           asaasCustomerId: customer.id,
-          asaasPaymentId: checkout.paymentId,
+          asaasPaymentId: paymentLink.paymentId,
           externalReference: `matricula-${enrollment.id}`,
           paymentMethod: enrollmentData.paymentMethod
         }
