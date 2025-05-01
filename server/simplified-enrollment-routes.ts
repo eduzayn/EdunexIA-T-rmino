@@ -3,7 +3,13 @@ import { storage } from './database-storage';
 import { z } from 'zod';
 import { insertSimplifiedEnrollmentSchema } from '@shared/schema';
 import { paymentService } from './services/payment-service';
-import { isAuthenticated, hasRole } from './middleware';
+// Middleware para autenticação
+const isAuthenticated = (req: any, res: any, next: any) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Unauthorized" });
+};
 
 const router = Router();
 

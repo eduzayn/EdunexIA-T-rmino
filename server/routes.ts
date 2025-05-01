@@ -19,6 +19,7 @@ import { adminRouter } from "./admin-routes";
 import { adminPaymentRouter } from "./admin-payment-routes";
 import { partnerRouter } from "./partner-routes";
 import { certificateRouter } from "./certificate-routes";
+import simplifiedEnrollmentRouter from "./simplified-enrollment-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
@@ -1638,6 +1639,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Adicionar rotas de certificados
   app.use('/api/certificates', isAuthenticated, certificateRouter);
+  
+  // Adicionar rotas de matrícula simplificada
+  app.use('/api', simplifiedEnrollmentRouter);
 
   const httpServer = createServer(app);
 

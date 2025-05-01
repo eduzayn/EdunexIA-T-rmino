@@ -555,6 +555,21 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                       </div>
                     )}
                     
+                    {/* Matrícula Simplificada - admin e hub */}
+                    {['admin', 'hub'].includes(currentPortal.id) && (
+                      <Link 
+                        href={`${currentPortal.baseRoute}/simplified-enrollment`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/simplified-enrollment`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Matrícula Simplificada
+                      </Link>
+                    )}
+                    
                     {/* Automações - apenas admin */}
                     {currentPortal.id === 'admin' && (
                       <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
