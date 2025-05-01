@@ -230,6 +230,7 @@ class PaymentService {
     studentName: string,
     value: number,
     installments?: number,
+    paymentMethod?: 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX',
     dueDate?: string // formato YYYY-MM-DD
   }): Promise<{ paymentUrl: string, paymentId: string }> {
     try {
@@ -250,7 +251,10 @@ class PaymentService {
       // Configurar máximo de parcelas (até 12)
       const maxInstallmentCount = Math.min(data.installments || 1, 12);
       
-      // Criar checkout
+      // Verificar o método de pagamento selecionado
+      const selectedPaymentMethod = data.paymentMethod || 'UNDEFINED';
+      
+      // Criar configuração base do checkout
       const checkoutData: CreateCheckoutPayload = {
         customer: customerId,
         value: data.value,
@@ -260,12 +264,13 @@ class PaymentService {
         maxInstallmentCount: maxInstallmentCount,
         installmentCount: data.installments,
         notificationEnabled: true,
-        // Configurações de métodos de pagamento
-        billingType: 'UNDEFINED', // Permite que o cliente escolha
-        creditCardEnabled: true,
+        // Definir o método de pagamento específico ou permitir que o cliente escolha
+        billingType: selectedPaymentMethod as 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX',
+        // Configurações para cartão (aplicável apenas se billingType for UNDEFINED ou CREDIT_CARD)
+        creditCardEnabled: selectedPaymentMethod === 'UNDEFINED' || selectedPaymentMethod === 'CREDIT_CARD',
         creditCardBrandList: ['VISA', 'MASTERCARD', 'AMEX', 'ELO', 'HIPERCARD'],
         creditCardMaxInstallmentCount: maxInstallmentCount,
-        // Juros e multa para boleto
+        // Juros e multa para boleto (aplicável apenas se billingType for UNDEFINED ou BOLETO)
         boletos: {
           chargeType: 'DETACHED',
           interest: {

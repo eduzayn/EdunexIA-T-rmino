@@ -61,7 +61,8 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
         courseTitle: course.title,
         studentName: enrollmentData.studentName,
         value: enrollmentData.amount,
-        installments: enrollmentData.installments
+        installments: enrollmentData.installments,
+        paymentMethod: enrollmentData.paymentMethod
       });
       
       // Atualizar matrícula com dados do pagamento
@@ -72,7 +73,8 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
           paymentUrl: checkout.paymentUrl,
           asaasCustomerId: customer.id,
           asaasPaymentId: checkout.paymentId,
-          externalReference: `matricula-${enrollment.id}`
+          externalReference: `matricula-${enrollment.id}`,
+          paymentMethod: enrollmentData.paymentMethod
         }
       );
       

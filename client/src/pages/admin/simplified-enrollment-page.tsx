@@ -95,6 +95,7 @@ type SimplifiedEnrollment = {
   amount: number;
   installments: number;
   status: string;
+  paymentMethod?: string;
   paymentUrl?: string;
   createdAt: string;
   updatedAt: string;
