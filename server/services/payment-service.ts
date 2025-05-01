@@ -122,8 +122,16 @@ class PaymentService {
    */
   async getOrCreateCustomer(data: CreateCustomerPayload): Promise<AsaasCustomer> {
     try {
+      // Formatação e validação do CPF/CNPJ
+      let formattedCpfCnpj = data.cpfCnpj.replace(/[^0-9]/g, '');
+      
+      // Validação básica de CPF (11 dígitos) ou CNPJ (14 dígitos)
+      if (formattedCpfCnpj.length !== 11 && formattedCpfCnpj.length !== 14) {
+        throw new Error('CPF/CNPJ com formato inválido. Deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)');
+      }
+      
       // Log para debug - mostrar a URL completa
-      const url = `${this.apiUrl}/v3/customers?cpfCnpj=${data.cpfCnpj}`;
+      const url = `${this.apiUrl}/v3/customers?cpfCnpj=${formattedCpfCnpj}`;
       console.log(`Fazendo requisição para: ${url}`);
       console.log(`Com header auth: ${this.apiKey.substring(0, 10)}...`);
       
@@ -153,9 +161,18 @@ class PaymentService {
       const createUrl = `${this.apiUrl}/v3/customers`;
       console.log(`Criando cliente em: ${createUrl}`);
       
+      // Preparando dados do cliente com CPF formatado
+      const customerData = {
+        ...data,
+        cpfCnpj: formattedCpfCnpj,
+        mobilePhone: data.mobilePhone ? data.mobilePhone.replace(/[^0-9]/g, '') : undefined
+      };
+      
+      console.log(`Dados do cliente a ser criado:`, JSON.stringify(customerData));
+      
       const createResponse = await axios.post(
         createUrl,
-        data,
+        customerData,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -169,6 +186,10 @@ class PaymentService {
       // Log de resposta para debug
       console.log(`Status da criação: ${createResponse.status}`);
       console.log(`Resposta da criação:`, JSON.stringify(createResponse.data).substring(0, 300));
+      
+      if (createResponse.status >= 400) {
+        throw new Error(createResponse.data.errors?.[0]?.description || `Erro ao criar cliente: ${createResponse.status}`);
+      }
       
       return createResponse.data;
     } catch (error: any) {
@@ -278,11 +299,25 @@ class PaymentService {
       // Nome para o link de pagamento
       const linkName = `Matrícula #${data.enrollmentId} - ${data.studentName}`;
       
-      // Verificar o método de pagamento selecionado
-      const selectedPaymentMethod = data.paymentMethod || 'UNDEFINED';
+      // Mapear o método de pagamento para o formato aceito pela API
+      let asaasBillingTypes = [];
+      switch (data.paymentMethod) {
+        case 'BOLETO':
+          asaasBillingTypes = ['BOLETO'];
+          break;
+        case 'CREDIT_CARD':
+          asaasBillingTypes = ['CREDIT_CARD'];
+          break;
+        case 'PIX':
+          asaasBillingTypes = ['PIX'];
+          break;
+        default:
+          // UNDEFINED - permite todos os métodos
+          asaasBillingTypes = ['BOLETO', 'CREDIT_CARD', 'PIX'];
+      }
       
       // Log para debug
-      console.log(`Preparando link de pagamento com método de pagamento: ${selectedPaymentMethod}`);
+      console.log(`Preparando link de pagamento com métodos de pagamento:`, asaasBillingTypes);
       console.log(`Cliente ID: ${customerId}, Valor: ${data.value}, Link: ${linkName}`);
       
       // Criar payload para o link de pagamento
@@ -290,13 +325,19 @@ class PaymentService {
         name: linkName,
         description: description,
         value: data.value,
-        billingType: selectedPaymentMethod,
-        chargeType: 'DETACHED',
+        billingTypes: asaasBillingTypes,
+        chargeTypes: ['DETACHED'],
         dueDateLimitDays: 30,
         maxInstallmentCount: data.installments || 1,
         notificationEnabled: true,
         endDate: null, // Link sem data de expiração
-        externalReference: `matricula-${data.enrollmentId}`
+        externalReference: `matricula-${data.enrollmentId}`,
+        // Lista de itens obrigatória para o link de pagamento
+        items: [{
+          name: `Matrícula no curso ${data.courseTitle}`,
+          value: data.value,
+          quantity: 1
+        }]
       };
       
       // URL para criar o link de pagamento
