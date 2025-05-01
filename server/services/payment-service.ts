@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configurações do Asaas
 const ASAAS_API_URL = 'https://api.asaas.com/v3'; // URL de produção
-const ASAAS_API_KEY = process.env.ASAAS_CERTIFIC_KEY;
+const ASAAS_API_KEY = process.env.ASAAS_ZAYN_KEY; // Chave correta para a API
 
 // Interfaces para tipagem
 interface AsaasCustomer {
@@ -97,7 +97,7 @@ class PaymentService {
   
   constructor() {
     if (!ASAAS_API_KEY) {
-      throw new Error('ASAAS_CERTIFIC_KEY não está configurado no ambiente');
+      throw new Error('ASAAS_ZAYN_KEY não está configurado no ambiente');
     }
     
     // Usar sempre a URL de produção conforme solicitado
