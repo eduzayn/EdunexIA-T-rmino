@@ -1,274 +1,755 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Helmet } from 'react-helmet';
-import { Search, AlertCircle, Wallet, DollarSign, Calendar, User, FileText } from 'lucide-react';
-
-import { AppShell } from '@/components/layout/app-shell';
-import { Input } from '@/components/ui/input';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs';
-import { apiRequest } from '@/lib/query-client';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+// Não tem datepicker, vamos usar input normal
+import { Loader2, Calendar, FileText, AlertTriangle, CheckCircle2, Clock, DownloadCloud, ExternalLink } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
+// Esquema de validação para formulário de pagamento individual
+const paymentFormSchema = z.object({
+  studentId: z.string().min(1, 'Selecione um aluno'),
+  courseId: z.string().min(1, 'Selecione um curso'),
+  dueDate: z.date().optional(),
+});
+
+// Esquema de validação para formulário de pagamento em lote
+const batchPaymentFormSchema = z.object({
+  courseId: z.string().min(1, 'Selecione um curso'),
+  studentIds: z.array(z.string()).min(1, 'Selecione pelo menos um aluno'),
+  dueDate: z.date().optional(),
+});
+
+// Componente principal da página
 export default function PartnerPaymentsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState('payments');
+  const [paymentDialog, setPaymentDialog] = useState(false);
+  const [batchDialog, setBatchDialog] = useState(false);
+  const [generatingPayment, setGeneratingPayment] = useState(false);
+  const [paymentResult, setPaymentResult] = useState<any>(null);
 
-  // Query para buscar pagamentos
-  const { data: payments, isLoading, error } = useQuery({
-    queryKey: ['/api/partner/payments'],
-    queryFn: async () => {
-      const response = await apiRequest('/api/partner/payments');
-      return response.data;
-    }
+  // Formulário para pagamento individual
+  const paymentForm = useForm<z.infer<typeof paymentFormSchema>>({
+    resolver: zodResolver(paymentFormSchema),
+    defaultValues: {
+      studentId: '',
+      courseId: '',
+    },
   });
 
-  // Filtra os pagamentos com base na aba ativa e na busca
-  const filteredPayments = React.useMemo(() => {
-    const allPayments = Array.isArray(payments) ? payments : [];
-    
-    return allPayments.filter((payment: any) => {
-      // Filtro por status
-      if (activeTab !== 'all' && payment.status !== activeTab) {
-        return false;
-      }
-      
-      // Filtro por busca
-      if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase();
-        return (
-          (payment.description?.toLowerCase() || '').includes(query) ||
-          (payment.studentName?.toLowerCase() || '').includes(query) ||
-          (payment.certificationType?.toLowerCase() || '').includes(query)
-        );
-      }
-      
-      return true;
-    });
-  }, [payments, activeTab, searchQuery]);
+  // Formulário para pagamento em lote
+  const batchForm = useForm<z.infer<typeof batchPaymentFormSchema>>({
+    resolver: zodResolver(batchPaymentFormSchema),
+    defaultValues: {
+      courseId: '',
+      studentIds: [],
+      dueDate: undefined,
+    },
+  });
 
-  // Formatação da data
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+  // Buscar pagamentos
+  const { data: payments, isLoading: isLoadingPayments } = useQuery({
+    queryKey: ['/api/partner/payments'],
+    refetchOnWindowFocus: false,
+  });
+
+  // Buscar alunos elegíveis
+  const { data: students, isLoading: isLoadingStudents } = useQuery({
+    queryKey: ['/api/partner/eligible-students'],
+    refetchOnWindowFocus: false,
+    enabled: paymentDialog || batchDialog,
+  });
+
+  // Buscar cursos
+  const { data: courses, isLoading: isLoadingCourses } = useQuery({
+    queryKey: ['/api/partner/courses'],
+    refetchOnWindowFocus: false,
+    enabled: paymentDialog || batchDialog,
+  });
+
+  // Função para gerar pagamento individual
+  const handleGeneratePayment = async (values: z.infer<typeof paymentFormSchema>) => {
+    try {
+      setGeneratingPayment(true);
+      
+      const payload = {
+        certificationId: Date.now(), // Temporário, em ambiente real seria o ID real da certificação
+        studentId: parseInt(values.studentId),
+        courseId: parseInt(values.courseId),
+        dueDate: values.dueDate ? format(values.dueDate, 'yyyy-MM-dd') : undefined,
+      };
+
+      const result = await apiRequest('/api/partner/generate-payment', 'POST', payload);
+      
+      setPaymentResult(result);
+      toast({
+        title: "Pagamento gerado com sucesso",
+        description: "O boleto foi criado e está disponível para o aluno."
+      });
+      
+      // Atualizar a lista de pagamentos
+      queryClient.invalidateQueries({ queryKey: ['/api/partner/payments'] });
+    } catch (error: any) {
+      console.error('Erro ao gerar pagamento:', error);
+      toast({
+        title: "Erro ao gerar pagamento",
+        description: error.message || "Não foi possível gerar o pagamento. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingPayment(false);
+    }
   };
 
-  // Formatar valor monetário
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+  // Função para gerar pagamento em lote
+  const handleGenerateBatchPayment = async (values: z.infer<typeof batchPaymentFormSchema>) => {
+    try {
+      setGeneratingPayment(true);
+      
+      // Criar IDs temporários para as certificações (em ambiente real seria os IDs reais)
+      const certificationIds = values.studentIds.map((_, index) => Date.now() + index);
+      
+      const payload = {
+        certificationIds: certificationIds,
+        studentIds: values.studentIds.map(id => parseInt(id)),
+        courseId: parseInt(values.courseId),
+        dueDate: values.dueDate ? format(values.dueDate, 'yyyy-MM-dd') : undefined,
+      };
+
+      const result = await apiRequest('/api/partner/generate-batch-payment', 'POST', payload);
+      
+      setPaymentResult(result);
+      toast({
+        title: "Pagamento em lote gerado com sucesso",
+        description: `Boleto para ${values.studentIds.length} certificações criado com sucesso.`
+      });
+      
+      // Atualizar a lista de pagamentos
+      queryClient.invalidateQueries({ queryKey: ['/api/partner/payments'] });
+    } catch (error: any) {
+      console.error('Erro ao gerar pagamento em lote:', error);
+      toast({
+        title: "Erro ao gerar pagamento em lote",
+        description: error.message || "Não foi possível gerar o pagamento. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingPayment(false);
+    }
   };
 
-  // Renderiza o status do pagamento com cores específicas
-  const renderPaymentStatus = (status: 'pending' | 'paid' | 'overdue' | 'cancelled') => {
+  // Função para fechar diálogo e limpar resultado
+  const handleCloseDialog = () => {
+    setPaymentDialog(false);
+    setBatchDialog(false);
+    setPaymentResult(null);
+    paymentForm.reset();
+    batchForm.reset();
+  };
+
+  // Função para renderizar ícone de status
+  const renderStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
-        return (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-            <DollarSign className="mr-1 h-3 w-3" />
-            Pendente
-          </Badge>
-        );
+        return <Clock className="h-5 w-5 text-yellow-500" />;
       case 'paid':
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            <DollarSign className="mr-1 h-3 w-3" />
-            Pago
-          </Badge>
-        );
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
       case 'overdue':
-        return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-            <DollarSign className="mr-1 h-3 w-3" />
-            Vencido
-          </Badge>
-        );
+        return <AlertTriangle className="h-5 w-5 text-red-500" />;
       case 'cancelled':
-        return (
-          <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-            <DollarSign className="mr-1 h-3 w-3" />
-            Cancelado
-          </Badge>
-        );
+        return <FileText className="h-5 w-5 text-gray-500" />;
       default:
-        return null;
+        return <FileText className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  // Função para retornar texto de status
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Pendente';
+      case 'paid':
+        return 'Pago';
+      case 'overdue':
+        return 'Vencido';
+      case 'cancelled':
+        return 'Cancelado';
+      default:
+        return status;
     }
   };
 
   return (
-    <AppShell>
-      <Helmet>
-        <title>Pagamentos | Edunéxia</title>
-      </Helmet>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Pagamentos</h1>
 
-      <div className="container py-6 space-y-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Pagamentos</h1>
-            <p className="text-muted-foreground">
-              Acompanhe os pagamentos das taxas de certificação
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Buscar pagamentos..."
-                className="pl-8 w-[250px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="payments">Pagamentos Realizados</TabsTrigger>
+          <TabsTrigger value="generate">Gerar Novo Pagamento</TabsTrigger>
+        </TabsList>
 
-        <Tabs 
-          defaultValue="pending" 
-          className="w-full"
-          onValueChange={(value) => setActiveTab(value)}
-        >
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pending">Pendentes</TabsTrigger>
-            <TabsTrigger value="paid">Pagos</TabsTrigger>
-            <TabsTrigger value="overdue">Vencidos</TabsTrigger>
-            <TabsTrigger value="all">Todos</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value={activeTab} className="space-y-4 pt-4">
-            {isLoading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Card key={i}>
-                    <CardHeader className="pb-2">
-                      <div className="h-5 w-2/5 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-4 w-1/4 bg-gray-200 rounded animate-pulse mt-2"></div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="flex justify-between mt-3">
-                        <div className="h-4 w-1/4 bg-gray-200 rounded animate-pulse"></div>
-                        <div className="h-6 w-1/5 bg-gray-200 rounded animate-pulse"></div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+        <TabsContent value="payments">
+          <Card>
+            <CardHeader>
+              <CardTitle>Histórico de Pagamentos</CardTitle>
+              <CardDescription>
+                Acompanhe todos os pagamentos de certificações realizados ou pendentes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingPayments ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : payments && payments.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">Status</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Aluno/Lote</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Vencimento</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                        <TableHead>Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {payments.map((payment: any) => (
+                        <TableRow key={payment.id}>
+                          <TableCell>
+                            {renderStatusIcon(payment.status)}
+                          </TableCell>
+                          <TableCell className="font-medium">{payment.description}</TableCell>
+                          <TableCell>{payment.studentName}</TableCell>
+                          <TableCell>
+                            {new Date(payment.date).toLocaleDateString('pt-BR')}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(payment.dueDate).toLocaleDateString('pt-BR')}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {payment.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </TableCell>
+                          <TableCell>
+                            {payment.status === 'pending' || payment.status === 'overdue' ? (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                asChild
+                                title="Visualizar boleto"
+                              >
+                                <a href={payment.paymentUrl} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                            ) : payment.status === 'paid' ? (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                title="Baixar comprovante"
+                              >
+                                <DownloadCloud className="h-4 w-4" />
+                              </Button>
+                            ) : null}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center p-8 text-muted-foreground">
+                  Nenhum pagamento encontrado. Crie novos pagamentos na aba "Gerar Novo Pagamento".
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="generate">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pagamento Individual</CardTitle>
+                <CardDescription>
+                  Crie um boleto para certificação de um aluno específico.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">
+                  Após a confirmação do pagamento, o certificado será liberado para o aluno.
+                </p>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Valor: R$ 89,90 por certificação.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setPaymentDialog(true)}
+                >
+                  Gerar Boleto Individual
+                </Button>
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Pagamento em Lote</CardTitle>
+                <CardDescription>
+                  Crie um boleto para certificação de múltiplos alunos de uma única vez.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">
+                  Ideal para instituições que precisam certificar vários alunos simultaneamente.
+                </p>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Valor: R$ 79,90 por certificação (desconto para lote).
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setBatchDialog(true)}
+                >
+                  Gerar Boleto em Lote
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Dialog para pagamento individual */}
+      <Dialog open={paymentDialog} onOpenChange={setPaymentDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          {!paymentResult ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Gerar Boleto Individual</DialogTitle>
+                <DialogDescription>
+                  Selecione o aluno e o curso para gerar um boleto de certificação.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...paymentForm}>
+                <form onSubmit={paymentForm.handleSubmit(handleGeneratePayment)}>
+                  <div className="grid gap-4 py-4">
+                    <FormField
+                      control={paymentForm.control}
+                      name="studentId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Aluno</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                            disabled={isLoadingStudents}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione um aluno" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingStudents ? (
+                                <div className="flex justify-center p-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              ) : students && students.length > 0 ? (
+                                students.map((student: any) => (
+                                  <SelectItem key={student.id} value={student.id.toString()}>
+                                    {student.fullName}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="none" disabled>
+                                  Nenhum aluno disponível
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={paymentForm.control}
+                      name="courseId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Curso</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                            disabled={isLoadingCourses}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione um curso" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingCourses ? (
+                                <div className="flex justify-center p-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              ) : courses && courses.length > 0 ? (
+                                courses.map((course: any) => (
+                                  <SelectItem key={course.id} value={course.id.toString()}>
+                                    {course.title}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="none" disabled>
+                                  Nenhum curso disponível
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={paymentForm.control}
+                      name="dueDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Data de Vencimento (opcional)</FormLabel>
+                          <DatePicker
+                            date={field.value}
+                            setDate={field.onChange}
+                            locale={ptBR}
+                          />
+                          <FormDescription>
+                            Se não informado, o vencimento será em 10 dias.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="secondary" onClick={handleCloseDialog}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={generatingPayment}>
+                      {generatingPayment ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Gerando...
+                        </>
+                      ) : (
+                        'Gerar Boleto'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Boleto Gerado com Sucesso</DialogTitle>
+                <DialogDescription>
+                  O boleto foi gerado e está pronto para pagamento.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <div className="rounded-md bg-slate-50 p-4 mb-4">
+                  <p className="font-medium mb-2">Informações do Pagamento:</p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Descrição:</span> {paymentResult.payment.description}
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Valor:</span> {paymentResult.payment.netValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Vencimento:</span> {new Date(paymentResult.payment.dueDate).toLocaleDateString('pt-BR')}
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Status:</span> {getStatusText(paymentResult.payment.status)}
+                  </p>
+                </div>
+                
+                <div className="flex justify-center mb-4">
+                  <Button asChild className="mr-2">
+                    <a href={paymentResult.payment.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                      Visualizar Fatura
+                    </a>
+                  </Button>
+                  {paymentResult.payment.bankSlipUrl && (
+                    <Button asChild variant="outline">
+                      <a href={paymentResult.payment.bankSlipUrl} target="_blank" rel="noopener noreferrer">
+                        Visualizar Boleto
+                      </a>
+                    </Button>
+                  )}
+                </div>
+                
+                <p className="text-sm text-center text-muted-foreground">
+                  O certificado será liberado automaticamente após a confirmação do pagamento.
+                </p>
               </div>
-            ) : error ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-4">
-                    <AlertCircle className="mx-auto h-12 w-12 text-destructive mb-3" />
-                    <p className="text-destructive text-lg font-medium">Erro ao carregar pagamentos</p>
-                    <p className="text-muted-foreground mt-1">
-                      Ocorreu um erro ao carregar os pagamentos. Tente novamente mais tarde.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : filteredPayments.length === 0 ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-6">
-                    <Wallet className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
-                    <p className="text-lg font-medium">Nenhum pagamento encontrado</p>
-                    <p className="text-muted-foreground mt-1 mb-4">
-                      {searchQuery.trim() !== "" 
-                        ? "Nenhum pagamento corresponde à sua busca." 
-                        : `Não há pagamentos ${activeTab === "pending" ? "pendentes" : 
-                           activeTab === "paid" ? "pagos" : 
-                           activeTab === "overdue" ? "vencidos" : ""} no momento.`}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {filteredPayments.map((payment: any) => (
-                  <Card key={payment.id}>
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between">
-                        <div>
-                          <CardTitle className="text-lg">{payment.description}</CardTitle>
-                          <CardDescription className="flex items-center mt-1">
-                            <User className="h-3.5 w-3.5 mr-1.5" />
-                            <span>{payment.studentName}</span>
-                          </CardDescription>
-                        </div>
-                        {renderPaymentStatus(payment.status)}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                          <span>Data: {formatDate(payment.date)}</span>
-                          {payment.dueDate && (
-                            <>
-                              <span className="mx-2">•</span>
-                              <span>Vencimento: {formatDate(payment.dueDate)}</span>
-                            </>
-                          )}
-                        </div>
-                        <div className="text-lg font-medium">
-                          {formatCurrency(payment.amount)}
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <div className="text-sm bg-gray-50 px-3 py-1 rounded-full">
-                          <span className="font-medium">Tipo:</span> {payment.certificationType}
-                        </div>
-                        
-                        {payment.invoiceNumber && (
-                          <div className="text-sm bg-gray-50 px-3 py-1 rounded-full">
-                            <span className="font-medium">Fatura:</span> #{payment.invoiceNumber}
+              <DialogFooter>
+                <Button onClick={handleCloseDialog}>
+                  Concluir
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para pagamento em lote */}
+      <Dialog open={batchDialog} onOpenChange={setBatchDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          {!paymentResult ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Gerar Boleto em Lote</DialogTitle>
+                <DialogDescription>
+                  Selecione vários alunos e o curso para gerar um boleto único.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...batchForm}>
+                <form onSubmit={batchForm.handleSubmit(handleGenerateBatchPayment)}>
+                  <div className="grid gap-4 py-4">
+                    <FormField
+                      control={batchForm.control}
+                      name="courseId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Curso</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                            disabled={isLoadingCourses}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione um curso" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingCourses ? (
+                                <div className="flex justify-center p-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              ) : courses && courses.length > 0 ? (
+                                courses.map((course: any) => (
+                                  <SelectItem key={course.id} value={course.id.toString()}>
+                                    {course.title}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="none" disabled>
+                                  Nenhum curso disponível
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={batchForm.control}
+                      name="studentIds"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Alunos</FormLabel>
+                          <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto">
+                            {isLoadingStudents ? (
+                              <div className="flex justify-center p-2">
+                                <Loader2 className="h-6 w-6 animate-spin" />
+                              </div>
+                            ) : students && students.length > 0 ? (
+                              students.map((student: any) => (
+                                <div className="flex items-center mb-2" key={student.id}>
+                                  <input
+                                    type="checkbox"
+                                    id={`student-${student.id}`}
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    value={student.id}
+                                    checked={field.value.includes(student.id.toString())}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      const newValues = e.target.checked
+                                        ? [...field.value, value]
+                                        : field.value.filter((v) => v !== value);
+                                      field.onChange(newValues);
+                                    }}
+                                  />
+                                  <Label
+                                    htmlFor={`student-${student.id}`}
+                                    className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  >
+                                    {student.fullName}
+                                  </Label>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-muted-foreground">
+                                Nenhum aluno disponível para seleção.
+                              </p>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      
-                      {payment.status === 'pending' && payment.paymentUrl && (
-                        <div className="mt-4">
-                          <Button asChild variant="outline" size="sm">
-                            <a href={payment.paymentUrl} target="_blank" rel="noopener noreferrer">
-                              <Wallet className="mr-2 h-3.5 w-3.5" />
-                              Pagar Agora
-                            </a>
-                          </Button>
-                        </div>
+                          <FormDescription>
+                            Selecione todos os alunos que serão incluídos neste lote.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                      
-                      {payment.status === 'paid' && payment.receiptUrl && (
-                        <div className="mt-4">
-                          <Button asChild variant="outline" size="sm">
-                            <a href={payment.receiptUrl} target="_blank" rel="noopener noreferrer">
-                              <FileText className="mr-2 h-3.5 w-3.5" />
-                              Recibo
-                            </a>
-                          </Button>
-                        </div>
+                    />
+
+                    <FormField
+                      control={batchForm.control}
+                      name="dueDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Data de Vencimento (opcional)</FormLabel>
+                          <DatePicker
+                            date={field.value}
+                            setDate={field.onChange}
+                            locale={ptBR}
+                          />
+                          <FormDescription>
+                            Se não informado, o vencimento será em 10 dias.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </CardContent>
-                  </Card>
-                ))}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="secondary" onClick={handleCloseDialog}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={generatingPayment}>
+                      {generatingPayment ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Gerando...
+                        </>
+                      ) : (
+                        'Gerar Boleto em Lote'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Boleto em Lote Gerado com Sucesso</DialogTitle>
+                <DialogDescription>
+                  O boleto para o lote foi gerado e está pronto para pagamento.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <div className="rounded-md bg-slate-50 p-4 mb-4">
+                  <p className="font-medium mb-2">Informações do Pagamento:</p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Descrição:</span> {paymentResult.payment.description}
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Quantidade de certificações:</span> {paymentResult.payment.numberOfCertifications}
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Valor total:</span> {paymentResult.payment.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Vencimento:</span> {new Date(paymentResult.payment.dueDate).toLocaleDateString('pt-BR')}
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-medium">Status:</span> {getStatusText(paymentResult.payment.status)}
+                  </p>
+                </div>
+                
+                <div className="flex justify-center mb-4">
+                  <Button asChild className="mr-2">
+                    <a href={paymentResult.payment.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                      Visualizar Fatura
+                    </a>
+                  </Button>
+                  {paymentResult.payment.bankSlipUrl && (
+                    <Button asChild variant="outline">
+                      <a href={paymentResult.payment.bankSlipUrl} target="_blank" rel="noopener noreferrer">
+                        Visualizar Boleto
+                      </a>
+                    </Button>
+                  )}
+                </div>
+                
+                <p className="text-sm text-center text-muted-foreground">
+                  Os certificados serão liberados automaticamente após a confirmação do pagamento.
+                </p>
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </AppShell>
+              <DialogFooter>
+                <Button onClick={handleCloseDialog}>
+                  Concluir
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
