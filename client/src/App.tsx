@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
@@ -44,8 +44,11 @@ import PartnerCertificationRequestsPage from "@/pages/partner-certification-requ
 import AdminPartnerCertificationsPage from "@/pages/admin-partner-certifications-page";
 import CertificateTemplatePage from "@/pages/certificate-template-page";
 import AdminPartnerViewPage from "@/pages/admin-partner-view-page";
+import AdminTeacherViewPage from "@/pages/admin-teacher-view-page";
 import PartnerRegisterStudentPage from "@/pages/partner-register-student-page";
 import PartnerPaymentsPage from "@/pages/partner-payments-page";
+import TeacherDashboard from "@/pages/teacher-dashboard";
+import TeacherPortalButton from "@/components/admin/teacher-portal-button";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -109,6 +112,7 @@ function Router() {
       {/* Rotas de Documentos */}
       <ProtectedRoute path="/admin/student-documents" component={AdminStudentDocumentsPage} />
       <ProtectedRoute path="/admin/partner-view" component={AdminPartnerViewPage} />
+      <ProtectedRoute path="/admin/teacher-view" component={AdminTeacherViewPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
@@ -117,9 +121,13 @@ function Router() {
       <ProtectedRoute path="/student/documents" component={StudentDocumentsPage} />
       
       {/* Rotas do Portal do Professor */}
+      <ProtectedRoute path="/teacher/dashboard" component={TeacherDashboard} />
       <ProtectedRoute path="/teacher/courses" component={CoursesPage} />
       <ProtectedRoute path="/teacher/courses/:id" component={CourseDetailsPage} />
       <ProtectedRoute path="/teacher/courses/:id/edit" component={CourseEditPage} />
+      <ProtectedRoute path="/teacher/assessments" component={AssessmentsPage} />
+      <ProtectedRoute path="/teacher/assessments/new" component={AssessmentNewPage} />
+      <ProtectedRoute path="/teacher/assessments/:id" component={AssessmentDetailsPage} />
       
       {/* Rotas do Portal do Polo */}
       <ProtectedRoute path="/hub/courses" component={CoursesPage} />
@@ -153,11 +161,28 @@ function AppWithProviders() {
   );
 }
 
+// Componente com botões de alternância para visualização dos portais
+function PortalViewButtons() {
+  const [currentLocation] = useLocation();
+  
+  return (
+    <>
+      {/* Adicionar botão de visualização do Portal do Professor nas rotas administrativas*/}
+      {currentLocation.startsWith('/admin/') && 
+       !currentLocation.startsWith('/admin/partner-view') && 
+       !currentLocation.startsWith('/admin/teacher-view') && (
+        <TeacherPortalButton />
+      )}
+    </>
+  );
+}
+
 function App() {
   return (
     <TooltipProvider>
       <Toaster />
       <AppWithProviders />
+      <PortalViewButtons />
     </TooltipProvider>
   );
 }

@@ -430,6 +430,18 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     >
                       Certificações de Parceiros
                     </Link>
+                    
+                    <Link 
+                      href={`${currentPortal.baseRoute}/teacher-view`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/teacher-view`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Portal do Professor
+                    </Link>
                   </div>
                 )}
               </div>
