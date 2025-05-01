@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+// RadioGroup removido pois não está sendo usado
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // Não tem datepicker, vamos usar input normal
@@ -469,11 +469,16 @@ export default function PartnerPaymentsPage() {
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel>Data de Vencimento (opcional)</FormLabel>
-                          <DatePicker
-                            date={field.value}
-                            setDate={field.onChange}
-                            locale={ptBR}
-                          />
+                          <FormControl>
+                            <Input 
+                              type="date"
+                              onChange={(e) => {
+                                const date = e.target.value ? new Date(e.target.value) : undefined;
+                                field.onChange(date);
+                              }}
+                              value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                            />
+                          </FormControl>
                           <FormDescription>
                             Se não informado, o vencimento será em 10 dias.
                           </FormDescription>
@@ -663,11 +668,16 @@ export default function PartnerPaymentsPage() {
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel>Data de Vencimento (opcional)</FormLabel>
-                          <DatePicker
-                            date={field.value}
-                            setDate={field.onChange}
-                            locale={ptBR}
-                          />
+                          <FormControl>
+                            <Input 
+                              type="date"
+                              onChange={(e) => {
+                                const date = e.target.value ? new Date(e.target.value) : undefined;
+                                field.onChange(date);
+                              }}
+                              value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                            />
+                          </FormControl>
                           <FormDescription>
                             Se não informado, o vencimento será em 10 dias.
                           </FormDescription>
