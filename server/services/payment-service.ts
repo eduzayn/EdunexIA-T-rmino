@@ -54,6 +54,38 @@ interface CreatePaymentPayload {
   dueDate: string;
   description: string;
   externalReference?: string;
+  installmentCount?: number;
+}
+
+interface CreateCheckoutPayload {
+  customer: string;
+  billingType?: 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX';
+  value: number;
+  dueDate: string;
+  description: string;
+  externalReference?: string;
+  installmentCount?: number;
+  installmentValue?: number;
+  maxInstallmentCount?: number;
+  notificationEnabled?: boolean;
+  creditCardEnabled?: boolean;
+  creditCardBrandList?: string[];
+  creditCardMaxInstallmentCount?: number;
+  creditCardStaticFirstInstallmentValue?: number;
+  boletos?: {
+    chargeType: 'DETACHED';
+    interest?: {
+      value: number;
+    };
+    fine?: {
+      value: number;
+    };
+  };
+  discount?: {
+    value: number;
+    dueDateLimitDays?: number;
+    type?: 'FIXED' | 'PERCENTAGE';
+  };
 }
 
 /**
@@ -188,6 +220,84 @@ class PaymentService {
     }
   }
   
+  /**
+   * Cria um checkout para matrícula simplificada
+   */
+  async createMatriculaCheckout(data: {
+    customer: AsaasCustomer | string,
+    enrollmentId: number,
+    courseTitle: string,
+    studentName: string,
+    value: number,
+    installments?: number,
+    dueDate?: string // formato YYYY-MM-DD
+  }): Promise<{ paymentUrl: string, paymentId: string }> {
+    try {
+      // Gerar data de vencimento (10 dias a partir de hoje caso não seja fornecida)
+      const dueDate = data.dueDate || this.generateDueDate(10);
+      
+      // Preparar cliente
+      const customerId = typeof data.customer === 'string' 
+        ? data.customer 
+        : data.customer.id;
+      
+      // Descrição do pagamento
+      const description = `Matrícula: ${data.courseTitle} - Aluno: ${data.studentName}`;
+      
+      // Referência externa para rastreamento
+      const externalReference = `matricula-${data.enrollmentId}`;
+      
+      // Configurar máximo de parcelas (até 12)
+      const maxInstallmentCount = Math.min(data.installments || 1, 12);
+      
+      // Criar checkout
+      const checkoutData: CreateCheckoutPayload = {
+        customer: customerId,
+        value: data.value,
+        dueDate: dueDate,
+        description: description,
+        externalReference: externalReference,
+        maxInstallmentCount: maxInstallmentCount,
+        installmentCount: data.installments,
+        notificationEnabled: true,
+        // Configurações de métodos de pagamento
+        billingType: 'UNDEFINED', // Permite que o cliente escolha
+        creditCardEnabled: true,
+        creditCardBrandList: ['VISA', 'MASTERCARD', 'AMEX', 'ELO', 'HIPERCARD'],
+        creditCardMaxInstallmentCount: maxInstallmentCount,
+        // Juros e multa para boleto
+        boletos: {
+          chargeType: 'DETACHED',
+          interest: {
+            value: 1 // 1% ao mês
+          },
+          fine: {
+            value: 2 // 2% sobre o valor
+          }
+        }
+      };
+      
+      const response = await axios.post(
+        `${this.apiUrl}/checkouts`,
+        checkoutData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'access_token': this.apiKey
+          }
+        }
+      );
+      
+      return {
+        paymentUrl: response.data.invoiceUrl,
+        paymentId: response.data.id
+      };
+    } catch (error: any) {
+      console.error('Erro ao criar checkout no Asaas:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.errors?.[0]?.description || 'Erro ao criar checkout');
+    }
+  }
+
   /**
    * Gera data de vencimento X dias à frente
    */

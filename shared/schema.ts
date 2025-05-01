@@ -19,6 +19,10 @@ export const paymentStatusEnum = pgEnum('payment_status', [
   'pending', 'paid', 'failed', 'refunded'
 ]);
 
+export const simplifiedEnrollmentStatusEnum = pgEnum('simplified_enrollment_status', [
+  'pending', 'waiting_payment', 'payment_confirmed', 'completed', 'cancelled', 'failed'
+]);
+
 export const leadStatusEnum = pgEnum('lead_status', [
   'new', 'contacted', 'qualified', 'converted', 'lost'
 ]);
@@ -268,6 +272,39 @@ export const assessments = pgTable('assessments', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Matrículas Simplificadas
+export const simplifiedEnrollments = pgTable('simplified_enrollments', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  courseId: integer('course_id').references(() => courses.id, { onDelete: 'cascade' }).notNull(),
+  // Dados do aluno (pode não estar cadastrado ainda)
+  studentId: integer('student_id').references(() => users.id), // Será preenchido quando o aluno for criado
+  studentName: text('student_name').notNull(),
+  studentEmail: text('student_email').notNull(),
+  studentCpf: text('student_cpf').notNull(),
+  studentPhone: text('student_phone'),
+  // Dados adicionais
+  poloId: integer('polo_id').references(() => users.id), // Referência ao polo educacional
+  consultantId: integer('consultant_id').references(() => users.id), // Quem fez a matrícula
+  // Dados financeiros
+  amount: integer('amount').notNull(), // em centavos
+  installments: integer('installments').default(1).notNull(), // número de parcelas
+  // Referências externas
+  externalReference: text('external_reference'), // ID de referência externa para rastreamento
+  paymentUrl: text('payment_url'), // URL do checkout do Asaas
+  asaasCustomerId: text('asaas_customer_id'), // ID do cliente no Asaas
+  asaasPaymentId: text('asaas_payment_id'), // ID do pagamento no Asaas
+  // Status e datas
+  status: simplifiedEnrollmentStatusEnum('status').default('pending').notNull(),
+  expirationDate: timestamp('expiration_date'), // Data limite para pagamento
+  sourceChannel: text('source_channel'), // Canal de origem (site, indicação, etc.)
+  // Campos de auditoria
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
+  cancelledAt: timestamp('cancelled_at'),
+});
+
 // Assessment Results (Notas/Resultados de Avaliações)
 export const assessmentResults = pgTable('assessment_results', {
   id: serial('id').primaryKey(),
@@ -405,3 +442,20 @@ export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
 
 export type AssessmentResult = typeof assessmentResults.$inferSelect;
 export type InsertAssessmentResult = z.infer<typeof insertAssessmentResultSchema>;
+
+// Schema para Matrícula Simplificada
+export const insertSimplifiedEnrollmentSchema = createInsertSchema(simplifiedEnrollments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+  cancelledAt: true,
+  studentId: true, // Será preenchido durante o processamento
+  asaasCustomerId: true, // Será preenchido durante o processamento
+  asaasPaymentId: true, // Será preenchido durante o processamento
+  paymentUrl: true, // Será preenchido durante o processamento
+  externalReference: true, // Será preenchido durante o processamento
+});
+
+export type SimplifiedEnrollment = typeof simplifiedEnrollments.$inferSelect;
+export type InsertSimplifiedEnrollment = z.infer<typeof insertSimplifiedEnrollmentSchema>;

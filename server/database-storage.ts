@@ -10,14 +10,16 @@ import {
   Class, InsertClass,
   ClassEnrollment, InsertClassEnrollment,
   Assessment, InsertAssessment,
-  AssessmentResult, InsertAssessmentResult
+  AssessmentResult, InsertAssessmentResult,
+  SimplifiedEnrollment, InsertSimplifiedEnrollment
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { 
   users, tenants, courses, modules, lessons, enrollments, leads, subjects,
   lessonProgress, payments, classes, classEnrollments,
-  aiKnowledgeBase, productivityLogs, assessments, assessmentResults
+  aiKnowledgeBase, productivityLogs, assessments, assessmentResults,
+  simplifiedEnrollments
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -108,6 +110,15 @@ export interface IStorage {
   
   // Dashboard statistics
   getDashboardStats(tenantId: number): Promise<any>;
+  
+  // Simplified Enrollment operations
+  createSimplifiedEnrollment(data: InsertSimplifiedEnrollment): Promise<SimplifiedEnrollment>;
+  getSimplifiedEnrollmentById(id: number): Promise<SimplifiedEnrollment | undefined>;
+  getSimplifiedEnrollmentsByStudent(studentId: number): Promise<SimplifiedEnrollment[]>;
+  getSimplifiedEnrollmentsByCourse(courseId: number): Promise<SimplifiedEnrollment[]>;
+  getSimplifiedEnrollmentsByTenant(tenantId: number): Promise<SimplifiedEnrollment[]>;
+  getSimplifiedEnrollmentsByConsultant(consultantId: number): Promise<SimplifiedEnrollment[]>;
+  updateSimplifiedEnrollmentStatus(id: number, status: string, data?: Partial<SimplifiedEnrollment>): Promise<SimplifiedEnrollment>;
   
   // Session store
   sessionStore: session.Store;
