@@ -32,7 +32,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   const { user, logoutMutation } = useAuth();
   const { currentPortal, setCurrentPortal, portals } = usePortal();
   const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({
-    academic: true,
+    academic: false,
     secretary: false,
     partnerships: false,
   });
