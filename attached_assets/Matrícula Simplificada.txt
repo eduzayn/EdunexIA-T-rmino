@@ -1,0 +1,91 @@
+Estrutura da Matrícula Simplificada
+A matrícula simplificada é armazenada na tabela simplified_enrollments com os seguintes dados principais:
+Informações do aluno (nome, email, CPF, telefone)
+Curso selecionado
+Instituição
+Polo (opcional)
+Valor da matrícula
+Status do processo
+Informações de pagamento
+Dados de rastreamento e auditoria
+2. Fluxo do Processo
+Início da Matrícula
+Interface em /admin/crm/new-simplified-enrollment-create-page
+Formulário coleta dados básicos do aluno e curso
+Validação inicial dos campos obrigatórios
+Criação da Matrícula
+   const enrollmentData = {
+     studentName,
+     studentEmail,
+     studentCpf,
+     studentPhone,
+     courseId,
+     institutionId,
+     amount,
+     poloId,
+     sourceChannel,
+     // ... outros campos
+   }
+
+Validações Automáticas
+Verifica existência do curso
+Verifica existência da instituição
+Verifica existência do polo (se informado)
+Gera referência externa única
+Define data de expiração (30 dias)
+Criação do Perfil do Aluno
+Verifica se já existe usuário com o email
+Se não existir:
+Cria novo usuário no sistema
+Gera senha inicial (baseada no CPF ou aleatória)
+Envia email com credenciais
+Envia SMS com credenciais (se telefone informado)
+Integração com Pagamento
+Gera link de pagamento (Asaas)
+Configura opções de pagamento:
+Tipo de cobrança (boleto, cartão, PIX)
+Parcelamento
+Juros e multa
+Data de vencimento
+Criação da Matrícula Formal
+Gera código único (formato: MAT + ano + número sequencial)
+Associa aluno ao curso
+Registra informações de pagamento
+Gera contrato educacional automaticamente
+Acompanhamento
+Interface em /admin/crm/new-simplified-enrollment-details-page
+Mostra status atual
+Permite ações administrativas
+Exibe histórico de mudanças
+3. Estados da Matrícula
+status: 'pending' | 'waiting_payment' | 'payment_confirmed' | 'completed' | 'cancelled' | 'failed'
+4. Integrações Automáticas
+Email: Envio de credenciais e instruções
+SMS: Envio de credenciais (opcional)
+Asaas: Geração de cobranças
+Contratos: Geração automática de documentos
+5. Recursos de Segurança
+Validação de dados de entrada
+Verificação de permissões
+Registro de logs de auditoria
+Controle de acesso baseado em roles
+6. Pontos de Atenção
+O processo depende de várias integrações:
+Sistema de usuários
+Gateway de pagamento
+Serviço de email
+Serviço de SMS
+Geração de contratos
+Existem tratamentos para casos especiais:
+Aluno já cadastrado
+Falha em integrações
+Timeout em processos
+O sistema mantém rastreabilidade completa:
+Quem criou
+Quando foi criado
+Histórico de mudanças
+Logs de erro
+Há suporte para diferentes origens:
+Portal administrativo
+Portal do polo
+Integrações externas
