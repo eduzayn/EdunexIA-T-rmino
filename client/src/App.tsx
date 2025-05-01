@@ -47,6 +47,7 @@ import AdminPartnerViewPage from "@/pages/admin-partner-view-page";
 import AdminTeacherViewPage from "@/pages/admin-teacher-view-page";
 import PartnerRegisterStudentPage from "@/pages/partner-register-student-page";
 import PartnerPaymentsPage from "@/pages/partner-payments-page";
+import AdminPartnerPaymentsPage from "@/pages/admin-partner-payments-page";
 import TeacherDashboard from "@/pages/teacher-dashboard";
 import TeacherPortalButton from "@/components/admin/teacher-portal-button";
 
@@ -151,6 +152,7 @@ function Router() {
       <ProtectedRoute path="/partner/certification-requests" component={PartnerCertificationRequestsPage} />
       <ProtectedRoute path="/partner/payments" component={PartnerPaymentsPage} />
       <ProtectedRoute path="/admin/partner-certifications" component={AdminPartnerCertificationsPage} />
+      <ProtectedRoute path="/admin/partner-payments" component={AdminPartnerPaymentsPage} />
       
       {/* Rotas de Certificados */}
       <ProtectedRoute path="/certificates/:studentId/:courseId" component={CertificateTemplatePage} />

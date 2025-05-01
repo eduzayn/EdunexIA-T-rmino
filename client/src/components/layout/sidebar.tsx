@@ -407,6 +407,20 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                       <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
                     </div>
                     
+                    {currentPortal.id === 'admin' && (
+                      <Link 
+                        href={`/admin/partner-payments`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`/admin/partner-payments`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Pagamentos de Certificações
+                      </Link>
+                    )}
+                    
                     <Link 
                       href={`${currentPortal.baseRoute}/student-documents`}
                       className={cn(

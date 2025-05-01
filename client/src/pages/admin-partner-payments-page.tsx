@@ -102,19 +102,34 @@ export default function AdminPartnerPaymentsPage() {
     }
   };
 
-  // Função para retornar cor do badge de status
-  const getStatusBadgeVariant = (status: string) => {
+  // Função para retornar cor do badge de status e adicionar classes customizadas
+  const getStatusBadgeVariant = (status: string): { variant: "default" | "destructive" | "secondary" | "outline"; className: string } => {
     switch (status) {
       case 'pending':
-        return 'outline' as const; // Substituído warning por outline
+        return { 
+          variant: 'outline', 
+          className: 'border-yellow-500 text-yellow-500'
+        };
       case 'paid':
-        return 'default' as const; // Substituído success por default
+        return { 
+          variant: 'default', 
+          className: 'bg-green-500 hover:bg-green-600'
+        };
       case 'overdue':
-        return 'destructive' as const;
+        return { 
+          variant: 'destructive', 
+          className: ''
+        };
       case 'cancelled':
-        return 'secondary' as const;
+        return { 
+          variant: 'secondary', 
+          className: ''
+        };
       default:
-        return 'secondary' as const;
+        return { 
+          variant: 'secondary', 
+          className: ''
+        };
     }
   };
 
@@ -263,9 +278,17 @@ export default function AdminPartnerPaymentsPage() {
                     {filteredPayments.map((payment: any) => (
                       <TableRow key={payment.id}>
                         <TableCell>
-                          <Badge variant={getStatusBadgeVariant(payment.status)}>
-                            {getStatusText(payment.status)}
-                          </Badge>
+                          {(() => {
+                            const badgeConfig = getStatusBadgeVariant(payment.status);
+                            return (
+                              <Badge 
+                                variant={badgeConfig.variant} 
+                                className={badgeConfig.className}
+                              >
+                                {getStatusText(payment.status)}
+                              </Badge>
+                            );
+                          })()}
                         </TableCell>
                         <TableCell>{payment.id}</TableCell>
                         <TableCell>{payment.partnerName}</TableCell>
