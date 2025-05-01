@@ -3,6 +3,7 @@ import { storage } from './database-storage';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { paymentService } from './services/payment-service';
 
 export const partnerRouter = Router();
 
@@ -322,3 +323,206 @@ partnerRouter.post('/certification-requests', isPartner, async (req: Request, re
     res.status(500).json({ error: 'Erro ao criar solicitação de certificação.' });
   }
 });
+
+// Rota para obter pagamentos do parceiro
+partnerRouter.get('/payments', isPartner, async (req: Request, res: Response) => {
+  try {
+    // Em um ambiente real, buscaríamos os pagamentos do banco de dados
+    // Dados de exemplo
+    const payments = [
+      {
+        id: 1,
+        description: 'Certificação: Desenvolvimento Web com React - Aluno: João Silva',
+        studentName: 'João Silva',
+        certificationType: 'Individual',
+        date: '2025-04-15T10:30:00Z',
+        dueDate: '2025-04-25T23:59:59Z',
+        amount: 89.90,
+        status: 'pending',
+        paymentUrl: 'https://www.asaas.com/c/123456',
+        invoiceNumber: '202504001'
+      },
+      {
+        id: 2,
+        description: 'Certificação: Python para Ciência de Dados - Aluno: Maria Oliveira',
+        studentName: 'Maria Oliveira',
+        certificationType: 'Individual',
+        date: '2025-04-10T14:45:00Z',
+        dueDate: '2025-04-20T23:59:59Z',
+        amount: 89.90,
+        status: 'paid',
+        receiptUrl: '/api/partner/payments/receipt/2',
+        invoiceNumber: '202504002'
+      },
+      {
+        id: 3,
+        description: 'Certificação: UX/UI Design - Aluno: Ana Souza',
+        studentName: 'Ana Souza',
+        certificationType: 'Individual',
+        date: '2025-04-05T09:15:00Z',
+        dueDate: '2025-04-15T23:59:59Z',
+        amount: 89.90,
+        status: 'overdue',
+        paymentUrl: 'https://www.asaas.com/c/789012',
+        invoiceNumber: '202504003'
+      },
+      {
+        id: 4,
+        description: 'Certificação: Marketing Digital - Alunos: Lote com 5 alunos',
+        studentName: 'Lote com 5 alunos',
+        certificationType: 'Lote',
+        date: '2025-04-01T16:20:00Z',
+        dueDate: '2025-04-11T23:59:59Z',
+        amount: 399.50,
+        status: 'cancelled',
+        invoiceNumber: '202504004'
+      }
+    ];
+    
+    res.json(payments);
+  } catch (error: any) {
+    console.error('Erro ao buscar pagamentos:', error);
+    res.status(500).json({ error: 'Erro ao buscar pagamentos.' });
+  }
+});
+
+// Rota para gerar boleto para certificação
+partnerRouter.post('/generate-payment', isPartner, async (req: Request, res: Response) => {
+  try {
+    const { certificationId, studentId, courseId, dueDate } = req.body;
+    
+    if (!certificationId || !studentId || !courseId) {
+      return res.status(400).json({ error: 'Dados incompletos. Informe todos os campos necessários.' });
+    }
+    
+    // Em um ambiente real, buscaríamos os dados do aluno, curso e certificação do banco
+    // Aqui, vamos obter esses dados fictícios para exemplo
+    const student = await getStudentData(studentId);
+    const course = await getCourseData(courseId);
+    
+    // Cria ou recupera o cliente no Asaas
+    const customer = await paymentService.getOrCreateCustomer({
+      name: student.fullName,
+      email: student.email,
+      cpfCnpj: student.cpf,
+      mobilePhone: student.phone
+    });
+    
+    // Cria o pagamento
+    const payment = await paymentService.createCertificationPayment({
+      customer: customer,
+      certificationId: certificationId,
+      courseTitle: course.title,
+      studentName: student.fullName,
+      value: 89.90, // Valor padrão para certificação individual
+      dueDate: dueDate
+    });
+    
+    // Resultado
+    res.status(201).json({
+      message: 'Pagamento gerado com sucesso',
+      payment: {
+        id: payment.id,
+        invoiceUrl: payment.invoiceUrl,
+        bankSlipUrl: payment.bankSlipUrl,
+        netValue: payment.netValue,
+        dueDate: payment.dueDate,
+        description: payment.description,
+        status: payment.status
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('Erro ao gerar pagamento:', error);
+    res.status(500).json({ error: error.message || 'Erro ao gerar pagamento.' });
+  }
+});
+
+// Rota para gerar boleto para lote de certificações
+partnerRouter.post('/generate-batch-payment', isPartner, async (req: Request, res: Response) => {
+  try {
+    const { certificationIds, studentIds, courseId, dueDate } = req.body;
+    
+    if (!certificationIds || !Array.isArray(certificationIds) || certificationIds.length === 0 || !courseId) {
+      return res.status(400).json({ error: 'Dados incompletos. Informe todos os campos necessários.' });
+    }
+    
+    // Em um ambiente real, buscaríamos os dados do parceiro, curso e certificações do banco
+    // Aqui, vamos obter esses dados fictícios para exemplo
+    const partner = await getPartnerData(req.user!.id);
+    const course = await getCourseData(courseId);
+    
+    // Valor total com desconto para lote
+    const unitPrice = 79.90; // Valor com desconto por ser lote
+    const totalValue = unitPrice * certificationIds.length;
+    
+    // Cria ou recupera o cliente no Asaas (o próprio parceiro)
+    const customer = await paymentService.getOrCreateCustomer({
+      name: partner.name,
+      email: partner.email,
+      cpfCnpj: partner.cnpj,
+      mobilePhone: partner.phone
+    });
+    
+    // Cria o pagamento
+    const payment = await paymentService.createCertificationPayment({
+      customer: customer,
+      certificationId: certificationIds[0], // Usamos o primeiro como referência
+      courseTitle: `${course.title} - Lote com ${certificationIds.length} alunos`,
+      studentName: `Lote com ${certificationIds.length} alunos`,
+      value: totalValue,
+      dueDate: dueDate
+    });
+    
+    // Resultado
+    res.status(201).json({
+      message: 'Pagamento em lote gerado com sucesso',
+      payment: {
+        id: payment.id,
+        invoiceUrl: payment.invoiceUrl,
+        bankSlipUrl: payment.bankSlipUrl,
+        netValue: payment.netValue,
+        dueDate: payment.dueDate,
+        description: payment.description,
+        status: payment.status,
+        numberOfCertifications: certificationIds.length,
+        totalValue: totalValue
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('Erro ao gerar pagamento em lote:', error);
+    res.status(500).json({ error: error.message || 'Erro ao gerar pagamento em lote.' });
+  }
+});
+
+// Funções auxiliares para obter dados fictícios
+// Em um ambiente real, essas funções buscariam dados do banco
+async function getStudentData(studentId: number) {
+  return {
+    id: studentId,
+    fullName: studentId === 101 ? "João Silva" : (studentId === 102 ? "Maria Oliveira" : "Ana Souza"),
+    email: studentId === 101 ? "joao.silva@exemplo.com" : (studentId === 102 ? "maria.oliveira@exemplo.com" : "ana.souza@exemplo.com"),
+    cpf: studentId === 101 ? "123.456.789-00" : (studentId === 102 ? "987.654.321-00" : "111.222.333-44"),
+    phone: studentId === 101 ? "11987654321" : (studentId === 102 ? "21987654321" : "31987654321")
+  };
+}
+
+async function getCourseData(courseId: number) {
+  return {
+    id: courseId,
+    title: courseId === 201 ? "Desenvolvimento Web com React" : (courseId === 202 ? "Python para Ciência de Dados" : "UX/UI Design"),
+    hours: 60,
+    price: 89.90
+  };
+}
+
+async function getPartnerData(partnerId: number) {
+  return {
+    id: partnerId,
+    name: "Faculdade Exemplo",
+    email: "contato@faculdadeexemplo.com.br",
+    cnpj: "12.345.678/0001-90",
+    phone: "1133334444"
+  };
+}
