@@ -123,16 +123,28 @@ class PaymentService {
   async getOrCreateCustomer(data: CreateCustomerPayload): Promise<AsaasCustomer> {
     try {
       // Formatação e validação do CPF/CNPJ
-      let formattedCpfCnpj = data.cpfCnpj.replace(/[^0-9]/g, '');
+      // De acordo com a documentação do Asaas (https://docs.asaas.com/reference/criar-um-link-de-pagamentos),
+      // o CPF/CNPJ deve ser enviado COM formatação (pontos, traços, barras)
       
-      // Validação básica de CPF (11 dígitos) ou CNPJ (14 dígitos)
-      if (formattedCpfCnpj.length !== 11 && formattedCpfCnpj.length !== 14) {
+      // Primeiro, remover qualquer formatação existente
+      let cpfCnpjRaw = data.cpfCnpj.replace(/[^0-9]/g, '');
+      
+      // Validar quantidade de dígitos
+      if (cpfCnpjRaw.length !== 11 && cpfCnpjRaw.length !== 14) {
         throw new Error('CPF/CNPJ com formato inválido. Deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)');
       }
       
-      // Para testes, vamos usar um CPF válido reconhecido pelo Asaas
-      // Em produção, este código deve ser removido
-      formattedCpfCnpj = '12345678909';
+      // Formatar o CPF/CNPJ de acordo com o tamanho
+      let formattedCpfCnpj;
+      if (cpfCnpjRaw.length === 11) {
+        // Formato CPF: 000.000.000-00
+        formattedCpfCnpj = cpfCnpjRaw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      } else {
+        // Formato CNPJ: 00.000.000/0000-00
+        formattedCpfCnpj = cpfCnpjRaw.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+      }
+      
+      console.log(`CPF/CNPJ formatado para o Asaas: ${formattedCpfCnpj}`);
       
       // Log para debug - mostrar a URL completa
       const url = `${this.apiUrl}/v3/customers?cpfCnpj=${formattedCpfCnpj}`;

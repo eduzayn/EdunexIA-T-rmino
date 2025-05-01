@@ -262,7 +262,20 @@ export default function SimplifiedEnrollmentPage() {
       value = value.slice(0, 11);
     }
     
-    form.setValue("studentCpf", value);
+    // Formatar o CPF com pontos e traço conforme digitação (000.000.000-00)
+    let formattedValue = value;
+    if (value.length > 3) {
+      formattedValue = value.slice(0, 3) + '.' + value.slice(3);
+    }
+    if (value.length > 6) {
+      formattedValue = formattedValue.slice(0, 7) + '.' + value.slice(6);
+    }
+    if (value.length > 9) {
+      formattedValue = formattedValue.slice(0, 11) + '-' + value.slice(9);
+    }
+    
+    e.target.value = formattedValue;
+    form.setValue("studentCpf", formattedValue);
   };
   
   // Formatador de telefone para o input
