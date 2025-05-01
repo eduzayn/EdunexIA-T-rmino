@@ -442,18 +442,6 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     >
                       Portal do Professor
                     </Link>
-                    
-                    <Link 
-                      href={`${currentPortal.baseRoute}/hub-view`}
-                      className={cn(
-                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
-                        isActive(`${currentPortal.baseRoute}/hub-view`) 
-                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                      )}
-                    >
-                      Portal do Polo
-                    </Link>
                   </div>
                 )}
               </div>
