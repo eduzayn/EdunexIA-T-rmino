@@ -226,6 +226,21 @@ export default function SimplifiedEnrollmentPage() {
     }
   };
   
+  // Função para exibir o método de pagamento
+  const getPaymentMethodBadge = (paymentMethod?: string) => {
+    switch (paymentMethod) {
+      case 'CREDIT_CARD':
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700">Cartão de Crédito</Badge>;
+      case 'BOLETO':
+        return <Badge variant="outline" className="bg-violet-50 text-violet-700">Boleto</Badge>;
+      case 'PIX':
+        return <Badge variant="outline" className="bg-green-50 text-green-700">PIX</Badge>;
+      case 'UNDEFINED':
+      default:
+        return <Badge variant="outline" className="bg-gray-50 text-gray-700">Múltiplas opções</Badge>;
+    }
+  };
+  
   // Formatar CPF
   const formatCpf = (cpf: string) => {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
@@ -550,6 +565,7 @@ export default function SimplifiedEnrollmentPage() {
                         <TableHead>Curso</TableHead>
                         <TableHead>Valor</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Pagamento</TableHead>
                         <TableHead>Data</TableHead>
                         <TableHead>Ações</TableHead>
                       </TableRow>
@@ -567,6 +583,7 @@ export default function SimplifiedEnrollmentPage() {
                           </TableCell>
                           <TableCell>{formatCurrency(enrollment.amount)}</TableCell>
                           <TableCell>{getStatusBadge(enrollment.status)}</TableCell>
+                          <TableCell>{getPaymentMethodBadge(enrollment.paymentMethod)}</TableCell>
                           <TableCell>{new Date(enrollment.createdAt).toLocaleDateString()}</TableCell>
                           <TableCell>
                             {enrollment.paymentUrl && (
@@ -587,7 +604,7 @@ export default function SimplifiedEnrollmentPage() {
                         ['pending', 'waiting_payment'].includes(e.status)
                       ).length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                             Nenhuma matrícula pendente encontrada
                           </TableCell>
                         </TableRow>
@@ -622,6 +639,7 @@ export default function SimplifiedEnrollmentPage() {
                         <TableHead>Curso</TableHead>
                         <TableHead>Valor</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Pagamento</TableHead>
                         <TableHead>Data</TableHead>
                         <TableHead>Ações</TableHead>
                       </TableRow>
@@ -637,6 +655,7 @@ export default function SimplifiedEnrollmentPage() {
                           </TableCell>
                           <TableCell>{formatCurrency(enrollment.amount)}</TableCell>
                           <TableCell>{getStatusBadge(enrollment.status)}</TableCell>
+                          <TableCell>{getPaymentMethodBadge(enrollment.paymentMethod)}</TableCell>
                           <TableCell>{new Date(enrollment.createdAt).toLocaleDateString()}</TableCell>
                           <TableCell>
                             {enrollment.paymentUrl && enrollment.status === 'waiting_payment' && (
@@ -655,7 +674,7 @@ export default function SimplifiedEnrollmentPage() {
                       
                       {enrollments.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                             Nenhuma matrícula encontrada
                           </TableCell>
                         </TableRow>
