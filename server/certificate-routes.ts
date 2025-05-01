@@ -32,6 +32,22 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+// Middleware para permitir acesso específico ao certificado do João Silva (para demonstração)
+function allowDemoCertificate(req: Request, res: Response, next: NextFunction) {
+  const { studentId, courseId } = req.params;
+  
+  // Permitir acesso específico ao certificado de demonstração do João Silva (101-201)
+  if (studentId === '101' && courseId === '201') {
+    return next();
+  }
+  
+  // Caso contrário, verificar autenticação
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: 'Não autenticado. Faça login para continuar.' });
+  }
+  next();
+}
+
 // Gerar dados do certificado com base no estudante e curso
 async function generateCertificateData(studentId: number, courseId: number): Promise<CertificateData> {
   try {
@@ -117,7 +133,7 @@ async function generateCertificateData(studentId: number, courseId: number): Pro
 }
 
 // Rota para obter os dados do certificado
-certificateRouter.get('/:studentId/:courseId', isAuthenticated, async (req: Request, res: Response) => {
+certificateRouter.get('/:studentId/:courseId', allowDemoCertificate, async (req: Request, res: Response) => {
   try {
     const studentId = parseInt(req.params.studentId);
     const courseId = parseInt(req.params.courseId);
