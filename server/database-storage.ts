@@ -1184,6 +1184,109 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
+
+  // Implementação dos métodos de Matrícula Simplificada
+  async createSimplifiedEnrollment(data: InsertSimplifiedEnrollment): Promise<SimplifiedEnrollment> {
+    try {
+      const [enrollment] = await db.insert(simplifiedEnrollments).values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: data.status || 'pending'
+      }).returning();
+      
+      return enrollment;
+    } catch (error) {
+      console.error('Erro ao criar matrícula simplificada:', error);
+      throw error;
+    }
+  }
+  
+  async getSimplifiedEnrollmentById(id: number): Promise<SimplifiedEnrollment | undefined> {
+    try {
+      const [enrollment] = await db.select().from(simplifiedEnrollments).where(eq(simplifiedEnrollments.id, id));
+      return enrollment;
+    } catch (error) {
+      console.error('Erro ao buscar matrícula simplificada por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async getSimplifiedEnrollmentsByStudent(studentId: number): Promise<SimplifiedEnrollment[]> {
+    try {
+      return await db.select().from(simplifiedEnrollments)
+        .where(eq(simplifiedEnrollments.studentId, studentId))
+        .orderBy(desc(simplifiedEnrollments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas simplificadas por estudante:', error);
+      return [];
+    }
+  }
+  
+  async getSimplifiedEnrollmentsByCourse(courseId: number): Promise<SimplifiedEnrollment[]> {
+    try {
+      return await db.select().from(simplifiedEnrollments)
+        .where(eq(simplifiedEnrollments.courseId, courseId))
+        .orderBy(desc(simplifiedEnrollments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas simplificadas por curso:', error);
+      return [];
+    }
+  }
+  
+  async getSimplifiedEnrollmentsByTenant(tenantId: number): Promise<SimplifiedEnrollment[]> {
+    try {
+      return await db.select().from(simplifiedEnrollments)
+        .where(eq(simplifiedEnrollments.tenantId, tenantId))
+        .orderBy(desc(simplifiedEnrollments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas simplificadas por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getSimplifiedEnrollmentsByConsultant(consultantId: number): Promise<SimplifiedEnrollment[]> {
+    try {
+      return await db.select().from(simplifiedEnrollments)
+        .where(eq(simplifiedEnrollments.consultantId, consultantId))
+        .orderBy(desc(simplifiedEnrollments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas simplificadas por consultor:', error);
+      return [];
+    }
+  }
+  
+  async updateSimplifiedEnrollmentStatus(id: number, status: string, data?: Partial<SimplifiedEnrollment>): Promise<SimplifiedEnrollment> {
+    try {
+      // Preparar os dados de atualização
+      const updateData: any = {
+        status,
+        updatedAt: new Date(),
+        ...(data || {})
+      };
+      
+      // Adicionar timestamp específico com base no status
+      if (status === 'completed') {
+        updateData.completedAt = new Date();
+      } else if (status === 'cancelled') {
+        updateData.cancelledAt = new Date();
+      }
+      
+      const [updatedEnrollment] = await db.update(simplifiedEnrollments)
+        .set(updateData)
+        .where(eq(simplifiedEnrollments.id, id))
+        .returning();
+      
+      if (!updatedEnrollment) {
+        throw new Error('Matrícula simplificada não encontrada');
+      }
+      
+      return updatedEnrollment;
+    } catch (error) {
+      console.error('Erro ao atualizar status da matrícula simplificada:', error);
+      throw error;
+    }
+  }
 }
 
 // Exportando a instância da DatabaseStorage para uso em toda a aplicação
