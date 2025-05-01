@@ -16,6 +16,7 @@ import { log } from "./vite";
 import { sql } from "drizzle-orm";
 import { studentRouter } from "./student-routes";
 import { adminRouter } from "./admin-routes";
+import { adminPaymentRouter } from "./admin-payment-routes";
 import { partnerRouter } from "./partner-routes";
 import { certificateRouter } from "./certificate-routes";
 
@@ -1630,6 +1631,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Adicionar rotas administrativas
   app.use('/api/admin', isAuthenticated, adminRouter);
+  app.use('/api/admin', isAuthenticated, adminPaymentRouter);
   
   // Adicionar rotas do Portal do Parceiro
   app.use('/api/partner', isAuthenticated, partnerRouter);
