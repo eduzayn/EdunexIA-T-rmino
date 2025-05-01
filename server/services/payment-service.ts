@@ -122,33 +122,53 @@ class PaymentService {
    */
   async getOrCreateCustomer(data: CreateCustomerPayload): Promise<AsaasCustomer> {
     try {
+      // Log para debug - mostrar a URL completa
+      const url = `${this.apiUrl}/v3/customers?cpfCnpj=${data.cpfCnpj}`;
+      console.log(`Fazendo requisição para: ${url}`);
+      console.log(`Com header auth: ${this.apiKey.substring(0, 10)}...`);
+      
       // Verificar se o cliente já existe pelo CPF/CNPJ
       const searchResponse = await axios.get(
-        `${this.apiUrl}/v3/customers?cpfCnpj=${data.cpfCnpj}`,
+        url,
         {
           headers: {
             'Content-Type': 'application/json',
             'access_token': this.apiKey
-          }
+          },
+          // Aceitar qualquer código de status para debug
+          validateStatus: () => true
         }
       );
       
       // Se o cliente já existe, retorná-lo
+      // Log de resposta para debug
+      console.log(`Status da resposta: ${searchResponse.status}`);
+      console.log(`Resposta Asaas:`, JSON.stringify(searchResponse.data).substring(0, 300));
+      
       if (searchResponse.data.data && searchResponse.data.data.length > 0) {
         return searchResponse.data.data[0];
       }
       
       // Se não existe, criar novo cliente
+      const createUrl = `${this.apiUrl}/v3/customers`;
+      console.log(`Criando cliente em: ${createUrl}`);
+      
       const createResponse = await axios.post(
-        `${this.apiUrl}/v3/customers`,
+        createUrl,
         data,
         {
           headers: {
             'Content-Type': 'application/json',
             'access_token': this.apiKey
-          }
+          },
+          // Aceitar qualquer código de status para debug
+          validateStatus: () => true
         }
       );
+      
+      // Log de resposta para debug
+      console.log(`Status da criação: ${createResponse.status}`);
+      console.log(`Resposta da criação:`, JSON.stringify(createResponse.data).substring(0, 300));
       
       return createResponse.data;
     } catch (error: any) {
@@ -264,6 +284,10 @@ class PaymentService {
       // Verificar o método de pagamento selecionado
       const selectedPaymentMethod = data.paymentMethod || 'UNDEFINED';
       
+      // Log para debug
+      console.log(`Preparando checkout com método de pagamento: ${selectedPaymentMethod}`);
+      console.log(`Cliente ID: ${customerId}, Valor: ${data.value}, Parcelas: ${maxInstallmentCount}`);
+      
       // Criar configuração base do checkout
       const checkoutData: CreateCheckoutPayload = {
         customer: customerId,
@@ -292,16 +316,27 @@ class PaymentService {
         }
       };
       
+      // URL para o checkout
+      const checkoutUrl = `${this.apiUrl}/v3/checkouts`;
+      console.log(`Criando checkout em: ${checkoutUrl}`);
+      console.log(`Dados do checkout: ${JSON.stringify(checkoutData).substring(0, 300)}...`);
+      
       const response = await axios.post(
-        `${this.apiUrl}/v3/checkouts`,
+        checkoutUrl,
         checkoutData,
         {
           headers: {
             'Content-Type': 'application/json',
             'access_token': this.apiKey
-          }
+          },
+          // Aceitar qualquer código de status para debug
+          validateStatus: () => true
         }
       );
+      
+      // Log para debug
+      console.log(`Status da resposta do checkout: ${response.status}`);
+      console.log(`Resposta do checkout: ${JSON.stringify(response.data).substring(0, 300)}...`);
       
       return {
         paymentUrl: response.data.invoiceUrl,
