@@ -4,6 +4,9 @@ import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AppShell } from '@/components/layout/app-shell';
+import { ArrowLeft } from 'lucide-react';
+import { useLocation } from 'wouter';
 import {
   Table,
   TableBody,
@@ -224,17 +227,36 @@ export default function PartnerPaymentsPage() {
     }
   };
 
+  // Para navegação
+  const [_, navigate] = useLocation();
+
+  // Função para voltar à página anterior
+  const handleGoBack = () => {
+    navigate('/partner/dashboard');
+  };
+
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Pagamentos</h1>
+    <AppShell>
+      <div className="container mx-auto py-8">
+        <div className="flex items-center mb-6">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="mr-4" 
+            onClick={handleGoBack}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+          <h1 className="text-3xl font-bold">Pagamentos</h1>
+        </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="payments">Pagamentos Realizados</TabsTrigger>
-          <TabsTrigger value="generate">Gerar Novo Pagamento</TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="payments">Pagamentos Realizados</TabsTrigger>
+            <TabsTrigger value="generate">Gerar Novo Pagamento</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="payments">
+          <TabsContent value="payments">
           <Card>
             <CardHeader>
               <CardTitle>Histórico de Pagamentos</CardTitle>
@@ -314,60 +336,60 @@ export default function PartnerPaymentsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="generate">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pagamento Individual</CardTitle>
-                <CardDescription>
-                  Crie um boleto para certificação de um aluno específico.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">
-                  Após a confirmação do pagamento, o certificado será liberado para o aluno.
-                </p>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Valor: R$ 89,90 por certificação.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setPaymentDialog(true)}
-                >
-                  Gerar Boleto Individual
-                </Button>
-              </CardFooter>
-            </Card>
+          <TabsContent value="generate">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pagamento Individual</CardTitle>
+                  <CardDescription>
+                    Crie um boleto para certificação de um aluno específico.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="mb-4">
+                    Após a confirmação do pagamento, o certificado será liberado para o aluno.
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Valor: R$ 89,90 por certificação.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setPaymentDialog(true)}
+                  >
+                    Gerar Boleto Individual
+                  </Button>
+                </CardFooter>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Pagamento em Lote</CardTitle>
-                <CardDescription>
-                  Crie um boleto para certificação de múltiplos alunos de uma única vez.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">
-                  Ideal para instituições que precisam certificar vários alunos simultaneamente.
-                </p>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Valor: R$ 79,90 por certificação (desconto para lote).
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setBatchDialog(true)}
-                >
-                  Gerar Boleto em Lote
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pagamento em Lote</CardTitle>
+                  <CardDescription>
+                    Crie um boleto para certificação de múltiplos alunos de uma única vez.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="mb-4">
+                    Ideal para instituições que precisam certificar vários alunos simultaneamente.
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Valor: R$ 79,90 por certificação (desconto para lote).
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setBatchDialog(true)}
+                  >
+                    Gerar Boleto em Lote
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
         </TabsContent>
       </Tabs>
 
@@ -761,5 +783,6 @@ export default function PartnerPaymentsPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </AppShell>
   );
 }
