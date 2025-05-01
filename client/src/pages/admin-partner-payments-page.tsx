@@ -48,7 +48,7 @@ export default function AdminPartnerPaymentsPage() {
 
   // Função para aplicar filtros aos pagamentos
   const getFilteredPayments = () => {
-    if (!payments) return [];
+    if (!payments || !Array.isArray(payments)) return [];
     
     return payments.filter((payment: any) => {
       // Filtrar por status
@@ -106,9 +106,9 @@ export default function AdminPartnerPaymentsPage() {
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'warning' as const;
+        return 'outline' as const; // Substituído warning por outline
       case 'paid':
-        return 'success' as const;
+        return 'default' as const; // Substituído success por default
       case 'overdue':
         return 'destructive' as const;
       case 'cancelled':
@@ -120,7 +120,7 @@ export default function AdminPartnerPaymentsPage() {
 
   // Mock para calcular o total recebido
   const calculateTotalReceived = () => {
-    if (!payments) return 0;
+    if (!payments || !Array.isArray(payments)) return 0;
     
     return payments
       .filter((payment: any) => payment.status === 'paid')
@@ -129,7 +129,7 @@ export default function AdminPartnerPaymentsPage() {
 
   // Mock para calcular o total pendente
   const calculateTotalPending = () => {
-    if (!payments) return 0;
+    if (!payments || !Array.isArray(payments)) return 0;
     
     return payments
       .filter((payment: any) => payment.status === 'pending')
@@ -198,7 +198,7 @@ export default function AdminPartnerPaymentsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">
-                {payments && payments.filter((p: any) => p.status === 'paid').length || 0}
+                {payments && Array.isArray(payments) ? payments.filter((p: any) => p.status === 'paid').length : 0}
               </p>
             </CardContent>
           </Card>

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { db } from './storage';
+import { db } from './db';
 
 export const adminPaymentRouter = Router();
 
