@@ -571,11 +571,11 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             {['admin'].includes(currentPortal.id) && (
               <div className="nav-group">
                 <button 
-                  className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                  className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
                   onClick={() => toggleGroup('financial')}
                 >
                   <div className="flex items-center">
-                    <DollarSign className="mr-3 h-5 w-5 text-sidebar-foreground/70" />
+                    <DollarSign className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
                     Financeiro
                   </div>
                   <ChevronDown 
@@ -621,11 +621,11 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             {['admin', 'student', 'teacher'].includes(currentPortal.id) && (
               <div className="nav-group">
                 <button 
-                  className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                  className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
                   onClick={() => toggleGroup('ai')}
                 >
                   <div className="flex items-center">
-                    <Bot className="mr-3 h-5 w-5 text-sidebar-foreground/70" />
+                    <Bot className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
                     Inteligência Artificial
                   </div>
                   <ChevronDown 
@@ -664,11 +664,11 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             {['admin', 'teacher'].includes(currentPortal.id) && (
               <div className="nav-group">
                 <button 
-                  className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                  className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
                   onClick={() => toggleGroup('productivity')}
                 >
                   <div className="flex items-center">
-                    <LineChart className="mr-3 h-5 w-5 text-sidebar-foreground/70" />
+                    <LineChart className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
                     Produtividade
                   </div>
                   <ChevronDown 
@@ -703,9 +703,9 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
             {/* Configurações - Para admin e teacher */}
             {['admin', 'teacher'].includes(currentPortal.id) && (
-              <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+              <div className="flex items-center justify-between px-4 py-3 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                 <div className="flex items-center">
-                  <Settings className="mr-3 h-5 w-5 text-sidebar-foreground/40" />
+                  <Settings className="mr-4 h-5 w-5 text-sidebar-foreground/40" />
                   <span>Configurações</span>
                 </div>
                 <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
