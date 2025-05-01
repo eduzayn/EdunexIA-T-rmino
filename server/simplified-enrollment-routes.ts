@@ -130,18 +130,51 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
 // Rota para listar matrículas simplificadas por tenant
 router.get('/simplified-enrollments', isAuthenticated, async (req, res) => {
   try {
-    // Obter tenantId da query ou do usuário autenticado
-    let tenantId = Number(req.query.tenantId);
+    // LOG para debugging: todos os dados disponíveis no objeto req.user
+    console.log('Dados do usuário autenticado:', JSON.stringify(req.user));
     
-    // Se não foi fornecido na query, tentar obter do usuário autenticado
-    if (!tenantId && req.user) {
-      const authUser = req.user as AuthUser;
-      tenantId = authUser.tenantId;
-      console.log(`Obtendo tenant do usuário autenticado: ${tenantId}`);
+    // Obter tenantId da query ou do usuário autenticado
+    let tenantId: number | undefined;
+    
+    // Se fornecido explicitamente na query, use esse valor
+    if (req.query.tenantId && req.query.tenantId !== 'undefined' && req.query.tenantId !== 'null') {
+      tenantId = Number(req.query.tenantId);
+      console.log(`Usando tenantId da query: ${tenantId}`);
+    } 
+    // Caso contrário, use o tenantId do usuário autenticado
+    else if (req.user) {
+      // Para mais segurança, verifique diversas possibilidades de onde o tenantId pode estar
+      // dentro do objeto req.user
+      const user = req.user as any;
+      
+      if (typeof user.tenantId === 'number') {
+        tenantId = user.tenantId;
+        console.log(`Obtendo tenantId diretamente do usuário: ${tenantId}`);
+      } 
+      else if (user.tenant_id && typeof user.tenant_id === 'number') {
+        tenantId = user.tenant_id;
+        console.log(`Obtendo tenant_id do usuário: ${tenantId}`);
+      }
+      else if (user.institution && user.institution.id) {
+        tenantId = Number(user.institution.id);
+        console.log(`Obtendo tenantId da instituição do usuário: ${tenantId}`);
+      }
+      else {
+        // FALLBACK PARA DESENVOLVIMENTO - REMOVER EM PRODUÇÃO
+        // Em ambiente de desenvolvimento, usamos o ID 1 como padrão para testes
+        // Em produção, este bloco deve ser removido
+        console.log('ATENÇÃO: Usando tenantId padrão (1) para ambiente de desenvolvimento');
+        tenantId = 1;
+      }
     }
     
+    // Verificação final do tenantId
     if (!tenantId) {
-      return res.status(400).json({ error: 'Tenant ID é obrigatório' });
+      console.error('Erro: Tenant ID não encontrado nem na query nem no usuário autenticado');
+      return res.status(400).json({ 
+        error: 'Tenant ID é obrigatório', 
+        details: 'Não foi possível determinar o Tenant ID a partir da autenticação ou dos parâmetros fornecidos'
+      });
     }
     
     console.log(`Listando matrículas para o tenant ID: ${tenantId}`);

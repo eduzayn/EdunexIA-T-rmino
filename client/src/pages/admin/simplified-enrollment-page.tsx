@@ -254,6 +254,38 @@ export default function SimplifiedEnrollmentPage() {
     }
   };
   
+  // Função para validar CPF
+  const isValidCPF = (cpf: string): boolean => {
+    const rawCPF = cpf.replace(/[^\d]/g, '');
+    
+    // Verificar tamanho
+    if (rawCPF.length !== 11) return false;
+    
+    // Verificar se todos os dígitos são iguais
+    if (/^(\d)\1{10}$/.test(rawCPF)) return false;
+    
+    // Validação do primeiro dígito verificador
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(rawCPF.charAt(i)) * (10 - i);
+    }
+    let remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(rawCPF.charAt(9))) {
+      return false;
+    }
+    
+    // Validação do segundo dígito verificador
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(rawCPF.charAt(i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    
+    return remainder === parseInt(rawCPF.charAt(10));
+  };
+  
   // Formatador de CPF para o input
   const formatCpfInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -276,6 +308,19 @@ export default function SimplifiedEnrollmentPage() {
     
     e.target.value = formattedValue;
     form.setValue("studentCpf", formattedValue);
+    
+    // Validar CPF completo
+    if (value.length === 11) {
+      const isValid = isValidCPF(value);
+      if (!isValid) {
+        form.setError("studentCpf", {
+          type: "manual",
+          message: "CPF inválido. Verifique os dígitos."
+        });
+      } else {
+        form.clearErrors("studentCpf");
+      }
+    }
   };
   
   // Formatador de telefone para o input
