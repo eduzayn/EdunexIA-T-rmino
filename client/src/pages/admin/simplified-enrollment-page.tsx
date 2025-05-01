@@ -69,6 +69,9 @@ const formSchema = z.object({
   courseId: z.string({ required_error: "Selecione um curso" }),
   amount: z.string().min(1, { message: "Valor é obrigatório" }),
   installments: z.string().default("1"),
+  paymentMethod: z.enum(["UNDEFINED", "BOLETO", "CREDIT_CARD", "PIX"], {
+    required_error: "Selecione uma forma de pagamento",
+  }).default("UNDEFINED"),
   poloId: z.string().optional(),
   consultantId: z.string(),
   tenantId: z.string(),
@@ -172,6 +175,7 @@ export default function SimplifiedEnrollmentPage() {
       courseId: "",
       amount: "",
       installments: "1",
+      paymentMethod: "UNDEFINED",
       consultantId: user?.id?.toString() || "",
       tenantId: user?.tenantId?.toString() || "",
     },
@@ -456,6 +460,36 @@ export default function SimplifiedEnrollmentPage() {
                                   ))}
                                 </SelectContent>
                               </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="paymentMethod"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Método de Pagamento</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange}
+                                value={field.value || "UNDEFINED"}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o método de pagamento" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="UNDEFINED">Permitir que o aluno escolha</SelectItem>
+                                  <SelectItem value="BOLETO">Somente Boleto Bancário</SelectItem>
+                                  <SelectItem value="CREDIT_CARD">Somente Cartão de Crédito</SelectItem>
+                                  <SelectItem value="PIX">Somente PIX</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormDescription>
+                                Se selecionar "Permitir que o aluno escolha", o aluno poderá escolher entre Boleto, PIX ou Cartão
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}

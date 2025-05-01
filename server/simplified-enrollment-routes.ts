@@ -25,6 +25,7 @@ const createEnrollmentSchema = insertSimplifiedEnrollmentSchema.extend({
   tenantId: z.number(),
   // Opcional
   installments: z.number().min(1).max(12).default(1),
+  paymentMethod: z.enum(["UNDEFINED", "BOLETO", "CREDIT_CARD", "PIX"]).default("UNDEFINED"),
   studentPhone: z.string().optional(),
   poloId: z.number().optional()
 });
