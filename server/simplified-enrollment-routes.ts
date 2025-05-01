@@ -93,6 +93,15 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
         url: paymentLink.paymentUrl 
       });
       
+      // Verificar se temos uma URL de pagamento válida
+      if (!paymentLink.paymentUrl) {
+        console.error('Erro: URL de pagamento não gerada pelo Asaas');
+        throw new Error('Não foi possível gerar o link de pagamento. Tente novamente mais tarde.');
+      }
+      
+      console.log(`URL de pagamento gerada com sucesso: ${paymentLink.paymentUrl}`);
+      console.log(`ID do pagamento: ${paymentLink.paymentId}`);
+      
       // Atualizar matrícula com dados do pagamento
       const updatedEnrollment = await storage.updateSimplifiedEnrollmentStatus(
         enrollment.id,
@@ -106,7 +115,14 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
         }
       );
       
-      return res.status(201).json(updatedEnrollment);
+      // Incluir URLs de pagamento na resposta para fácil acesso
+      return res.status(201).json({
+        ...updatedEnrollment,
+        paymentLinks: {
+          paymentUrl: paymentLink.paymentUrl,
+          asaasPaymentId: paymentLink.paymentId
+        }
+      });
     } catch (paymentError: any) {
       console.error('Erro ao processar pagamento:', paymentError);
       // Mesmo com erro no pagamento, a matrícula foi criada

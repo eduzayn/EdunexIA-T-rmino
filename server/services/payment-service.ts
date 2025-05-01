@@ -400,8 +400,70 @@ class PaymentService {
       // Nome para o link de pagamento
       const linkName = `Matrícula #${data.enrollmentId} - ${data.studentName}`;
       
+      // Baseado na documentação do Asaas, vamos testar uma abordagem diferente.
+      // Se o link de pagamento falhar, tentaremos criar uma cobrança direta.
+      let paymentUrl: string = '';
+      let paymentId: string = '';
+      
+      // Tentativa 1: Criar uma cobrança normal primeiro
+      try {
+        console.log('Tentando criar cobrança normal no Asaas...');
+        
+        // Definir o tipo de cobrança
+        let billingType = 'UNDEFINED';
+        if (data.paymentMethod && data.paymentMethod !== 'UNDEFINED') {
+          billingType = data.paymentMethod;
+        }
+        
+        const paymentData = {
+          customer: customerId,
+          billingType: billingType,
+          value: data.value,
+          dueDate: dueDate,
+          description: description,
+          externalReference: `matricula-${data.enrollmentId}`,
+          postalService: false
+        };
+        
+        console.log(`Dados da cobrança: ${JSON.stringify(paymentData)}`);
+        
+        const paymentResponse = await axios.post(
+          `${this.apiUrl}/v3/payments`,
+          paymentData,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'access_token': this.apiKey
+            },
+            validateStatus: () => true
+          }
+        );
+        
+        console.log(`Status da resposta de cobrança: ${paymentResponse.status}`);
+        console.log(`Resposta da cobrança: ${JSON.stringify(paymentResponse.data).substring(0, 300)}...`);
+        
+        if (paymentResponse.status >= 200 && paymentResponse.status < 300) {
+          // Cobrança criada com sucesso
+          paymentUrl = paymentResponse.data.invoiceUrl;
+          paymentId = paymentResponse.data.id;
+          console.log(`Cobrança criada com sucesso. ID: ${paymentId}, URL: ${paymentUrl}`);
+          
+          // Retornar os dados da cobrança
+          return {
+            paymentUrl,
+            paymentId
+          };
+        }
+      } catch (paymentError) {
+        console.error('Erro ao criar cobrança:', paymentError);
+        // Continue para tentar o link de pagamento
+      }
+      
+      // Tentativa 2: Criar link de pagamento (se a cobrança direta falhar)
+      console.log('Tentando criar link de pagamento no Asaas...');
+      
       // Mapear o método de pagamento para o formato aceito pela API
-      let asaasBillingTypes = [];
+      let asaasBillingTypes: string[] = [];
       switch (data.paymentMethod) {
         case 'BOLETO':
           asaasBillingTypes = ['BOLETO'];
@@ -422,29 +484,41 @@ class PaymentService {
       console.log(`Cliente ID: ${customerId}, Valor: ${data.value}, Link: ${linkName}`);
       
       // Criar payload para o link de pagamento
+      // Seguindo exatamente a documentação: https://docs.asaas.com/reference/criar-um-link-de-pagamentos
       const paymentLinkData = {
         name: linkName,
         description: description,
-        value: data.value,
-        billingTypes: asaasBillingTypes,
-        chargeTypes: ['DETACHED'],
+        billingType: data.paymentMethod === 'UNDEFINED' ? null : data.paymentMethod,
+        chargeType: 'DETACHED',  // Este é o recomendado na documentação
         dueDateLimitDays: 30,
+        subscriptionCycle: null,
         maxInstallmentCount: data.installments || 1,
         notificationEnabled: true,
-        endDate: null, // Link sem data de expiração
+        callback: {
+          autoRedirect: true,
+          successUrl: "https://example.com/success",
+          autoRedirectDelay: 5
+        },
         externalReference: `matricula-${data.enrollmentId}`,
-        // Lista de itens obrigatória para o link de pagamento
-        items: [{
-          name: `Matrícula no curso ${data.courseTitle}`,
-          value: data.value,
-          quantity: 1
-        }]
+        value: data.value,
+        discount: {
+          value: 0,
+          dueDateLimitDays: 0,
+          type: "FIXED"
+        },
+        fine: {
+          value: 0
+        },
+        interest: {
+          value: 0
+        },
+        split: null
       };
       
       // URL para criar o link de pagamento
       const paymentLinkUrl = `${this.apiUrl}/v3/paymentLinks`;
       console.log(`Criando link de pagamento em: ${paymentLinkUrl}`);
-      console.log(`Dados do link de pagamento: ${JSON.stringify(paymentLinkData).substring(0, 300)}...`);
+      console.log(`Dados do link de pagamento: ${JSON.stringify(paymentLinkData)}`);
       
       const response = await axios.post(
         paymentLinkUrl,
@@ -463,9 +537,17 @@ class PaymentService {
       console.log(`Status da resposta do link: ${response.status}`);
       console.log(`Resposta do link: ${JSON.stringify(response.data).substring(0, 300)}...`);
       
+      if (response.status >= 200 && response.status < 300) {
+        paymentUrl = response.data.url;
+        paymentId = response.data.id;
+        console.log(`Link de pagamento criado com sucesso. ID: ${paymentId}, URL: ${paymentUrl}`);
+      } else {
+        throw new Error(`Erro ao criar link de pagamento: ${response.data.errors?.[0]?.description || 'Erro desconhecido'}`);
+      }
+      
       return {
-        paymentUrl: response.data.url,
-        paymentId: response.data.id
+        paymentUrl,
+        paymentId
       };
     } catch (error: any) {
       console.error('Erro ao criar link de pagamento no Asaas:', error.response?.data || error.message);
