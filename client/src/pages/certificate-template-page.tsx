@@ -72,10 +72,10 @@ export const CertificateTemplatePage: React.FC = () => {
     ]
   };
 
-  // Em uma implementação real, esses dados viriam da API
+  // Buscar dados reais da API
   const { isLoading, error, data } = useQuery({
     queryKey: ['/api/certificates', studentId, courseId],
-    queryFn: () => Promise.resolve(certificateData),
+    // Usando os dados reais da API ao invés dos dados simulados
     enabled: !!studentId && !!courseId
   });
 
@@ -112,11 +112,19 @@ export const CertificateTemplatePage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ) : (
+        ) : data ? (
           <div className="bg-white shadow-lg rounded-lg print:shadow-none">
             {/* Certificado usando o modelo adequado baseado no tipo de curso */}
-            <PostgradCertificate {...certificateData} />
+            <PostgradCertificate {...data} />
           </div>
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center">
+                <p>Dados do certificado não disponíveis. Verifique se o ID do estudante e do curso estão corretos.</p>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </AppShell>

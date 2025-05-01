@@ -1635,7 +1635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/partner', isAuthenticated, partnerRouter);
   
   // Adicionar rotas de certificados
-  app.use('/api/certificates', certificateRouter);
+  app.use('/api/certificates', isAuthenticated, certificateRouter);
 
   const httpServer = createServer(app);
 
