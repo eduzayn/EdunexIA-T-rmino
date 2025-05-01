@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 // Configurações do Asaas
-const ASAAS_API_URL = 'https://api.asaas.com/v3'; // URL de produção
-const ASAAS_API_KEY = process.env.ASAAS_ZAYN_KEY; // Chave correta para a API
+const ASAAS_API_URL = 'https://api.asaas.com'; // URL de produção oficial
+// Usar a chave de produção do Asaas
+const ASAAS_API_KEY = process.env.ASAAS_ZAYN_KEY || '$aact_YTU5YTE0M2M2N2I4MTliNzk0YTI5N2U5MzdjNWZmNDQ6OjAwMDAwMDAwMDAwMDAw';
 
 // Interfaces para tipagem
 interface AsaasCustomer {
@@ -102,9 +103,18 @@ class PaymentService {
     
     // Usar sempre a URL de produção conforme solicitado
     this.apiUrl = ASAAS_API_URL;
-    this.apiKey = ASAAS_API_KEY;
+    // Garantir que a chave não tenha espaços extras
+    this.apiKey = ASAAS_API_KEY.trim();
     
+    // Log de inicialização
     console.log('Serviço de pagamento do Asaas inicializado no ambiente de PRODUÇÃO');
+    
+    // Log para debug - mostrar os primeiros 10 caracteres da chave para verificação
+    const keyStart = this.apiKey.substring(0, 10);
+    console.log(`Chave API iniciando com: ${keyStart}...`);
+    
+    // Log da URL base para verificação
+    console.log(`URL base da API: ${this.apiUrl}`);
   }
   
   /**
@@ -114,7 +124,7 @@ class PaymentService {
     try {
       // Verificar se o cliente já existe pelo CPF/CNPJ
       const searchResponse = await axios.get(
-        `${this.apiUrl}/customers?cpfCnpj=${data.cpfCnpj}`,
+        `${this.apiUrl}/v3/customers?cpfCnpj=${data.cpfCnpj}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -130,7 +140,7 @@ class PaymentService {
       
       // Se não existe, criar novo cliente
       const createResponse = await axios.post(
-        `${this.apiUrl}/customers`,
+        `${this.apiUrl}/v3/customers`,
         data,
         {
           headers: {
@@ -181,7 +191,7 @@ class PaymentService {
       };
       
       const response = await axios.post(
-        `${this.apiUrl}/payments`,
+        `${this.apiUrl}/v3/payments`,
         paymentData,
         {
           headers: {
@@ -204,7 +214,7 @@ class PaymentService {
   async getPaymentStatus(paymentId: string): Promise<string> {
     try {
       const response = await axios.get(
-        `${this.apiUrl}/payments/${paymentId}`,
+        `${this.apiUrl}/v3/payments/${paymentId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -283,7 +293,7 @@ class PaymentService {
       };
       
       const response = await axios.post(
-        `${this.apiUrl}/checkouts`,
+        `${this.apiUrl}/v3/checkouts`,
         checkoutData,
         {
           headers: {
