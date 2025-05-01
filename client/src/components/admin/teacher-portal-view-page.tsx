@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/tabs';
 
 // Importar os componentes de conteúdo do Portal do Professor
-import TeacherDashboardContent from '@/components/teacher/teacher-dashboard-content';
+import TeacherDashboardContent from '@/components/teacher/teacher-dashboard-content'
 
 /**
  * Página de administrador para visualizar o Portal do Professor
@@ -52,42 +52,41 @@ export const AdminTeacherViewPage: React.FC = () => {
           </Button>
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="classes">Turmas</TabsTrigger>
-            <TabsTrigger value="assessments">Avaliações</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full flex space-x-1 mb-4">
+            <TabsTrigger value="dashboard" className="flex-1">Dashboard</TabsTrigger>
+            <TabsTrigger value="classes" className="flex-1">Turmas</TabsTrigger>
+            <TabsTrigger value="assessments" className="flex-1">Avaliações</TabsTrigger>
+            <TabsTrigger value="schedule" className="flex-1">Agenda</TabsTrigger>
           </TabsList>
           
-          {/* Renderizar os componentes reais do Portal do Professor */}
-          <Suspense fallback={<div className="p-6 text-center">Carregando...</div>}>
-            {activeTab === 'dashboard' && (
-              <div className="border p-4 rounded-lg bg-white">
-                {/* Renderiza apenas o conteúdo principal do TeacherDashboard, sem o AppShell */}
-                <TeacherDashboardContent />
-              </div>
-            )}
-            
-            {activeTab === 'classes' && (
-              <div className="border p-4 rounded-lg bg-white">
-                {/* Futuramente será implementado o conteúdo das turmas */}
-                <div className="p-6 text-center">
-                  <p className="text-lg font-medium">Visualização de Turmas</p>
-                  <p className="text-muted-foreground">Conteúdo em desenvolvimento</p>
-                </div>
-              </div>
-            )}
-            
-            {activeTab === 'assessments' && (
-              <div className="border p-4 rounded-lg bg-white">
-                {/* Futuramente será implementado o conteúdo das avaliações */}
-                <div className="p-6 text-center">
-                  <p className="text-lg font-medium">Visualização de Avaliações</p>
-                  <p className="text-muted-foreground">Conteúdo em desenvolvimento</p>
-                </div>
-              </div>
-            )}
-          </Suspense>
+          <TabsContent value="dashboard">
+            <TeacherDashboardContent />
+          </TabsContent>
+          
+          <TabsContent value="classes">
+            <div className="p-4 bg-card rounded-md mt-4">
+              <p className="text-muted-foreground">
+                Visualização de turmas do professor será implementada em uma próxima fase.
+              </p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="assessments">
+            <div className="p-4 bg-card rounded-md mt-4">
+              <p className="text-muted-foreground">
+                Visualização de avaliações do professor será implementada em uma próxima fase.
+              </p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="schedule">
+            <div className="p-4 bg-card rounded-md mt-4">
+              <p className="text-muted-foreground">
+                Visualização da agenda do professor será implementada em uma próxima fase.
+              </p>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </AppShell>

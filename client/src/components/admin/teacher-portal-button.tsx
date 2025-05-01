@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { usePortal } from '@/hooks/use-portal';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
 
 /**
  * Componente que permite ao administrador alternar entre a visualização
@@ -60,13 +60,6 @@ export const TeacherPortalButton: React.FC = () => {
       navigate('/admin/dashboard');
     }
   };
-  
-  // Mostrar apenas em rotas administrativas específicas
-  if (!location.startsWith('/admin/teacher-view') && 
-      !location.startsWith('/admin/classes') && 
-      !location.startsWith('/admin/assessments')) {
-    return null;
-  }
   
   return (
     <div className="fixed bottom-4 right-4 z-50">
