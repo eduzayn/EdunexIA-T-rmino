@@ -125,6 +125,11 @@ function Router() {
       <ProtectedRoute path="/teacher/courses" component={CoursesPage} />
       <ProtectedRoute path="/teacher/courses/:id" component={CourseDetailsPage} />
       <ProtectedRoute path="/teacher/courses/:id/edit" component={CourseEditPage} />
+      <ProtectedRoute path="/teacher/subjects" component={SubjectsPage} />
+      <ProtectedRoute path="/teacher/subjects/:id" component={SubjectDetailsPage} />
+      <ProtectedRoute path="/teacher/subjects/:id/edit" component={SubjectEditPage} />
+      <ProtectedRoute path="/teacher/classes" component={ClassesPage} />
+      <ProtectedRoute path="/teacher/classes/:id" component={ClassDetailsPage} />
       <ProtectedRoute path="/teacher/assessments" component={AssessmentsPage} />
       <ProtectedRoute path="/teacher/assessments/new" component={AssessmentNewPage} />
       <ProtectedRoute path="/teacher/assessments/:id" component={AssessmentDetailsPage} />

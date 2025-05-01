@@ -25,6 +25,16 @@ export const TeacherPortalButton: React.FC = () => {
       admin: "/admin/classes", 
       teacher: "/teacher/classes" 
     },
+    // Disciplinas
+    "/admin/subjects": { 
+      admin: "/admin/subjects", 
+      teacher: "/teacher/subjects" 
+    },
+    // Cursos
+    "/admin/courses": { 
+      admin: "/admin/courses", 
+      teacher: "/teacher/courses" 
+    },
     // Avaliações
     "/admin/assessments": { 
       admin: "/admin/assessments", 
