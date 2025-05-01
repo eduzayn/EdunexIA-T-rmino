@@ -179,12 +179,17 @@ function PortalViewButtons() {
   
   return (
     <>
-      {/* Adicionar botão de visualização do Portal do Professor nas rotas administrativas*/}
+      {/* Adicionar botões de visualização dos portais nas rotas administrativas */}
       {currentLocation.startsWith('/admin/') && 
        !currentLocation.startsWith('/admin/partner-view') && 
        !currentLocation.startsWith('/admin/teacher-view') && 
        !currentLocation.startsWith('/admin/hub-view') && (
-        <TeacherPortalButton />
+        <>
+          <TeacherPortalButton />
+          <div className="fixed bottom-4 right-20 z-50">
+            <HubPortalButton />
+          </div>
+        </>
       )}
     </>
   );
