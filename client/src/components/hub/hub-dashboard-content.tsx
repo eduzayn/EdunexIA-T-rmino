@@ -232,7 +232,7 @@ export const HubDashboardContent: React.FC = () => {
                         <td className="py-3 px-2 text-center">
                           <Badge variant={
                             course.status === 'Em andamento' ? 'secondary' : 
-                            course.status === 'Concluindo' ? 'success' : 'outline'
+                            course.status === 'Concluindo' ? 'default' : 'outline'
                           }>
                             {course.status}
                           </Badge>
@@ -277,7 +277,7 @@ export const HubDashboardContent: React.FC = () => {
                         <td className="py-3 px-2">{student.course}</td>
                         <td className="py-3 px-2 text-center">
                           <Badge variant={
-                            student.status === 'Ativo' ? 'success' : 
+                            student.status === 'Ativo' ? 'default' : 
                             student.status === 'Pendente' ? 'secondary' : 
                             'destructive'
                           }>

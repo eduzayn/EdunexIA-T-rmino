@@ -49,6 +49,9 @@ import PartnerRegisterStudentPage from "@/pages/partner-register-student-page";
 import PartnerPaymentsPage from "@/pages/partner-payments-page";
 import TeacherDashboard from "@/pages/teacher-dashboard";
 import TeacherPortalButton from "@/components/admin/teacher-portal-button";
+import HubPortalButton from "@/components/admin/hub-portal-button";
+import HubDashboard from "@/pages/hub-dashboard";
+import AdminHubViewPage from "@/pages/admin-hub-view-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -113,6 +116,7 @@ function Router() {
       <ProtectedRoute path="/admin/student-documents" component={AdminStudentDocumentsPage} />
       <ProtectedRoute path="/admin/partner-view" component={AdminPartnerViewPage} />
       <ProtectedRoute path="/admin/teacher-view" component={AdminTeacherViewPage} />
+      <ProtectedRoute path="/admin/hub-view" component={AdminHubViewPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
@@ -135,7 +139,10 @@ function Router() {
       <ProtectedRoute path="/teacher/assessments/:id" component={AssessmentDetailsPage} />
       
       {/* Rotas do Portal do Polo */}
+      <ProtectedRoute path="/hub/dashboard" component={HubDashboard} />
       <ProtectedRoute path="/hub/courses" component={CoursesPage} />
+      <ProtectedRoute path="/hub/students" component={StudentsPage} />
+      <ProtectedRoute path="/hub/teachers" component={TeachersPage} />
       
       {/* Rotas do Portal do Parceiro */}
       <ProtectedRoute path="/partner/dashboard" component={PartnerDashboard} />
@@ -175,7 +182,8 @@ function PortalViewButtons() {
       {/* Adicionar botão de visualização do Portal do Professor nas rotas administrativas*/}
       {currentLocation.startsWith('/admin/') && 
        !currentLocation.startsWith('/admin/partner-view') && 
-       !currentLocation.startsWith('/admin/teacher-view') && (
+       !currentLocation.startsWith('/admin/teacher-view') && 
+       !currentLocation.startsWith('/admin/hub-view') && (
         <TeacherPortalButton />
       )}
     </>
