@@ -39,6 +39,11 @@ class ContractService {
       // Gerar texto do contrato
       const contractText = await this.generateContractText(enrollment, course, student);
       
+      // Obter valor total e parcelas
+      const totalValue = enrollment.priceInCents || course.priceInCents || 0;
+      const installments = enrollment.installments || 1;
+      const installmentValue = Math.ceil(totalValue / installments);
+      
       // Criar o contrato no banco de dados
       const contractData: InsertEducationalContract = {
         tenantId: enrollment.tenantId,
@@ -48,11 +53,10 @@ class ContractService {
         contractVersion: '1.0',
         contractText,
         status: 'pending',
-        totalValue: enrollment.totalValue || 0,
-        installments: enrollment.installments || 1,
-        installmentValue: Math.ceil((enrollment.totalValue || 0) / (enrollment.installments || 1)),
-        startDate: new Date(),
-        contractNumber
+        totalValue: totalValue,
+        installments: installments,
+        installmentValue: installmentValue,
+        startDate: new Date()
       };
       
       // Buscar matrícula formal (se existir)
@@ -126,6 +130,11 @@ class ContractService {
     // Data de matrícula formatada
     const enrollmentDate = new Date(enrollment.createdAt).toLocaleDateString('pt-BR');
     
+    // Obter valor total e parcelas para o contrato
+    const totalValue = enrollment.priceInCents || course.priceInCents || 0;
+    const installments = enrollment.installments || 1;
+    const installmentValue = Math.ceil(totalValue / installments);
+    
     // Gerar o template do contrato
     return `
 CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
@@ -142,7 +151,7 @@ As partes acima identificadas têm, entre si, justo e acertado o presente Contra
 
 2. VALOR E CONDIÇÕES DE PAGAMENTO
 
-2.1. Pelos serviços contratados, o CONTRATANTE pagará à CONTRATADA o valor total de ${formatCurrency(enrollment.totalValue || 0)}, que poderá ser pago à vista ou em ${enrollment.installments || 1} parcelas mensais e consecutivas de ${formatCurrency((enrollment.totalValue || 0) / (enrollment.installments || 1))}.
+2.1. Pelos serviços contratados, o CONTRATANTE pagará à CONTRATADA o valor total de ${formatCurrency(totalValue)}, que poderá ser pago à vista ou em ${installments} parcelas mensais e consecutivas de ${formatCurrency(installmentValue)}.
 
 2.2. O atraso no pagamento de qualquer parcela implicará em multa de 2% sobre o valor da parcela, mais juros de 1% ao mês, calculados pro rata die, além da correção monetária pelo IPCA.
 

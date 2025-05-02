@@ -11,7 +11,8 @@ import {
   ClassEnrollment, InsertClassEnrollment,
   Assessment, InsertAssessment,
   AssessmentResult, InsertAssessmentResult,
-  SimplifiedEnrollment, InsertSimplifiedEnrollment
+  SimplifiedEnrollment, InsertSimplifiedEnrollment,
+  EducationalContract, InsertEducationalContract
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -19,7 +20,7 @@ import {
   users, tenants, courses, modules, lessons, enrollments, leads, subjects,
   lessonProgress, payments, classes, classEnrollments,
   aiKnowledgeBase, productivityLogs, assessments, assessmentResults,
-  simplifiedEnrollments
+  simplifiedEnrollments, educationalContracts
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -1463,6 +1464,128 @@ export class DatabaseStorage implements IStorage {
       return updatedEnrollment;
     } catch (error) {
       console.error('Erro ao atualizar status da matrícula simplificada:', error);
+      throw error;
+    }
+  }
+  
+  // Implementação dos métodos para Contratos Educacionais
+  async createEducationalContract(contractData: InsertEducationalContract): Promise<EducationalContract> {
+    try {
+      // Gerar um número de contrato se não for fornecido
+      const contractNumber = contractData.contractNumber || 
+        `CONT-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(5, '0')}`;
+      
+      const [contract] = await db.insert(educationalContracts).values({
+        ...contractData,
+        contractNumber,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        generatedAt: new Date()
+      }).returning();
+      
+      return contract;
+    } catch (error) {
+      console.error('Erro ao criar contrato educacional:', error);
+      throw error;
+    }
+  }
+  
+  async getEducationalContractById(id: number): Promise<EducationalContract | undefined> {
+    try {
+      const [contract] = await db.select().from(educationalContracts).where(eq(educationalContracts.id, id));
+      return contract;
+    } catch (error) {
+      console.error('Erro ao buscar contrato educacional por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async getEducationalContractsByStudent(studentId: number): Promise<EducationalContract[]> {
+    try {
+      return await db.select().from(educationalContracts)
+        .where(eq(educationalContracts.studentId, studentId))
+        .orderBy(desc(educationalContracts.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar contratos por estudante:', error);
+      return [];
+    }
+  }
+  
+  async getEducationalContractsByCourse(courseId: number): Promise<EducationalContract[]> {
+    try {
+      return await db.select().from(educationalContracts)
+        .where(eq(educationalContracts.courseId, courseId))
+        .orderBy(desc(educationalContracts.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar contratos por curso:', error);
+      return [];
+    }
+  }
+  
+  async getEducationalContractsByTenant(tenantId: number): Promise<EducationalContract[]> {
+    try {
+      return await db.select().from(educationalContracts)
+        .where(eq(educationalContracts.tenantId, tenantId))
+        .orderBy(desc(educationalContracts.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar contratos por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getLatestContractByTenant(tenantId: number): Promise<EducationalContract | undefined> {
+    try {
+      const [contract] = await db.select().from(educationalContracts)
+        .where(eq(educationalContracts.tenantId, tenantId))
+        .orderBy(desc(educationalContracts.createdAt))
+        .limit(1);
+      
+      return contract;
+    } catch (error) {
+      console.error('Erro ao buscar último contrato do tenant:', error);
+      return undefined;
+    }
+  }
+  
+  async updateEducationalContractStatus(id: number, status: string): Promise<EducationalContract> {
+    try {
+      const [updatedContract] = await db.update(educationalContracts)
+        .set({
+          status,
+          updatedAt: new Date()
+        })
+        .where(eq(educationalContracts.id, id))
+        .returning();
+      
+      if (!updatedContract) {
+        throw new Error('Contrato educacional não encontrado');
+      }
+      
+      return updatedContract;
+    } catch (error) {
+      console.error('Erro ao atualizar status do contrato:', error);
+      throw error;
+    }
+  }
+  
+  async updateEducationalContractSignedDate(id: number, signedAt: Date): Promise<EducationalContract> {
+    try {
+      const [updatedContract] = await db.update(educationalContracts)
+        .set({
+          signedAt,
+          updatedAt: new Date(),
+          status: 'signed'
+        })
+        .where(eq(educationalContracts.id, id))
+        .returning();
+      
+      if (!updatedContract) {
+        throw new Error('Contrato educacional não encontrado');
+      }
+      
+      return updatedContract;
+    } catch (error) {
+      console.error('Erro ao atualizar data de assinatura do contrato:', error);
       throw error;
     }
   }
