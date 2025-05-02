@@ -20,6 +20,7 @@ import { adminPaymentRouter } from "./admin-payment-routes";
 import { partnerRouter } from "./partner-routes";
 import { certificateRouter } from "./certificate-routes";
 import simplifiedEnrollmentRouter from "./simplified-enrollment-routes";
+import contractRouter from "./contract-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização

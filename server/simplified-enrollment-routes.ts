@@ -3,6 +3,7 @@ import { storage } from './database-storage';
 import { z } from 'zod';
 import { insertSimplifiedEnrollmentSchema } from '@shared/schema';
 import { paymentService } from './services/payment-service';
+import { contractService } from './services/contract-service';
 // Tipos para req.user
 interface AuthUser {
   id: number;
@@ -272,6 +273,15 @@ router.post('/webhooks/asaas', async (req, res) => {
         // Atualizar status da matrícula
         await storage.updateSimplifiedEnrollmentStatus(enrollmentId, 'payment_confirmed');
         console.log(`Matrícula ${enrollmentId} confirmada por pagamento: ${payment.id}`);
+        
+        try {
+          // Gerar contrato educacional para a matrícula
+          const contractId = await contractService.generateContractFromSimplifiedEnrollment(enrollmentId);
+          console.log(`Contrato educacional #${contractId} gerado com sucesso para a matrícula #${enrollmentId}`);
+        } catch (contractError) {
+          console.error(`Erro ao gerar contrato para matrícula ${enrollmentId}:`, contractError);
+          // Não interrompe o fluxo em caso de erro na geração do contrato
+        }
       }
     }
     
