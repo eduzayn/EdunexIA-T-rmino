@@ -1522,11 +1522,46 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async getEducationalContractsByTenant(tenantId: number): Promise<EducationalContract[]> {
+  async getEducationalContractsByTenant(tenantId: number): Promise<any[]> {
     try {
-      return await db.select().from(educationalContracts)
+      const contracts = await db.select().from(educationalContracts)
         .where(eq(educationalContracts.tenantId, tenantId))
         .orderBy(desc(educationalContracts.createdAt));
+      
+      // Enriquecer dados dos contratos com informações de curso e aluno
+      const enrichedContracts = await Promise.all(contracts.map(async (contract) => {
+        let courseName = `Curso #${contract.courseId}`;
+        let studentName = `Aluno #${contract.studentId}`;
+        
+        try {
+          // Buscar dados do curso
+          const course = await this.getCourseById(contract.courseId);
+          if (course) {
+            courseName = course.title;
+          }
+        } catch (error) {
+          console.error(`Erro ao buscar curso para contrato #${contract.id}:`, error);
+        }
+        
+        try {
+          // Buscar dados do aluno
+          const student = await this.getStudentById(contract.studentId);
+          if (student) {
+            studentName = student.fullName;
+          }
+        } catch (error) {
+          console.error(`Erro ao buscar aluno para contrato #${contract.id}:`, error);
+        }
+        
+        // Retornar contrato enriquecido
+        return {
+          ...contract,
+          courseName,
+          studentName
+        };
+      }));
+      
+      return enrichedContracts;
     } catch (error) {
       console.error('Erro ao buscar contratos por tenant:', error);
       return [];

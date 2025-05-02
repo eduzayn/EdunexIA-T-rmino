@@ -116,6 +116,15 @@ router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
         }
       );
       
+      // Gerar contrato educacional para a matrícula imediatamente
+      try {
+        const contractId = await contractService.generateContractFromSimplifiedEnrollment(enrollment.id);
+        console.log(`Contrato educacional #${contractId} gerado com sucesso para a matrícula #${enrollment.id}`);
+      } catch (contractError) {
+        console.error(`Erro ao gerar contrato para matrícula ${enrollment.id}:`, contractError);
+        // Não interrompe o fluxo em caso de erro na geração do contrato
+      }
+      
       // Incluir URLs de pagamento na resposta para fácil acesso
       return res.status(201).json({
         ...updatedEnrollment,
