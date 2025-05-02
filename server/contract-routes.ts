@@ -16,7 +16,7 @@ const router = Router();
 router.get('/contracts', isAuthenticated, async (req, res) => {
   try {
     // Obter tenantId do usuário autenticado ou da query
-    let tenantId: number | undefined;
+    let tenantId = 0;
     
     if (req.query.tenantId && req.query.tenantId !== 'undefined' && req.query.tenantId !== 'null') {
       tenantId = Number(req.query.tenantId);
@@ -26,28 +26,16 @@ router.get('/contracts', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'Tenant ID é obrigatório' });
     }
     
+    // Verificação adicional de tenantId
+    if (isNaN(tenantId) || tenantId <= 0) {
+      return res.status(400).json({ error: 'Tenant ID inválido' });
+    }
+    
     const contracts = await contractService.getContractsByTenant(tenantId);
     return res.json(contracts);
   } catch (error) {
     console.error('Erro ao listar contratos:', error);
     return res.status(500).json({ error: 'Erro ao listar contratos' });
-  }
-});
-
-// Rota para obter contrato por ID
-router.get('/contracts/:id', isAuthenticated, async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    const contract = await storage.getEducationalContractById(id);
-    
-    if (!contract) {
-      return res.status(404).json({ error: 'Contrato não encontrado' });
-    }
-    
-    return res.json(contract);
-  } catch (error) {
-    console.error('Erro ao buscar contrato:', error);
-    return res.status(500).json({ error: 'Erro ao buscar contrato' });
   }
 });
 
@@ -72,6 +60,23 @@ router.get('/contracts/course/:courseId', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Erro ao listar contratos por curso:', error);
     return res.status(500).json({ error: 'Erro ao listar contratos' });
+  }
+});
+
+// Rota para obter contrato por ID (esta deve ficar por último para não capturar as rotas específicas)
+router.get('/contracts/:id', isAuthenticated, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const contract = await storage.getEducationalContractById(id);
+    
+    if (!contract) {
+      return res.status(404).json({ error: 'Contrato não encontrado' });
+    }
+    
+    return res.json(contract);
+  } catch (error) {
+    console.error('Erro ao buscar contrato:', error);
+    return res.status(500).json({ error: 'Erro ao buscar contrato' });
   }
 });
 

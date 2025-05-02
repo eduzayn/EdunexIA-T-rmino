@@ -1643,6 +1643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Adicionar rotas de matrícula simplificada
   app.use('/api', simplifiedEnrollmentRouter);
+  app.use('/api', contractRouter);
 
   const httpServer = createServer(app);
 
