@@ -404,108 +404,37 @@ class PaymentService {
       let paymentUrl: string = '';
       let paymentId: string = '';
       
-      // Tentativa 1: Criar um link de pagamento com várias opções
-      console.log('Tentando criar link de pagamento no Asaas...');
+      // Criação de link de pagamento (abordagem simplificada)
+      console.log('Criando link de pagamento no Asaas via endpoint de paymentLinks...');
       
       try {
-        // Dados da cobrança seguindo a documentação do Asaas
-        const paymentData: any = {
-          customer: customerId,
-          value: data.value,
-          dueDate: dueDate,
-          description: description,
-          externalReference: `matricula-${data.enrollmentId}`,
-          postalService: false
-        };
-        
-        // Se foi especificado um método específico, use-o
-        if (data.paymentMethod && data.paymentMethod !== 'UNDEFINED') {
-          paymentData.billingType = data.paymentMethod;
-        } else {
-          // Quando múltiplas opções, usamos o PaymentLinks em vez de Payments
-          paymentData.allowCreditCard = true;  // Habilitar cartão de crédito
-          paymentData.allowInstallment = true; // Permitir parcelamento
-        }
-        
-        // Adicionar parcelamento se installments for maior que 1
-        if (data.installments && data.installments > 1) {
-          // Adicionar configuração de parcelamento
-          paymentData.installmentCount = data.installments;
-          paymentData.installmentValue = parseFloat((data.value / data.installments).toFixed(2));
-          
-          console.log(`Configurando parcelamento: ${data.installments} parcelas de R$ ${paymentData.installmentValue}`);
-        }
-        
-        console.log(`Dados da cobrança: ${JSON.stringify(paymentData)}`);
-        
-        // Fazer a chamada da API
-        const paymentResponse = await axios.post(
-          `${this.apiUrl}/v3/payments`,
-          paymentData,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'access_token': this.apiKey
-            },
-            validateStatus: () => true
-          }
-        );
-        
-        console.log(`Status da resposta de cobrança: ${paymentResponse.status}`);
-        console.log(`Resposta da cobrança: ${JSON.stringify(paymentResponse.data).substring(0, 300)}...`);
-        
-        // Verificar se a cobrança foi criada com sucesso
-        if (paymentResponse.status >= 200 && paymentResponse.status < 300 && paymentResponse.data.invoiceUrl) {
-          paymentUrl = paymentResponse.data.invoiceUrl;
-          paymentId = paymentResponse.data.id;
-          console.log(`Cobrança criada com sucesso. ID: ${paymentId}, URL: ${paymentUrl}`);
-          
-          return {
-            paymentUrl,
-            paymentId
-          };
-        } else {
-          console.log('Cobrança criada, mas sem URL de pagamento. Tentando outro método...');
-        }
-      } catch (paymentError) {
-        console.error('Erro ao criar cobrança:', paymentError);
-      }
-      
-      // Tentativa 2: Criar um link de pagamento (mais moderno)
-      console.log('Tentando criar paymentLink no Asaas...');
-      
-      try {
-        // Payload conforme a documentação do Asaas
+        // Configuração base do link de pagamento que funciona para todas as opções
         const paymentLinkData: any = {
           name: `Matrícula ${data.enrollmentId} - ${data.studentName}`,
           description: description,
-          endDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0], // Expira em 30 dias
+          endDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0],
           value: data.value,
-          dueDateLimitDays: 5, // Vencimento em 5 dias após clicar no link
-          chargeType: data.paymentMethod === 'UNDEFINED' ? 'DETACHED' : 'DIRECT',
-          subscriptionCycle: null // Não é uma assinatura
+          dueDateLimitDays: 5,
+          maxInstallmentCount: data.installments && data.installments > 1 ? data.installments : 1,
+          // Campos para habilitar todos os métodos de pagamento
+          acceptCreditCard: true,
+          acceptDebitCard: true,
+          acceptPix: true,
+          acceptBoleto: true
         };
         
-        // Se for múltiplas opções, configuramos todos os métodos de pagamento
-        if (data.paymentMethod === 'UNDEFINED') {
-          paymentLinkData.billingType = null; // Permite múltiplas opções
-          paymentLinkData.acceptCreditCard = true;
-          paymentLinkData.acceptDebitCard = true;
-          paymentLinkData.acceptPix = true;
-          paymentLinkData.acceptBoleto = true;
-        } else {
-          // Se não for múltiplas opções, usamos o método específico
-          paymentLinkData.billingType = data.paymentMethod;
-        }
-        
-        // Configuração de parcelamento, se aplicável
-        if (data.installments && data.installments > 1) {
-          paymentLinkData.maxInstallmentCount = data.installments;
+        // Se for um método específico, não múltiplas opções
+        if (data.paymentMethod && data.paymentMethod !== 'UNDEFINED') {
+          // Configuramos apenas o método específico
+          paymentLinkData.acceptCreditCard = data.paymentMethod === 'CREDIT_CARD';
+          paymentLinkData.acceptDebitCard = false; // Desativamos por padrão
+          paymentLinkData.acceptPix = data.paymentMethod === 'PIX';
+          paymentLinkData.acceptBoleto = data.paymentMethod === 'BOLETO';
         }
         
         console.log(`Dados do payment link: ${JSON.stringify(paymentLinkData)}`);
         
-        // Fazer a chamada da API
+        // Chamada da API de payment links
         const paymentLinkResponse = await axios.post(
           `${this.apiUrl}/v3/paymentLinks`,
           paymentLinkData,
@@ -531,9 +460,11 @@ class PaymentService {
             paymentUrl,
             paymentId
           };
+        } else {
+          console.log('Falha ao criar payment link. Erro:', paymentLinkResponse.data);
         }
-      } catch (linkError) {
-        console.error('Erro ao criar payment link:', linkError);
+      } catch (paymentLinkError) {
+        console.error('Erro ao criar payment link:', paymentLinkError);
       }
       
       // Tentativa final: Se chegamos aqui, tente criar uma cobrança com método BOLETO garantido
