@@ -18,7 +18,10 @@ import {
   School,
   Building,
   Award,
-  FileText
+  FileText,
+  ChevronsLeft,
+  ChevronsRight,
+  Menu
 } from "lucide-react";
 
 interface SidebarProps {
@@ -31,6 +34,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   const [location, setLocation] = useLocation();
   const { user, logoutMutation } = useAuth();
   const { currentPortal, setCurrentPortal, portals } = usePortal();
+  const [collapsed, setCollapsed] = useState(false);
   const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({
     academic: false,
     secretary: false,
@@ -98,8 +102,9 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
   };
 
   const sidebarClasses = cn(
-    "fixed inset-y-0 left-0 z-50 w-72 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
-    "transform transition-transform duration-300 ease-in-out lg:translate-x-0",
+    "fixed inset-y-0 left-0 z-50 flex flex-col h-full border-r border-sidebar-border bg-sidebar-background text-sidebar-foreground",
+    "transform transition-all duration-300 ease-in-out lg:translate-x-0",
+    collapsed ? "w-16" : "w-72",
     isMobileOpen ? "translate-x-0" : "-translate-x-full",
     className
   );
@@ -117,42 +122,66 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
       <aside className={sidebarClasses}>
         {/* Logo no Sidebar */}
         <div className="pt-3 pb-1">
-          <div className="flex items-center px-6 pb-2">
-            <div className="flex items-center">
+          <div className="flex items-center px-6 pb-2 justify-between">
+            <div className={cn("flex items-center", collapsed ? "justify-center w-full" : "")}>
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-purple-600 rounded-md">
                 <span className="text-white font-bold text-xl">E</span>
               </div>
-              <div className="flex flex-col ml-3">
-                <span className="text-xs text-sidebar-foreground/60 tracking-wider font-medium mb-0.5">NEXTGEN</span>
-                <span className="text-2xl font-bold text-sidebar-foreground leading-none">Edunéx<span className="text-primary font-black">IA</span></span>
-              </div>
+              {!collapsed && (
+                <div className="flex flex-col ml-3">
+                  <span className="text-xs text-sidebar-foreground/60 tracking-wider font-medium mb-0.5">NEXTGEN</span>
+                  <span className="text-2xl font-bold text-sidebar-foreground leading-none">Edunéx<span className="text-primary font-black">IA</span></span>
+                </div>
+              )}
             </div>
+            
+            {/* Botão de toggle do sidebar */}
+            <button 
+              onClick={() => setCollapsed(!collapsed)}
+              className={cn(
+                "flex items-center justify-center rounded-full p-1.5 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors",
+                collapsed ? "absolute -right-4 top-6 bg-sidebar-background shadow border border-sidebar-border" : ""
+              )}
+            >
+              {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+            </button>
           </div>
         </div>
 
-        <div className="px-6 pt-1 pb-4 flex-1 overflow-y-auto">
+        <div className={cn("pt-1 pb-4 flex-1 overflow-y-auto", collapsed ? "px-2" : "px-6")}>
           {/* Portal Selector */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-muted-foreground mb-1">
-              Portal
-            </label>
-            <div className="relative">
-              <select 
-                className="block w-full pl-10 pr-4 py-2.5 text-base rounded-md border border-sidebar-border bg-sidebar-accent text-sidebar-foreground"
-                value={currentPortal.id}
-                onChange={handlePortalChange}
-              >
-                {portals.map(portal => (
-                  <option key={portal.id} value={portal.id}>
-                    {portal.name}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute left-3 top-2.5 pointer-events-none">
+          {!collapsed && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
+                Portal
+              </label>
+              <div className="relative">
+                <select 
+                  className="block w-full pl-10 pr-4 py-2.5 text-base rounded-md border border-sidebar-border bg-sidebar-accent text-sidebar-foreground"
+                  value={currentPortal.id}
+                  onChange={handlePortalChange}
+                >
+                  {portals.map(portal => (
+                    <option key={portal.id} value={portal.id}>
+                      {portal.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute left-3 top-2.5 pointer-events-none">
+                  {portalIcons[currentPortal.id]}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Portal Selector para sidebar colapsado */}
+          {collapsed && (
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center justify-center p-2 rounded-full bg-sidebar-accent">
                 {portalIcons[currentPortal.id]}
               </div>
             </div>
-          </div>
+          )}
 
           {/* Navigation Menu */}
           <nav className="space-y-2">
@@ -161,14 +190,16 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               <Link 
                 href="/" 
                 className={cn(
-                  "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
+                  "flex items-center text-base font-medium rounded-md transition-colors",
+                  collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
                   isActive("/") 
                     ? "bg-sidebar-primary text-sidebar-primary-foreground" 
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}
+                title="Dashboard"
               >
-                <LayoutDashboard className="mr-4 h-5 w-5" />
-                Dashboard
+                <LayoutDashboard className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                {!collapsed && "Dashboard"}
               </Link>
             )}
             
@@ -177,14 +208,16 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               <Link 
                 href="/student/dashboard" 
                 className={cn(
-                  "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
+                  "flex items-center text-base font-medium rounded-md transition-colors",
+                  collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
                   isActive("/student/dashboard") 
                     ? "bg-sidebar-primary text-sidebar-primary-foreground" 
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}
+                title="Meu Dashboard"
               >
-                <LayoutDashboard className="mr-4 h-5 w-5" />
-                Meu Dashboard
+                <LayoutDashboard className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                {!collapsed && "Meu Dashboard"}
               </Link>
             )}
 
@@ -192,21 +225,29 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             <div className="nav-group">
               <button 
                 className={cn(
-                  "flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-md transition-colors",
+                  "flex items-center font-medium rounded-md transition-colors",
+                  collapsed ? "justify-center py-3 px-2 w-full" : "justify-between w-full px-4 py-3",
                   "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )} 
                 onClick={() => toggleGroup('academic')}
+                title="Acadêmico"
               >
-                <div className="flex items-center">
-                  <BookOpen className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
-                  Acadêmico
-                </div>
-                <ChevronDown 
-                  className={cn(
-                    "h-5 w-5 text-sidebar-foreground/70 transition-transform",
-                    openGroups.academic ? "transform rotate-180" : ""
-                  )} 
-                />
+                {collapsed ? (
+                  <BookOpen className="h-5 w-5 text-sidebar-foreground/70" />
+                ) : (
+                  <>
+                    <div className="flex items-center">
+                      <BookOpen className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                      Acadêmico
+                    </div>
+                    <ChevronDown 
+                      className={cn(
+                        "h-5 w-5 text-sidebar-foreground/70 transition-transform",
+                        openGroups.academic ? "transform rotate-180" : ""
+                      )} 
+                    />
+                  </>
+                )}
               </button>
 
               {openGroups.academic && (
