@@ -791,6 +791,32 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </div>
             )}
 
+            {/* Ferramentas Administrativas - Apenas para admin */}
+            {currentPortal.id === 'admin' && (
+              <div className="nav-group pt-6">
+                <h3 className={cn(
+                  "ml-4 text-xs font-semibold text-sidebar-foreground/40",
+                  collapsed && "text-center w-full ml-0"
+                )}>
+                  {collapsed ? "TOOLS" : "FERRAMENTAS"}
+                </h3>
+                <div className="mt-1 space-y-1 px-3">
+                  <Link 
+                    href="/admin/sms-test"
+                    className={cn(
+                      "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
+                      isActive("/admin/sms-test") 
+                        ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <FileText className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                    Teste de SMS
+                  </Link>
+                </div>
+              </div>
+            )}
+            
             {/* Configurações - Para admin e teacher */}
             {['admin', 'teacher'].includes(currentPortal.id) && (
               <div className="flex items-center justify-between px-4 py-3 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
