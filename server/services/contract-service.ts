@@ -40,7 +40,7 @@ class ContractService {
       const contractText = await this.generateContractText(enrollment, course, student);
       
       // Obter valor total e parcelas
-      const totalValue = enrollment.priceInCents || course.priceInCents || 0;
+      const totalValue = enrollment.amount || (course.price || 0);
       const installments = enrollment.installments || 1;
       const installmentValue = Math.ceil(totalValue / installments);
       
@@ -131,7 +131,7 @@ class ContractService {
     const enrollmentDate = new Date(enrollment.createdAt).toLocaleDateString('pt-BR');
     
     // Obter valor total e parcelas para o contrato
-    const totalValue = enrollment.priceInCents || course.priceInCents || 0;
+    const totalValue = enrollment.amount || (course.price || 0);
     const installments = enrollment.installments || 1;
     const installmentValue = Math.ceil(totalValue / installments);
     

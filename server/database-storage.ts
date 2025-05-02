@@ -1471,8 +1471,8 @@ export class DatabaseStorage implements IStorage {
   // Implementação dos métodos para Contratos Educacionais
   async createEducationalContract(contractData: InsertEducationalContract): Promise<EducationalContract> {
     try {
-      // Gerar um número de contrato se não for fornecido
-      const contractNumber = contractData.contractNumber || 
+      // Gerar um número de contrato
+      const contractNumber = 
         `CONT-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(5, '0')}`;
       
       const [contract] = await db.insert(educationalContracts).values({
