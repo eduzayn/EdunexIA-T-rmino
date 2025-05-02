@@ -196,12 +196,15 @@ export default function SimplifiedEnrollmentPage() {
     const formattedData = {
       ...values,
       courseId: parseInt(values.courseId),
-      amount: parseInt(values.amount),
+      amount: parseFloat(values.amount), // Usar parseFloat para preservar decimais
       installments: parseInt(values.installments),
       consultantId: parseInt(values.consultantId),
       tenantId: parseInt(values.tenantId),
       poloId: values.poloId ? parseInt(values.poloId) : undefined,
     };
+    
+    // Log para debug
+    console.log("Enviando matrícula com dados:", formattedData);
     
     createEnrollmentMutation.mutate(formattedData);
   };

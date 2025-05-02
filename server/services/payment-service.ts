@@ -414,7 +414,7 @@ class PaymentService {
           : 'BOLETO';
         
         // Dados da cobrança seguindo a documentação do Asaas
-        const paymentData = {
+        const paymentData: any = {
           customer: customerId,
           billingType: billingType,
           value: data.value,
@@ -423,6 +423,15 @@ class PaymentService {
           externalReference: `matricula-${data.enrollmentId}`,
           postalService: false
         };
+        
+        // Adicionar parcelamento se installments for maior que 1
+        if (data.installments && data.installments > 1) {
+          // Adicionar configuração de parcelamento
+          paymentData.installmentCount = data.installments;
+          paymentData.installmentValue = parseFloat((data.value / data.installments).toFixed(2));
+          
+          console.log(`Configurando parcelamento: ${data.installments} parcelas de R$ ${paymentData.installmentValue}`);
+        }
         
         console.log(`Dados da cobrança: ${JSON.stringify(paymentData)}`);
         
