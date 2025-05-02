@@ -1808,9 +1808,7 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
         status: data.status ?? 'pending',
         description: data.description ?? null,
-        comments: data.comments ?? null,
-        reviewedBy: data.reviewedBy ?? null,
-        reviewedAt: data.reviewedAt ?? null
+        comments: data.comments ?? null
       }).returning();
       
       return document;
@@ -1936,10 +1934,7 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
         status: data.status ?? 'pending',
         justification: data.justification ?? null,
-        comments: data.comments ?? null,
-        reviewedBy: data.reviewedBy ?? null,
-        reviewedAt: data.reviewedAt ?? null,
-        generatedDocumentId: data.generatedDocumentId ?? null
+        comments: data.comments ?? null
       }).returning();
       
       return request;
