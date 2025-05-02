@@ -39,6 +39,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
     academic: false,
     secretary: false,
     partnerships: false,
+    ai: false, // Adicionado para o menu de IA
   });
 
   // Ícones para cada tipo de portal
@@ -266,8 +267,10 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     </Link>
                   )}
                   
+                  {/* Itens específicos para o Portal do Aluno */}
                   {currentPortal.id === 'student' && (
                     <>
+                      {/* Links diretos para submenu do módulo acadêmico */}
                       <Link 
                         href={`${currentPortal.baseRoute}/documents`}
                         className={cn(
@@ -494,6 +497,53 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     >
                       Contratos
                     </Link>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Inteligência Artificial - Para todos exceto hub */}
+            {!['hub'].includes(currentPortal.id) && (
+              <div className="nav-group">
+                <button 
+                  className={cn(
+                    "flex items-center font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2 w-full" : "justify-between w-full px-4 py-3",
+                    "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )} 
+                  onClick={() => toggleGroup('ai')}
+                  title="Inteligência Artificial"
+                >
+                  {collapsed ? (
+                    <Bot className="h-5 w-5 text-sidebar-foreground/70" />
+                  ) : (
+                    <>
+                      <div className="flex items-center">
+                        <Bot className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                        Inteligência Artificial
+                      </div>
+                      <ChevronDown 
+                        className={cn(
+                          "h-5 w-5 text-sidebar-foreground/70 transition-transform",
+                          openGroups.ai ? "transform rotate-180" : ""
+                        )} 
+                      />
+                    </>
+                  )}
+                </button>
+                
+                {openGroups.ai && (
+                  <div className="pl-12 space-y-2 mt-2">
+                    {/* Adicionar em breve pois essa funcionalidade não está implementada */}
+                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                      <span>Assistente EdunéxIA</span>
+                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
+                      <span>Tutor Inteligente</span>
+                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
+                    </div>
                   </div>
                 )}
               </div>
