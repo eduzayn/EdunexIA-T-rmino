@@ -419,21 +419,29 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               <div className="nav-group">
                 <button 
                   className={cn(
-                    "flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-md transition-colors",
+                    "flex items-center font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2 w-full" : "justify-between w-full px-4 py-3",
                     "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )} 
                   onClick={() => toggleGroup('secretary')}
+                  title="Secretaria"
                 >
-                  <div className="flex items-center">
-                    <FileText className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
-                    Secretaria
-                  </div>
-                  <ChevronDown 
-                    className={cn(
-                      "h-5 w-5 text-sidebar-foreground/70 transition-transform",
-                      openGroups.secretary ? "transform rotate-180" : ""
-                    )} 
-                  />
+                  {collapsed ? (
+                    <FileText className="h-5 w-5 text-sidebar-foreground/70" />
+                  ) : (
+                    <>
+                      <div className="flex items-center">
+                        <FileText className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                        Secretaria
+                      </div>
+                      <ChevronDown 
+                        className={cn(
+                          "h-5 w-5 text-sidebar-foreground/70 transition-transform",
+                          openGroups.secretary ? "transform rotate-180" : ""
+                        )} 
+                      />
+                    </>
+                  )}
                 </button>
 
                 {openGroups.secretary && (

@@ -4,10 +4,12 @@
 
 /**
  * Formata um valor numérico como moeda brasileira
- * @param value Valor em centavos ou em reais
+ * @param value Valor em reais
  * @param inCents Se true, o valor está em centavos e deve ser dividido por 100
  */
-export function formatCurrency(value: number, inCents: boolean = true): string {
+export function formatCurrency(value: number, inCents: boolean = false): string {
+  if (!value && value !== 0) return 'R$ 0,00';
+  
   // Se o valor estiver em centavos, divide por 100
   const valueInReais = inCents ? value / 100 : value;
   
