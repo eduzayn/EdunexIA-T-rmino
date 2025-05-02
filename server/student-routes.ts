@@ -1,6 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { storage } from './database-storage';
 import { z } from 'zod';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 export const studentRouter = Router();
 
@@ -400,52 +403,127 @@ studentRouter.post('/document-requests', async (req: Request, res: Response) => 
   }
 });
 
-// Endpoint para obter documentos pessoais do aluno (simulado por enquanto)
+// Endpoint para obter documentos pessoais do aluno
 studentRouter.get('/personal-documents', async (req: Request, res: Response) => {
   try {
-    // Em uma implementação real, isso buscaria os documentos pessoais do aluno no banco de dados
-    // Por enquanto, estamos retornando dados simulados
-    const personalDocuments = [
-      {
-        id: 1,
-        title: "RG",
-        documentType: "rg",
-        uploadDate: "2025-04-10T10:00:00Z",
-        fileSize: "1.2 MB",
-        status: "approved",
-        downloadUrl: "#"
-      },
-      {
-        id: 2,
-        title: "Comprovante de Endereço",
-        documentType: "address_proof",
-        uploadDate: "2025-04-15T14:30:00Z",
-        fileSize: "3.5 MB",
-        status: "pending",
-        downloadUrl: "#"
-      },
-      {
-        id: 3,
-        title: "Certificado de Conclusão do Ensino Médio",
-        documentType: "high_school_certificate",
-        uploadDate: "2025-04-18T09:15:00Z",
-        fileSize: "2.8 MB",
-        status: "rejected",
-        comments: "Documento ilegível. Por favor, envie uma cópia mais clara.",
-        downloadUrl: "#"
-      }
-    ];
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const tenantId = req.user.tenantId;
+    const studentId = req.user.id;
     
-    res.json(personalDocuments);
+    // Buscar documentos pessoais do aluno no banco de dados
+    const documents = await storage.getStudentDocumentsByStudent(tenantId, studentId);
+    
+    // Transformar os dados para o formato esperado pelo frontend
+    const formattedDocuments = await Promise.all(documents.map(async (doc) => {
+      // Obter informações do tipo de documento se disponível
+      let documentTypeName = '';
+      let documentTypeCode = '';
+      
+      if (doc.documentTypeId) {
+        const docType = await storage.getDocumentTypeById(doc.documentTypeId);
+        if (docType) {
+          documentTypeName = docType.name;
+          documentTypeCode = docType.code;
+        }
+      }
+      
+      // Converter tamanho em bytes para formato legível
+      const formatFileSize = (sizeInBytes: number): string => {
+        if (sizeInBytes < 1024) return `${sizeInBytes} B`;
+        if (sizeInBytes < 1024 * 1024) return `${(sizeInBytes / 1024).toFixed(1)} KB`;
+        return `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
+      };
+      
+      return {
+        id: doc.id,
+        title: documentTypeName || doc.title,
+        documentType: documentTypeCode || String(doc.documentTypeId) || 'document',
+        uploadDate: doc.uploadDate.toISOString(),
+        fileSize: formatFileSize(doc.fileSize),
+        status: doc.status,
+        comments: doc.comments || undefined,
+        downloadUrl: `/api/student/documents/${doc.id}/download`
+      };
+    }));
+    
+    // Se não houver documentos, retornar um array vazio
+    if (formattedDocuments.length === 0) {
+      // Verificar se existem tipos de documentos necessários para o aluno
+      const requiredDocTypes = await storage.getDocumentTypesByTenant(tenantId);
+      const requiredPersonalDocs = requiredDocTypes.filter(docType => 
+        docType.category === 'personal' && docType.isRequired
+      );
+      
+      // Registrar no log que não há documentos para este aluno
+      console.log(`Nenhum documento pessoal encontrado para o aluno ${studentId} (${req.user.fullName})`);
+    }
+    
+    res.json(formattedDocuments);
   } catch (error) {
     console.error('Erro ao buscar documentos pessoais:', error);
     res.status(500).json({ error: 'Erro ao buscar documentos pessoais' });
   }
 });
 
-// Endpoint para upload de documento pessoal (simulado por enquanto)
-studentRouter.post('/personal-documents', async (req: Request, res: Response) => {
+// Configuração do multer para upload de arquivos
+
+// Configurar o multer para armazenamento de arquivos
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      // Pasta para armazenar os documentos dos alunos
+      const uploadDir = path.join(__dirname, '../uploads/student-docs');
+      
+      // Criar a pasta se não existir
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      // Criar um nome único para o arquivo usando timestamp + nome original
+      const timestamp = new Date().getTime();
+      const originalName = file.originalname;
+      cb(null, `${timestamp}-${originalName}`);
+    }
+  }),
+  limits: {
+    fileSize: 5 * 1024 * 1024 // Limite de 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    // Verificar se o tipo do arquivo é permitido
+    const allowedMimes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/jpg',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de arquivo não suportado. Formatos permitidos: PDF, JPG, PNG, DOC, DOCX.'));
+    }
+  }
+});
+
+// Endpoint para upload de documento pessoal
+studentRouter.post('/personal-documents', upload.single('file'), async (req: Request, res: Response) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    }
+    
     const { documentType } = req.body;
     
     // Validação básica
@@ -453,8 +531,13 @@ studentRouter.post('/personal-documents', async (req: Request, res: Response) =>
       return res.status(400).json({ error: 'Tipo de documento é obrigatório' });
     }
     
-    // Simulando processamento do upload de arquivo
-    // Em uma implementação real, o arquivo seria processado, verificado e armazenado
+    const tenantId = req.user.tenantId;
+    const studentId = req.user.id;
+    const file = req.file;
+    
+    // Verificar se o tipo de documento existe ou criar um novo
+    let documentTypeId: number | undefined;
+    let documentTitle = '';
     
     // Mapeamento de tipos de documento para títulos
     const documentTitles: Record<string, string> = {
@@ -466,21 +549,109 @@ studentRouter.post('/personal-documents', async (req: Request, res: Response) =>
       graduation_transcript: "Histórico de Graduação"
     };
     
-    // Simular um atraso para parecer uma operação real
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Verificar se documentType é um ID numérico ou um código de string
+    if (!isNaN(Number(documentType))) {
+      documentTypeId = Number(documentType);
+      
+      // Buscar o título do tipo de documento
+      const docType = await storage.getDocumentTypeById(documentTypeId);
+      if (docType) {
+        documentTitle = docType.name;
+      }
+    } else {
+      // Se for string, buscar o tipo de documento pelo código
+      const docType = await storage.getDocumentTypeByCode(tenantId, documentType);
+      
+      if (docType) {
+        documentTypeId = docType.id;
+        documentTitle = docType.name;
+      } else {
+        // Se não encontrar, criar um tipo de documento
+        try {
+          const newDocType = await storage.createDocumentType({
+            tenantId,
+            code: documentType,
+            name: documentTitles[documentType] || 'Documento',
+            category: 'personal'
+          });
+          documentTypeId = newDocType.id;
+          documentTitle = newDocType.name;
+        } catch (err) {
+          console.error('Erro ao criar tipo de documento:', err);
+        }
+      }
+    }
+    
+    // Criar o documento no banco de dados
+    const studentDocument = await storage.createStudentDocument({
+      tenantId,
+      studentId,
+      documentTypeId: documentTypeId || undefined,
+      title: documentTitle || documentTitles[documentType] || 'Documento',
+      filePath: file.path,
+      fileName: file.originalname,
+      fileSize: file.size,
+      mimeType: file.mimetype,
+      status: 'pending'
+    });
+    
+    // Formatar a resposta para o frontend
+    const formatFileSize = (sizeInBytes: number): string => {
+      if (sizeInBytes < 1024) return `${sizeInBytes} B`;
+      if (sizeInBytes < 1024 * 1024) return `${(sizeInBytes / 1024).toFixed(1)} KB`;
+      return `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
+    };
     
     res.status(201).json({
-      id: Math.floor(Math.random() * 1000) + 10,
-      title: documentTitles[documentType] || "Documento",
-      documentType,
-      uploadDate: new Date().toISOString(),
-      fileSize: "1.5 MB", // Simulado
-      status: "pending",
-      downloadUrl: "#"
+      id: studentDocument.id,
+      title: documentTitle || documentTitles[documentType] || 'Documento',
+      documentType: documentType,
+      uploadDate: studentDocument.uploadDate.toISOString(),
+      fileSize: formatFileSize(file.size),
+      status: studentDocument.status,
+      downloadUrl: `/api/student/documents/${studentDocument.id}/download`
     });
   } catch (error) {
     console.error('Erro ao fazer upload de documento pessoal:', error);
     res.status(500).json({ error: 'Erro ao processar o upload do documento' });
+  }
+});
+
+// Endpoint para download de documento
+studentRouter.get('/documents/:id/download', async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+    
+    const documentId = parseInt(req.params.id);
+    
+    if (isNaN(documentId)) {
+      return res.status(400).json({ error: 'ID do documento inválido' });
+    }
+    
+    // Buscar o documento no banco de dados
+    const document = await storage.getStudentDocumentById(documentId);
+    
+    if (!document) {
+      return res.status(404).json({ error: 'Documento não encontrado' });
+    }
+    
+    // Verificar se o documento pertence ao aluno ou se é admin
+    if (document.studentId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Você não tem permissão para acessar este documento' });
+    }
+    
+    // Verificar se o arquivo existe
+    if (!fs.existsSync(document.filePath)) {
+      return res.status(404).json({ error: 'Arquivo não encontrado no servidor' });
+    }
+    
+    // Retornar o arquivo
+    res.download(document.filePath, document.fileName);
+  } catch (error) {
+    console.error('Erro ao fazer download do documento:', error);
+    res.status(500).json({ error: 'Erro ao processar o download do documento' });
   }
 });
 
