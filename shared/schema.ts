@@ -289,7 +289,7 @@ export const simplifiedEnrollments = pgTable('simplified_enrollments', {
   // Dados financeiros
   amount: integer('amount').notNull(), // em centavos
   installments: integer('installments').default(1).notNull(), // número de parcelas
-  paymentMethod: text('payment_method').default('UNDEFINED'), // BOLETO, CREDIT_CARD, PIX ou UNDEFINED
+  paymentMethod: text('payment_method').default('BOLETO'), // BOLETO, CREDIT_CARD, PIX
   // Referências externas
   externalReference: text('external_reference'), // ID de referência externa para rastreamento
   paymentUrl: text('payment_url'), // URL do checkout do Asaas

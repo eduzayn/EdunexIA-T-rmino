@@ -176,7 +176,7 @@ export default function SimplifiedEnrollmentPage() {
       courseId: "",
       amount: "",
       installments: "1",
-      paymentMethod: "UNDEFINED",
+      paymentMethod: "BOLETO", // Alterado de UNDEFINED para BOLETO
       consultantId: user?.id?.toString() || "",
       tenantId: user?.tenantId?.toString() || "",
     },
@@ -238,9 +238,8 @@ export default function SimplifiedEnrollmentPage() {
         return <Badge variant="outline" className="bg-violet-50 text-violet-700">Boleto</Badge>;
       case 'PIX':
         return <Badge variant="outline" className="bg-green-50 text-green-700">PIX</Badge>;
-      case 'UNDEFINED':
       default:
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700">Múltiplas opções</Badge>;
+        return <Badge variant="outline" className="bg-violet-50 text-violet-700">Boleto</Badge>;
     }
   };
   
@@ -558,14 +557,13 @@ export default function SimplifiedEnrollmentPage() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="UNDEFINED">Permitir que o aluno escolha</SelectItem>
-                                  <SelectItem value="BOLETO">Somente Boleto Bancário</SelectItem>
-                                  <SelectItem value="CREDIT_CARD">Somente Cartão de Crédito</SelectItem>
-                                  <SelectItem value="PIX">Somente PIX</SelectItem>
+                                  <SelectItem value="BOLETO">Boleto Bancário</SelectItem>
+                                  <SelectItem value="CREDIT_CARD">Cartão de Crédito</SelectItem>
+                                  <SelectItem value="PIX">PIX</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormDescription>
-                                Se selecionar "Permitir que o aluno escolha", o aluno poderá escolher entre Boleto, PIX ou Cartão
+                                Escolha o método de pagamento para essa matrícula
                               </FormDescription>
                               <FormMessage />
                             </FormItem>

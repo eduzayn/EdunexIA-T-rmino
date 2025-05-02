@@ -404,11 +404,11 @@ class PaymentService {
       let paymentUrl: string = '';
       let paymentId: string = '';
       
-      // Criação de link de pagamento (abordagem simplificada)
+      // Criação de link de pagamento com método específico
       console.log('Criando link de pagamento no Asaas via endpoint de paymentLinks...');
       
       try {
-        // Configuração base do link de pagamento que funciona para todas as opções
+        // Configuração base do link de pagamento
         const paymentLinkData: any = {
           name: `Matrícula ${data.enrollmentId} - ${data.studentName}`,
           description: description,
@@ -416,20 +416,21 @@ class PaymentService {
           value: data.value,
           dueDateLimitDays: 5,
           maxInstallmentCount: data.installments && data.installments > 1 ? data.installments : 1,
-          // Campos para habilitar todos os métodos de pagamento
-          acceptCreditCard: true,
-          acceptDebitCard: true,
-          acceptPix: true,
-          acceptBoleto: true
+          // Por padrão, desabilita todos os métodos
+          acceptCreditCard: false,
+          acceptDebitCard: false,
+          acceptPix: false,
+          acceptBoleto: false
         };
         
-        // Se for um método específico, não múltiplas opções
-        if (data.paymentMethod && data.paymentMethod !== 'UNDEFINED') {
-          // Configuramos apenas o método específico
-          paymentLinkData.acceptCreditCard = data.paymentMethod === 'CREDIT_CARD';
-          paymentLinkData.acceptDebitCard = false; // Desativamos por padrão
-          paymentLinkData.acceptPix = data.paymentMethod === 'PIX';
-          paymentLinkData.acceptBoleto = data.paymentMethod === 'BOLETO';
+        // Habilita apenas o método específico selecionado
+        paymentLinkData.acceptCreditCard = data.paymentMethod === 'CREDIT_CARD';
+        paymentLinkData.acceptPix = data.paymentMethod === 'PIX';
+        paymentLinkData.acceptBoleto = data.paymentMethod === 'BOLETO';
+        
+        // Se não for especificado, usa boleto como padrão (fallback)
+        if (!data.paymentMethod) {
+          paymentLinkData.acceptBoleto = true;
         }
         
         console.log(`Dados do payment link: ${JSON.stringify(paymentLinkData)}`);
