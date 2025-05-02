@@ -129,6 +129,16 @@ export interface IStorage {
   getSimplifiedEnrollmentsByConsultant(consultantId: number): Promise<SimplifiedEnrollment[]>;
   updateSimplifiedEnrollmentStatus(id: number, status: string, data?: Partial<SimplifiedEnrollment>): Promise<SimplifiedEnrollment>;
   
+  // Educational Contract operations
+  createEducationalContract(contract: InsertEducationalContract): Promise<EducationalContract>;
+  getEducationalContractById(id: number): Promise<EducationalContract | undefined>;
+  getEducationalContractsByStudent(studentId: number): Promise<EducationalContract[]>;
+  getEducationalContractsByCourse(courseId: number): Promise<EducationalContract[]>;
+  getEducationalContractsByTenant(tenantId: number): Promise<EducationalContract[]>;
+  getLatestContractByTenant(tenantId: number): Promise<EducationalContract | undefined>;
+  updateEducationalContractStatus(id: number, status: string): Promise<EducationalContract>;
+  updateEducationalContractSignedDate(id: number, signedAt: Date): Promise<EducationalContract>;
+  
   // Session store
   sessionStore: session.Store;
 }

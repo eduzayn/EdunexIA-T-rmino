@@ -460,3 +460,56 @@ export const insertSimplifiedEnrollmentSchema = createInsertSchema(simplifiedEnr
 
 export type SimplifiedEnrollment = typeof simplifiedEnrollments.$inferSelect;
 export type InsertSimplifiedEnrollment = z.infer<typeof insertSimplifiedEnrollmentSchema>;
+
+// Enum para o status dos contratos educacionais
+export const contractStatusEnum = pgEnum('contract_status', [
+  'pending', 'signed', 'expired', 'cancelled'
+]);
+
+// Contratos Educacionais
+export const educationalContracts = pgTable('educational_contracts', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').notNull().references(() => tenants.id),
+  studentId: integer('student_id').notNull().references(() => users.id),
+  enrollmentId: integer('enrollment_id').references(() => enrollments.id),
+  simplifiedEnrollmentId: integer('simplified_enrollment_id').references(() => simplifiedEnrollments.id),
+  courseId: integer('course_id').notNull().references(() => courses.id),
+  
+  // Informações contratuais
+  contractNumber: text('contract_number').notNull().unique(),
+  contractVersion: text('contract_version').default('1.0').notNull(),
+  contractText: text('contract_text').notNull(),
+  status: text('status').default('pending').notNull(),
+  
+  // Informações financeiras
+  totalValue: integer('total_value').notNull(), // em centavos
+  installments: integer('installments').default(1).notNull(),
+  installmentValue: integer('installment_value').notNull(), // em centavos
+  
+  // Datas importantes
+  startDate: timestamp('start_date').notNull(),
+  endDate: timestamp('end_date'),
+  generatedAt: timestamp('generated_at').defaultNow().notNull(),
+  signedAt: timestamp('signed_at'),
+  
+  // URL e armazenamento
+  contractUrl: text('contract_url'), // URL para o PDF do contrato
+  signatureUrl: text('signature_url'), // URL para assinatura (se for eletrônica)
+  
+  // Metadados
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Schema para Contratos Educacionais
+export const insertEducationalContractSchema = createInsertSchema(educationalContracts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  signedAt: true,
+  generatedAt: true,
+  contractNumber: true, // Será gerado automaticamente 
+});
+
+export type EducationalContract = typeof educationalContracts.$inferSelect;
+export type InsertEducationalContract = z.infer<typeof insertEducationalContractSchema>;
