@@ -207,17 +207,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/enrollments", isAuthenticated, async (req, res, next) => {
     try {
       const userId = req.user?.id;
-      let enrollments;
+      let enrollments: any[] = [];
       
-      if (req.user?.role === 'student') {
+      if (req.user?.role === 'student' && userId) {
         // Students can only see their own enrollments
         enrollments = await storage.getEnrollmentsByStudent(userId);
-      } else if (req.user?.role === 'teacher') {
+      } else if (req.user?.role === 'teacher' && userId) {
         // Teachers can see enrollments for their courses
         enrollments = await storage.getEnrollmentsByTeacher(userId);
-      } else {
+      } else if (req.user?.tenantId) {
         // Admins can see all enrollments for their tenant
-        enrollments = await storage.getEnrollmentsByTenant(req.user?.tenantId);
+        enrollments = await storage.getEnrollmentsByTenant(req.user.tenantId);
       }
       
       res.json(enrollments);
@@ -826,7 +826,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard stats
   app.get("/api/dashboard/stats", isAuthenticated, async (req, res, next) => {
     try {
-      const tenantId = req.user?.tenantId;
+      const tenantId = req.user?.tenantId || 1;
       const stats = await storage.getDashboardStats(tenantId);
       res.json(stats);
     } catch (error) {
@@ -1279,7 +1279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           role: adminUser.role
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro no teste de admin:", error);
       res.status(500).json({ error: "Erro ao testar admin", details: error.message });
     }
