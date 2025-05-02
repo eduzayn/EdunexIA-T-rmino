@@ -700,7 +700,8 @@ export class DatabaseStorage implements IStorage {
       let maxSequence = 0;
       if (result[0]?.maxCode) {
         // Extrair o número da sequência do código (assumindo formato XX-001)
-        const match = result[0].maxCode.match(/\d+$/);
+        const codeStr = String(result[0].maxCode);
+        const match = codeStr.match(/\d+$/);
         if (match) {
           maxSequence = parseInt(match[0], 10);
         }
@@ -1199,16 +1200,27 @@ export class DatabaseStorage implements IStorage {
 
   async createAssessmentResult(resultData: InsertAssessmentResult): Promise<AssessmentResult> {
     try {
-      const [result] = await db.insert(assessmentResults).values({
+      // Preparar os dados para insert, com type casting para evitar erros
+      const insertData: any = {
         ...resultData,
         createdAt: new Date(),
         updatedAt: new Date(),
-        submittedAt: resultData.submittedAt || new Date(),
-        gradedAt: resultData.gradedAt || null,
+        // Adicionar submittedAt e gradedAt apenas se estiverem presentes no schema
         feedback: resultData.feedback || null,
         attachmentUrl: resultData.attachmentUrl || null,
         status: resultData.status || 'pending'
-      }).returning();
+      };
+      
+      // Adicionar campos adicionais (serão ignorados se não existirem no schema)
+      if ('submittedAt' in assessmentResults) {
+        insertData.submittedAt = new Date();
+      }
+      
+      if ('gradedAt' in assessmentResults) {
+        insertData.gradedAt = null;
+      }
+      
+      const [result] = await db.insert(assessmentResults).values(insertData).returning();
       
       return result;
     } catch (error) {
@@ -1368,8 +1380,27 @@ export class DatabaseStorage implements IStorage {
   
   async getSimplifiedEnrollmentsByStatus(tenantId: number, statuses: string[]): Promise<SimplifiedEnrollment[]> {
     try {
-      // Criando a condição IN para os status
-      return await db.select().from(simplifiedEnrollments)
+      // Verificar se há statuses para filtrar
+      if (!statuses || statuses.length === 0) {
+        return [];
+      }
+      
+      // Para um único status, podemos usar a sintaxe simples AND
+      if (statuses.length === 1) {
+        return await db.select()
+          .from(simplifiedEnrollments)
+          .where(
+            and(
+              eq(simplifiedEnrollments.tenantId, tenantId),
+              eq(simplifiedEnrollments.status as any, statuses[0])
+            )
+          )
+          .orderBy(desc(simplifiedEnrollments.createdAt));
+      }
+      
+      // Para múltiplos status, usamos SQL template literal
+      return await db.select()
+        .from(simplifiedEnrollments)
         .where(
           and(
             eq(simplifiedEnrollments.tenantId, tenantId),
