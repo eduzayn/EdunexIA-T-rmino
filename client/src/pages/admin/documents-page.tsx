@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { AppShell } from '@/components/app-shell';
+import { AppShell } from '@/components/layout/app-shell';
 import { Helmet } from 'react-helmet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -346,7 +346,7 @@ export default function DocumentsPage() {
   
   // Renderização do conteúdo
   return (
-    <AppShell currentRoute="/admin/documents">
+    <AppShell>
       <Helmet>
         <title>Gerenciamento de Documentos | Edunexia</title>
       </Helmet>

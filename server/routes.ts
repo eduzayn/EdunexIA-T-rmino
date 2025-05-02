@@ -17,6 +17,7 @@ import { sql } from "drizzle-orm";
 import { studentRouter } from "./student-routes";
 import { adminRouter } from "./admin-routes";
 import { adminPaymentRouter } from "./admin-payment-routes";
+import { adminDocumentRouter } from "./admin-document-routes";
 import { partnerRouter } from "./partner-routes";
 import { certificateRouter } from "./certificate-routes";
 import simplifiedEnrollmentRouter from "./simplified-enrollment-routes";
@@ -1635,6 +1636,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Adicionar rotas administrativas
   app.use('/api/admin', isAuthenticated, adminRouter);
   app.use('/api/admin', isAuthenticated, adminPaymentRouter);
+  app.use('/api/admin', isAuthenticated, adminDocumentRouter);
   
   // Adicionar rotas do Portal do Parceiro
   app.use('/api/partner', isAuthenticated, partnerRouter);
