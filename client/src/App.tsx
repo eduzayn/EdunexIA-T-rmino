@@ -48,6 +48,7 @@ import AdminTeacherViewPage from "@/pages/admin-teacher-view-page";
 import PartnerRegisterStudentPage from "@/pages/partner-register-student-page";
 import PartnerPaymentsPage from "@/pages/partner-payments-page";
 import AdminPartnerPaymentsPage from "@/pages/admin-partner-payments-page";
+import SmsTestPage from "@/pages/admin/sms-test-page";
 import TeacherDashboard from "@/pages/teacher-dashboard";
 import TeacherPortalButton from "@/components/admin/teacher-portal-button";
 
@@ -123,6 +124,7 @@ function Router() {
       <ProtectedRoute path="/admin/hub-view" component={AdminHubViewPage} />
       <ProtectedRoute path="/admin/simplified-enrollment" component={SimplifiedEnrollmentPage} />
       <ProtectedRoute path="/admin/contracts" component={ContractsPage} />
+      <ProtectedRoute path="/admin/sms-test" component={SmsTestPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />

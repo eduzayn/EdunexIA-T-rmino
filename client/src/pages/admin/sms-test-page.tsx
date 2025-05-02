@@ -60,7 +60,6 @@ export default function SmsTestPage() {
         toast({
           title: 'SMS enviado',
           description: 'O SMS de teste foi enviado com sucesso.',
-          variant: 'success',
         });
       } else {
         const errorData = await response.json();
