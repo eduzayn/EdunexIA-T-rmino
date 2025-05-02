@@ -866,7 +866,7 @@ export class DatabaseStorage implements IStorage {
     try {
       const [updatedEnrollment] = await db.update(enrollments)
         .set({
-          status,
+          status: status as any, // Type cast para evitar erro de tipagem
           updatedAt: new Date()
         })
         .where(eq(enrollments.id, id))
