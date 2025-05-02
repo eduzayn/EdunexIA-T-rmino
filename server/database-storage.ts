@@ -30,9 +30,18 @@ export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<InsertUser>): Promise<User>;
   deleteUser(id: number): Promise<boolean>;
+  
+  // Tenant operations
+  getAllTenants(): Promise<Tenant[]>;
+  
+  // Enrollment operations específicas para monitoramento
+  getSimplifiedEnrollmentsByStatus(tenantId: number, statuses: string[]): Promise<SimplifiedEnrollment[]>;
+  getEnrollmentsByStudentAndCourse(studentId: number, courseId: number): Promise<Enrollment[]>;
+  updateEnrollmentStatus(id: number, status: string): Promise<Enrollment>;
   
   // Student operations (usuários com role='student')
   getStudentsByTenant(tenantId: number): Promise<User[]>;
@@ -153,6 +162,16 @@ export class DatabaseStorage implements IStorage {
       return user;
     } catch (error) {
       console.error('Erro ao buscar usuário por nome de usuário:', error);
+      return undefined;
+    }
+  }
+  
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+      return user;
+    } catch (error) {
+      console.error('Erro ao buscar usuário por email:', error);
       return undefined;
     }
   }
@@ -296,6 +315,15 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao criar tenant:', error);
       throw error;
+    }
+  }
+  
+  async getAllTenants(): Promise<Tenant[]> {
+    try {
+      return await db.select().from(tenants);
+    } catch (error) {
+      console.error('Erro ao buscar todos os tenants:', error);
+      return [];
     }
   }
 
@@ -1188,14 +1216,70 @@ export class DatabaseStorage implements IStorage {
   // Implementação dos métodos de Matrícula Simplificada
   async createSimplifiedEnrollment(data: InsertSimplifiedEnrollment): Promise<SimplifiedEnrollment> {
     try {
+      // Gerando referência externa única (para rastreabilidade)
+      const externalReference = `MAT${new Date().getFullYear()}${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
+      
+      // Definindo data de expiração (30 dias)
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 30);
+      
+      // Inserir a matrícula no banco de dados
       const [enrollment] = await db.insert(simplifiedEnrollments).values({
         ...data,
+        externalReference,
+        expirationDate,
         createdAt: new Date(),
         updatedAt: new Date(),
         status: data.status || 'pending'
       }).returning();
       
-      return enrollment;
+      // Verificar se já existe usuário com o email fornecido
+      let user = await this.getUserByEmail(data.studentEmail);
+      let studentId = null;
+      
+      if (!user) {
+        // Gerar senha baseada no CPF (últimos 6 dígitos)
+        const cpfRaw = data.studentCpf.replace(/\D/g, '');
+        const initialPassword = cpfRaw.slice(-6); // Últimos 6 dígitos do CPF
+        
+        // Criar novo usuário no sistema com role='student'
+        const userData = {
+          username: data.studentEmail.split('@')[0], // Usar parte inicial do email como username
+          email: data.studentEmail,
+          fullName: data.studentName,
+          password: initialPassword, // Será hashada na função createUser
+          tenantId: data.tenantId,
+          role: 'student' as any, // Type cast para satisfazer o typescript
+          isActive: true
+        };
+        
+        user = await this.createUser(userData);
+        console.log(`Novo usuário criado para matrícula simplificada: ${user.id}`);
+      }
+      
+      studentId = user.id;
+      
+      // Atualizar a matrícula simplificada com o ID do estudante
+      await this.updateSimplifiedEnrollmentStatus(enrollment.id, enrollment.status, {
+        studentId
+      });
+      
+      // Criar a matrícula formal
+      await this.createEnrollment({
+        courseId: data.courseId,
+        studentId: studentId,
+        status: 'active' // Aluno tem acesso imediato
+      });
+      
+      console.log(`Matrícula formal criada para o aluno ${studentId} no curso ${data.courseId}`);
+      
+      // TODO: Gerar contrato educacional para o aluno 
+      
+      // Retornar a matrícula simplificada com studentId atualizado
+      return {
+        ...enrollment,
+        studentId
+      };
     } catch (error) {
       console.error('Erro ao criar matrícula simplificada:', error);
       throw error;
