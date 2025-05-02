@@ -846,6 +846,43 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getEnrollmentsByStudentAndCourse(studentId: number, courseId: number): Promise<Enrollment[]> {
+    try {
+      return await db.select().from(enrollments)
+        .where(
+          and(
+            eq(enrollments.studentId, studentId),
+            eq(enrollments.courseId, courseId)
+          )
+        )
+        .orderBy(desc(enrollments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas por aluno e curso:', error);
+      return [];
+    }
+  }
+  
+  async updateEnrollmentStatus(id: number, status: string): Promise<Enrollment> {
+    try {
+      const [updatedEnrollment] = await db.update(enrollments)
+        .set({
+          status,
+          updatedAt: new Date()
+        })
+        .where(eq(enrollments.id, id))
+        .returning();
+      
+      if (!updatedEnrollment) {
+        throw new Error('Matrícula formal não encontrada');
+      }
+      
+      return updatedEnrollment;
+    } catch (error) {
+      console.error('Erro ao atualizar status da matrícula formal:', error);
+      throw error;
+    }
+  }
+
   async getLeadsByTenant(tenantId: number): Promise<Lead[]> {
     try {
       return await db.select().from(leads).where(eq(leads.tenantId, tenantId));
@@ -1325,6 +1362,23 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(simplifiedEnrollments.createdAt));
     } catch (error) {
       console.error('Erro ao buscar matrículas simplificadas por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getSimplifiedEnrollmentsByStatus(tenantId: number, statuses: string[]): Promise<SimplifiedEnrollment[]> {
+    try {
+      // Criando a condição IN para os status
+      return await db.select().from(simplifiedEnrollments)
+        .where(
+          and(
+            eq(simplifiedEnrollments.tenantId, tenantId),
+            sql`${simplifiedEnrollments.status} IN (${sql.join(statuses.map(s => sql`${s}`), sql`, `)})`
+          )
+        )
+        .orderBy(desc(simplifiedEnrollments.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar matrículas simplificadas por status:', error);
       return [];
     }
   }

@@ -538,6 +538,137 @@ class PaymentService {
     date.setDate(date.getDate() + daysAhead);
     return date.toISOString().split('T')[0]; // formato YYYY-MM-DD
   }
+  
+  /**
+   * Cancela uma cobrança no Asaas
+   */
+  async cancelPayment(paymentId: string): Promise<boolean> {
+    try {
+      const response = await axios.post(
+        `${this.apiUrl}/v3/payments/${paymentId}/cancel`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'access_token': this.apiKey
+          }
+        }
+      );
+      
+      return response.status >= 200 && response.status < 300;
+    } catch (error: any) {
+      console.error('Erro ao cancelar pagamento no Asaas:', error.response?.data || error.message);
+      return false;
+    }
+  }
+  
+  /**
+   * Cancela todas as cobranças futuras de um cliente
+   */
+  async cancelFuturePayments(customerId: string): Promise<boolean> {
+    try {
+      // Buscar pagamentos pendentes do cliente
+      const response = await axios.get(
+        `${this.apiUrl}/v3/payments?customer=${customerId}&status=PENDING`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'access_token': this.apiKey
+          }
+        }
+      );
+      
+      if (!response.data || !response.data.data || response.data.data.length === 0) {
+        return true; // Nenhum pagamento para cancelar
+      }
+      
+      // Cancelar cada pagamento
+      const payments = response.data.data;
+      for (const payment of payments) {
+        await this.cancelPayment(payment.id);
+      }
+      
+      return true;
+    } catch (error: any) {
+      console.error('Erro ao cancelar pagamentos futuros:', error.response?.data || error.message);
+      return false;
+    }
+  }
+  
+  /**
+   * Obtém pagamentos em atraso de um cliente
+   */
+  async getOverduePaymentsByCustomer(customerId: string): Promise<any[]> {
+    try {
+      const response = await axios.get(
+        `${this.apiUrl}/v3/payments?customer=${customerId}&status=OVERDUE`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'access_token': this.apiKey
+          }
+        }
+      );
+      
+      if (!response.data || !response.data.data) {
+        return [];
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Erro ao buscar pagamentos em atraso:', error.response?.data || error.message);
+      return [];
+    }
+  }
+  
+  /**
+   * Exclui uma cobrança no Asaas
+   * @see https://docs.asaas.com/reference/excluir-cobranca
+   */
+  async deletePayment(paymentId: string): Promise<boolean> {
+    try {
+      const response = await axios.delete(
+        `${this.apiUrl}/v3/payments/${paymentId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'access_token': this.apiKey
+          }
+        }
+      );
+      
+      console.log(`Cobrança ${paymentId} excluída com sucesso`);
+      return response.status >= 200 && response.status < 300;
+    } catch (error: any) {
+      console.error('Erro ao excluir cobrança no Asaas:', error.response?.data || error.message);
+      return false;
+    }
+  }
+  
+  /**
+   * Restaura uma cobrança excluída no Asaas
+   * @see https://docs.asaas.com/reference/restaurar-cobranca-removida
+   */
+  async restoreDeletedPayment(paymentId: string): Promise<boolean> {
+    try {
+      const response = await axios.post(
+        `${this.apiUrl}/v3/payments/${paymentId}/restore`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'access_token': this.apiKey
+          }
+        }
+      );
+      
+      console.log(`Cobrança ${paymentId} restaurada com sucesso`);
+      return response.status >= 200 && response.status < 300;
+    } catch (error: any) {
+      console.error('Erro ao restaurar cobrança no Asaas:', error.response?.data || error.message);
+      return false;
+    }
+  }
 }
 
 // Exporta instância singleton do serviço
