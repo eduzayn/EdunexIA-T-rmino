@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { enrollmentMonitoringService } from "./services/enrollment-monitoring-service";
 import { simplifiedEnrollmentMonitoring } from "./services/simplified-enrollment-monitoring";
+import { notificationService } from "./services/notification-service";
 
 const app = express();
 app.use(express.json());
@@ -76,5 +77,10 @@ app.use((req, res, next) => {
     // Inicializar o serviço de monitoramento de matrículas simplificadas
     simplifiedEnrollmentMonitoring.initialize();
     log('Serviço de monitoramento de matrículas simplificadas inicializado');
+    
+    // Verificar se o serviço de notificação foi inicializado
+    if (notificationService) {
+      log('Serviço de notificação SMS inicializado');
+    }
   });
 })();

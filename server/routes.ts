@@ -21,6 +21,7 @@ import { partnerRouter } from "./partner-routes";
 import { certificateRouter } from "./certificate-routes";
 import simplifiedEnrollmentRouter from "./simplified-enrollment-routes";
 import contractRouter from "./contract-routes";
+import { notificationService } from "./services/notification-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
@@ -1644,6 +1645,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Adicionar rotas de matrícula simplificada
   app.use('/api', simplifiedEnrollmentRouter);
   app.use('/api', contractRouter);
+  
+  // Rota de teste para envio de SMS (apenas para ambiente de desenvolvimento e admins)
+  app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {
+    try {
+      // Verificar se é administrador
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Apenas administradores podem testar o envio de SMS' });
+      }
+      
+      const { phoneNumber, name } = req.body;
+      
+      if (!phoneNumber || !name) {
+        return res.status(400).json({ 
+          error: 'Dados incompletos',
+          details: 'Forneça phoneNumber e name'
+        });
+      }
+      
+      // Enviar SMS de teste
+      const sent = await notificationService.sendAccessCredentials(
+        phoneNumber,
+        name,
+        'aluno@exemplo.com',
+        '12345678900'  // CPF fictício para teste
+      );
+      
+      if (sent) {
+        return res.json({ success: true, message: `SMS enviado com sucesso para ${phoneNumber}` });
+      } else {
+        return res.status(500).json({ error: 'Falha ao enviar SMS' });
+      }
+    } catch (error: any) {
+      console.error('Erro ao testar envio de SMS:', error);
+      return res.status(500).json({ error: 'Erro ao enviar SMS', details: error.message });
+    }
+  });
 
   const httpServer = createServer(app);
 
