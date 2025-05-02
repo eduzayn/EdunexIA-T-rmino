@@ -12,15 +12,19 @@ import {
   Assessment, InsertAssessment,
   AssessmentResult, InsertAssessmentResult,
   SimplifiedEnrollment, InsertSimplifiedEnrollment,
-  EducationalContract, InsertEducationalContract
+  EducationalContract, InsertEducationalContract,
+  DocumentType, InsertDocumentType,
+  StudentDocument, InsertStudentDocument,
+  DocumentRequest, InsertDocumentRequest
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray, like, or, isNull, isNotNull } from "drizzle-orm";
 import { 
   users, tenants, courses, modules, lessons, enrollments, leads, subjects,
   lessonProgress, payments, classes, classEnrollments,
   aiKnowledgeBase, productivityLogs, assessments, assessmentResults,
-  simplifiedEnrollments, educationalContracts
+  simplifiedEnrollments, educationalContracts, documentTypes, studentDocuments,
+  documentRequests
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -139,6 +143,35 @@ export interface IStorage {
   getLatestContractByTenant(tenantId: number): Promise<EducationalContract | undefined>;
   updateEducationalContractStatus(id: number, status: string): Promise<EducationalContract>;
   updateEducationalContractSignedDate(id: number, signedAt: Date): Promise<EducationalContract>;
+  
+  // Document Type operations
+  createDocumentType(data: InsertDocumentType): Promise<DocumentType>;
+  getDocumentTypeById(id: number): Promise<DocumentType | undefined>;
+  getDocumentTypeByCode(tenantId: number, code: string): Promise<DocumentType | undefined>;
+  getDocumentTypesByTenant(tenantId: number): Promise<DocumentType[]>;
+  getDocumentTypesByCategory(tenantId: number, category: string): Promise<DocumentType[]>;
+  updateDocumentType(id: number, data: Partial<InsertDocumentType>): Promise<DocumentType>;
+  deleteDocumentType(id: number): Promise<boolean>;
+  
+  // Student Document operations
+  createStudentDocument(data: InsertStudentDocument): Promise<StudentDocument>;
+  getStudentDocumentById(id: number): Promise<StudentDocument | undefined>;
+  getStudentDocumentsByStudent(tenantId: number, studentId: number): Promise<StudentDocument[]>;
+  getStudentDocumentsByType(tenantId: number, documentTypeId: number): Promise<StudentDocument[]>;
+  getStudentDocumentsByStatus(tenantId: number, status: 'pending' | 'approved' | 'rejected'): Promise<StudentDocument[]>;
+  getAllStudentDocuments(tenantId: number): Promise<StudentDocument[]>;
+  updateStudentDocumentStatus(id: number, status: 'pending' | 'approved' | 'rejected', reviewedBy: number, comments?: string): Promise<StudentDocument>;
+  deleteStudentDocument(id: number): Promise<boolean>;
+  
+  // Document Request operations
+  createDocumentRequest(data: InsertDocumentRequest): Promise<DocumentRequest>;
+  getDocumentRequestById(id: number): Promise<DocumentRequest | undefined>;
+  getDocumentRequestsByStudent(tenantId: number, studentId: number): Promise<DocumentRequest[]>;
+  getDocumentRequestsByType(tenantId: number, documentTypeId: number): Promise<DocumentRequest[]>;
+  getDocumentRequestsByStatus(tenantId: number, status: string): Promise<DocumentRequest[]>;
+  getAllDocumentRequests(tenantId: number): Promise<DocumentRequest[]>;
+  updateDocumentRequestStatus(id: number, status: string, reviewedBy: number, comments?: string): Promise<DocumentRequest>;
+  linkGeneratedDocument(requestId: number, documentId: number): Promise<DocumentRequest>;
   
   // Session store
   sessionStore: session.Store;
@@ -1655,6 +1688,378 @@ export class DatabaseStorage implements IStorage {
       return updatedContract;
     } catch (error) {
       console.error('Erro ao atualizar data de assinatura do contrato:', error);
+      throw error;
+    }
+  }
+
+  // Document Type operations
+  async createDocumentType(data: InsertDocumentType): Promise<DocumentType> {
+    try {
+      const [docType] = await db.insert(documentTypes).values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isActive: data.isActive ?? true,
+        isRequired: data.isRequired ?? false,
+        category: data.category ?? 'personal',
+        description: data.description ?? null
+      }).returning();
+      
+      return docType;
+    } catch (error) {
+      console.error('Erro ao criar tipo de documento:', error);
+      throw error;
+    }
+  }
+
+  async getDocumentTypeById(id: number): Promise<DocumentType | undefined> {
+    try {
+      const [docType] = await db.select().from(documentTypes).where(eq(documentTypes.id, id));
+      return docType;
+    } catch (error) {
+      console.error('Erro ao buscar tipo de documento por ID:', error);
+      return undefined;
+    }
+  }
+
+  async getDocumentTypeByCode(tenantId: number, code: string): Promise<DocumentType | undefined> {
+    try {
+      const [docType] = await db.select().from(documentTypes).where(
+        and(
+          eq(documentTypes.tenantId, tenantId),
+          eq(documentTypes.code, code)
+        )
+      );
+      return docType;
+    } catch (error) {
+      console.error('Erro ao buscar tipo de documento por código:', error);
+      return undefined;
+    }
+  }
+
+  async getDocumentTypesByTenant(tenantId: number): Promise<DocumentType[]> {
+    try {
+      return await db.select().from(documentTypes)
+        .where(eq(documentTypes.tenantId, tenantId))
+        .orderBy(documentTypes.name);
+    } catch (error) {
+      console.error('Erro ao buscar tipos de documentos por tenant:', error);
+      return [];
+    }
+  }
+
+  async getDocumentTypesByCategory(tenantId: number, category: string): Promise<DocumentType[]> {
+    try {
+      return await db.select().from(documentTypes)
+        .where(
+          and(
+            eq(documentTypes.tenantId, tenantId),
+            eq(documentTypes.category, category)
+          )
+        )
+        .orderBy(documentTypes.name);
+    } catch (error) {
+      console.error('Erro ao buscar tipos de documentos por categoria:', error);
+      return [];
+    }
+  }
+
+  async updateDocumentType(id: number, data: Partial<InsertDocumentType>): Promise<DocumentType> {
+    try {
+      const [docType] = await db.update(documentTypes)
+        .set({
+          ...data,
+          updatedAt: new Date()
+        })
+        .where(eq(documentTypes.id, id))
+        .returning();
+      
+      if (!docType) {
+        throw new Error('Tipo de documento não encontrado');
+      }
+      
+      return docType;
+    } catch (error) {
+      console.error('Erro ao atualizar tipo de documento:', error);
+      throw error;
+    }
+  }
+
+  async deleteDocumentType(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(documentTypes)
+        .where(eq(documentTypes.id, id))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir tipo de documento:', error);
+      return false;
+    }
+  }
+
+  // Student Document operations
+  async createStudentDocument(data: InsertStudentDocument): Promise<StudentDocument> {
+    try {
+      const [document] = await db.insert(studentDocuments).values({
+        ...data,
+        uploadDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: data.status ?? 'pending',
+        description: data.description ?? null,
+        comments: data.comments ?? null,
+        reviewedBy: data.reviewedBy ?? null,
+        reviewedAt: data.reviewedAt ?? null
+      }).returning();
+      
+      return document;
+    } catch (error) {
+      console.error('Erro ao criar documento do aluno:', error);
+      throw error;
+    }
+  }
+
+  async getStudentDocumentById(id: number): Promise<StudentDocument | undefined> {
+    try {
+      const [document] = await db.select().from(studentDocuments).where(eq(studentDocuments.id, id));
+      return document;
+    } catch (error) {
+      console.error('Erro ao buscar documento do aluno por ID:', error);
+      return undefined;
+    }
+  }
+
+  async getStudentDocumentsByStudent(tenantId: number, studentId: number): Promise<StudentDocument[]> {
+    try {
+      return await db.select().from(studentDocuments)
+        .where(
+          and(
+            eq(studentDocuments.tenantId, tenantId),
+            eq(studentDocuments.studentId, studentId)
+          )
+        )
+        .orderBy(desc(studentDocuments.uploadDate));
+    } catch (error) {
+      console.error('Erro ao buscar documentos do aluno:', error);
+      return [];
+    }
+  }
+
+  async getStudentDocumentsByType(tenantId: number, documentTypeId: number): Promise<StudentDocument[]> {
+    try {
+      return await db.select().from(studentDocuments)
+        .where(
+          and(
+            eq(studentDocuments.tenantId, tenantId),
+            eq(studentDocuments.documentTypeId, documentTypeId)
+          )
+        )
+        .orderBy(desc(studentDocuments.uploadDate));
+    } catch (error) {
+      console.error('Erro ao buscar documentos por tipo:', error);
+      return [];
+    }
+  }
+
+  async getStudentDocumentsByStatus(tenantId: number, status: 'pending' | 'approved' | 'rejected'): Promise<StudentDocument[]> {
+    try {
+      return await db.select().from(studentDocuments)
+        .where(
+          and(
+            eq(studentDocuments.tenantId, tenantId),
+            eq(studentDocuments.status, status)
+          )
+        )
+        .orderBy(desc(studentDocuments.uploadDate));
+    } catch (error) {
+      console.error(`Erro ao buscar documentos com status ${status}:`, error);
+      return [];
+    }
+  }
+
+  async getAllStudentDocuments(tenantId: number): Promise<StudentDocument[]> {
+    try {
+      return await db.select().from(studentDocuments)
+        .where(eq(studentDocuments.tenantId, tenantId))
+        .orderBy(desc(studentDocuments.uploadDate));
+    } catch (error) {
+      console.error('Erro ao buscar todos os documentos de alunos:', error);
+      return [];
+    }
+  }
+
+  async updateStudentDocumentStatus(id: number, status: 'pending' | 'approved' | 'rejected', reviewedBy: number, comments?: string): Promise<StudentDocument> {
+    try {
+      const [document] = await db.update(studentDocuments)
+        .set({
+          status,
+          reviewedBy,
+          reviewedAt: new Date(),
+          comments: comments ?? null,
+          updatedAt: new Date()
+        })
+        .where(eq(studentDocuments.id, id))
+        .returning();
+      
+      if (!document) {
+        throw new Error('Documento não encontrado');
+      }
+      
+      return document;
+    } catch (error) {
+      console.error('Erro ao atualizar status do documento:', error);
+      throw error;
+    }
+  }
+
+  async deleteStudentDocument(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(studentDocuments)
+        .where(eq(studentDocuments.id, id))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir documento do aluno:', error);
+      return false;
+    }
+  }
+
+  // Document Request operations
+  async createDocumentRequest(data: InsertDocumentRequest): Promise<DocumentRequest> {
+    try {
+      const [request] = await db.insert(documentRequests).values({
+        ...data,
+        requestDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: data.status ?? 'pending',
+        justification: data.justification ?? null,
+        comments: data.comments ?? null,
+        reviewedBy: data.reviewedBy ?? null,
+        reviewedAt: data.reviewedAt ?? null,
+        generatedDocumentId: data.generatedDocumentId ?? null
+      }).returning();
+      
+      return request;
+    } catch (error) {
+      console.error('Erro ao criar solicitação de documento:', error);
+      throw error;
+    }
+  }
+
+  async getDocumentRequestById(id: number): Promise<DocumentRequest | undefined> {
+    try {
+      const [request] = await db.select().from(documentRequests).where(eq(documentRequests.id, id));
+      return request;
+    } catch (error) {
+      console.error('Erro ao buscar solicitação de documento por ID:', error);
+      return undefined;
+    }
+  }
+
+  async getDocumentRequestsByStudent(tenantId: number, studentId: number): Promise<DocumentRequest[]> {
+    try {
+      return await db.select().from(documentRequests)
+        .where(
+          and(
+            eq(documentRequests.tenantId, tenantId),
+            eq(documentRequests.studentId, studentId)
+          )
+        )
+        .orderBy(desc(documentRequests.requestDate));
+    } catch (error) {
+      console.error('Erro ao buscar solicitações de documentos do aluno:', error);
+      return [];
+    }
+  }
+
+  async getDocumentRequestsByType(tenantId: number, documentTypeId: number): Promise<DocumentRequest[]> {
+    try {
+      return await db.select().from(documentRequests)
+        .where(
+          and(
+            eq(documentRequests.tenantId, tenantId),
+            eq(documentRequests.documentTypeId, documentTypeId)
+          )
+        )
+        .orderBy(desc(documentRequests.requestDate));
+    } catch (error) {
+      console.error('Erro ao buscar solicitações por tipo de documento:', error);
+      return [];
+    }
+  }
+
+  async getDocumentRequestsByStatus(tenantId: number, status: string): Promise<DocumentRequest[]> {
+    try {
+      return await db.select().from(documentRequests)
+        .where(
+          and(
+            eq(documentRequests.tenantId, tenantId),
+            eq(documentRequests.status, status)
+          )
+        )
+        .orderBy(desc(documentRequests.requestDate));
+    } catch (error) {
+      console.error(`Erro ao buscar solicitações com status ${status}:`, error);
+      return [];
+    }
+  }
+
+  async getAllDocumentRequests(tenantId: number): Promise<DocumentRequest[]> {
+    try {
+      return await db.select().from(documentRequests)
+        .where(eq(documentRequests.tenantId, tenantId))
+        .orderBy(desc(documentRequests.requestDate));
+    } catch (error) {
+      console.error('Erro ao buscar todas as solicitações de documentos:', error);
+      return [];
+    }
+  }
+
+  async updateDocumentRequestStatus(id: number, status: string, reviewedBy: number, comments?: string): Promise<DocumentRequest> {
+    try {
+      const [request] = await db.update(documentRequests)
+        .set({
+          status,
+          reviewedBy,
+          reviewedAt: new Date(),
+          comments: comments ?? null,
+          updatedAt: new Date()
+        })
+        .where(eq(documentRequests.id, id))
+        .returning();
+      
+      if (!request) {
+        throw new Error('Solicitação não encontrada');
+      }
+      
+      return request;
+    } catch (error) {
+      console.error('Erro ao atualizar status da solicitação:', error);
+      throw error;
+    }
+  }
+
+  async linkGeneratedDocument(requestId: number, documentId: number): Promise<DocumentRequest> {
+    try {
+      const [request] = await db.update(documentRequests)
+        .set({
+          generatedDocumentId: documentId,
+          status: 'completed',
+          updatedAt: new Date()
+        })
+        .where(eq(documentRequests.id, requestId))
+        .returning();
+      
+      if (!request) {
+        throw new Error('Solicitação não encontrada');
+      }
+      
+      return request;
+    } catch (error) {
+      console.error('Erro ao vincular documento gerado à solicitação:', error);
       throw error;
     }
   }

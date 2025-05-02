@@ -268,46 +268,64 @@ studentRouter.get('/financial', async (req: Request, res: Response) => {
   }
 });
 
-// Endpoint para solicitações de documentos do aluno (simulado por enquanto)
+// Endpoint para solicitações de documentos do aluno
 studentRouter.get('/document-requests', async (req: Request, res: Response) => {
   try {
-    // Em uma implementação real, isso buscaria as solicitações de documentos do banco de dados
-    // Por enquanto, estamos retornando dados simulados
-    const documentRequests = [
-      { 
-        id: 1, 
-        title: 'Certidão de Matrícula', 
-        documentType: 'enrollment_certificate', 
-        requestDate: '2025-04-20T10:00:00Z', 
-        status: 'completed', 
-        documentUrl: '#' 
-      },
-      { 
-        id: 2, 
-        title: 'Histórico Escolar', 
-        documentType: 'transcript', 
-        requestDate: '2025-04-25T14:30:00Z', 
-        status: 'pending' 
-      },
-      { 
-        id: 3, 
-        title: 'Declaração de Vínculo', 
-        documentType: 'enrollment_declaration', 
-        requestDate: '2025-04-28T09:15:00Z', 
-        status: 'processing' 
-      }
-    ];
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const tenantId = req.user.tenantId;
+    const studentId = req.user.id;
     
-    res.json(documentRequests);
+    // Buscar solicitações do banco de dados
+    const documentRequests = await storage.getDocumentRequestsByStudent(tenantId, studentId);
+    
+    // Transformar os dados para o formato esperado pelo frontend
+    const formattedRequests = await Promise.all(documentRequests.map(async (request) => {
+      let title = '';
+      let documentUrl = undefined;
+      
+      // Obter o tipo de documento para pegar o título
+      if (request.documentTypeId) {
+        const docType = await storage.getDocumentTypeById(request.documentTypeId);
+        if (docType) {
+          title = docType.name;
+        }
+      }
+      
+      // Se houver documento gerado, pegar a URL
+      if (request.generatedDocumentId) {
+        const document = await storage.getStudentDocumentById(request.generatedDocumentId);
+        if (document) {
+          documentUrl = `/api/student/documents/${document.id}/download`;
+        }
+      }
+      
+      return {
+        id: request.id,
+        title: title || 'Documento',
+        documentType: request.documentTypeId ? String(request.documentTypeId) : 'unknown',
+        requestDate: request.requestDate.toISOString(),
+        status: request.status,
+        documentUrl: documentUrl
+      };
+    }));
+    
+    res.json(formattedRequests);
   } catch (error) {
     console.error('Erro ao buscar solicitações de documentos:', error);
     res.status(500).json({ error: 'Erro ao buscar solicitações de documentos' });
   }
 });
 
-// Endpoint para criar uma solicitação de documento (simulado por enquanto)
+// Endpoint para criar uma solicitação de documento
 studentRouter.post('/document-requests', async (req: Request, res: Response) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
     const { documentType, justification } = req.body;
     
     // Validação básica
@@ -315,20 +333,67 @@ studentRouter.post('/document-requests', async (req: Request, res: Response) => 
       return res.status(400).json({ error: 'Tipo de documento é obrigatório' });
     }
     
-    // Em uma implementação real, isso salvaria a solicitação no banco de dados
-    // e retornaria o objeto criado
+    const tenantId = req.user.tenantId;
+    const studentId = req.user.id;
     
-    // Simular um atraso para parecer uma operação real
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Verificar se o tipo de documento existe
+    let documentTypeId: number | undefined;
     
-    res.status(201).json({
-      id: Math.floor(Math.random() * 1000) + 10,
-      title: getDocumentTitle(documentType),
-      documentType,
-      justification,
-      requestDate: new Date().toISOString(),
+    // Verificar se documentType é um ID numérico ou um código de string
+    if (!isNaN(Number(documentType))) {
+      documentTypeId = Number(documentType);
+    } else {
+      // Se for string, buscar o tipo de documento pelo código
+      const docType = await storage.getDocumentTypeByCode(tenantId, documentType);
+      if (docType) {
+        documentTypeId = docType.id;
+      } else {
+        // Se não encontrar, criar um tipo de documento padrão
+        try {
+          const newDocType = await storage.createDocumentType({
+            tenantId,
+            code: documentType,
+            name: getDocumentTitle(documentType),
+            category: 'academic'
+          });
+          documentTypeId = newDocType.id;
+        } catch (err) {
+          console.error('Erro ao criar tipo de documento:', err);
+        }
+      }
+    }
+    
+    // Criar a solicitação no banco de dados
+    const requestData = {
+      tenantId,
+      studentId,
+      documentTypeId: documentTypeId || null,
+      justification: justification || null,
       status: 'pending'
-    });
+    };
+    
+    const documentRequest = await storage.createDocumentRequest(requestData);
+    
+    // Obter o título para retornar na resposta
+    let title = '';
+    if (documentTypeId) {
+      const docType = await storage.getDocumentTypeById(documentTypeId);
+      if (docType) {
+        title = docType.name;
+      }
+    }
+    
+    // Formatar a resposta no formato esperado pelo frontend
+    const formattedResponse = {
+      id: documentRequest.id,
+      title: title || getDocumentTitle(documentType),
+      documentType: String(documentTypeId || documentType),
+      justification,
+      requestDate: documentRequest.requestDate.toISOString(),
+      status: documentRequest.status
+    };
+    
+    res.status(201).json(formattedResponse);
   } catch (error) {
     console.error('Erro ao criar solicitação de documento:', error);
     res.status(500).json({ error: 'Erro ao criar solicitação de documento' });
