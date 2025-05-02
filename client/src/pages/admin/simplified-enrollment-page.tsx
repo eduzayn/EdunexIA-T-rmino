@@ -625,6 +625,7 @@ export default function SimplifiedEnrollmentPage() {
                         <TableHead>Aluno</TableHead>
                         <TableHead>Curso</TableHead>
                         <TableHead>Valor</TableHead>
+                        <TableHead>Parcelas</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Pagamento</TableHead>
                         <TableHead>Data</TableHead>
@@ -643,6 +644,11 @@ export default function SimplifiedEnrollmentPage() {
                              `Curso #${enrollment.courseId}`}
                           </TableCell>
                           <TableCell>{formatCurrency(enrollment.amount)}</TableCell>
+                          <TableCell>
+                            {enrollment.installments > 1 
+                              ? `${enrollment.installments}x de ${formatCurrency(enrollment.amount / enrollment.installments)}`
+                              : 'À vista'}
+                          </TableCell>
                           <TableCell>{getStatusBadge(enrollment.status)}</TableCell>
                           <TableCell>{getPaymentMethodBadge(enrollment.paymentMethod)}</TableCell>
                           <TableCell>{new Date(enrollment.createdAt).toLocaleDateString()}</TableCell>
@@ -665,7 +671,7 @@ export default function SimplifiedEnrollmentPage() {
                         ['pending', 'waiting_payment'].includes(e.status)
                       ).length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                          <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
                             Nenhuma matrícula pendente encontrada
                           </TableCell>
                         </TableRow>
@@ -699,6 +705,7 @@ export default function SimplifiedEnrollmentPage() {
                         <TableHead>Aluno</TableHead>
                         <TableHead>Curso</TableHead>
                         <TableHead>Valor</TableHead>
+                        <TableHead>Parcelas</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Pagamento</TableHead>
                         <TableHead>Data</TableHead>
@@ -715,6 +722,11 @@ export default function SimplifiedEnrollmentPage() {
                              `Curso #${enrollment.courseId}`}
                           </TableCell>
                           <TableCell>{formatCurrency(enrollment.amount)}</TableCell>
+                          <TableCell>
+                            {enrollment.installments > 1 
+                              ? `${enrollment.installments}x de ${formatCurrency(enrollment.amount / enrollment.installments)}`
+                              : 'À vista'}
+                          </TableCell>
                           <TableCell>{getStatusBadge(enrollment.status)}</TableCell>
                           <TableCell>{getPaymentMethodBadge(enrollment.paymentMethod)}</TableCell>
                           <TableCell>{new Date(enrollment.createdAt).toLocaleDateString()}</TableCell>
@@ -735,7 +747,7 @@ export default function SimplifiedEnrollmentPage() {
                       
                       {enrollments.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                          <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
                             Nenhuma matrícula encontrada
                           </TableCell>
                         </TableRow>
