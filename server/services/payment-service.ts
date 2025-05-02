@@ -473,14 +473,22 @@ class PaymentService {
       
       try {
         // Payload conforme a documentação do Asaas
-        const checkoutData = {
+        const checkoutData: any = {
           customer: customerId,
-          billingType: data.paymentMethod !== 'UNDEFINED' ? data.paymentMethod : undefined,
           value: data.value,
           dueDate: dueDate,
           description: description,
-          externalReference: `matricula-${data.enrollmentId}`
+          externalReference: `matricula-${data.enrollmentId}`,
+          // Para opções múltiplas, habilitamos todas as formas de pagamento
+          creditCardEnabled: true, // Sempre habilitamos cartão de crédito quando UNDEFINED é selecionado
+          boletoEnabled: true,
+          pixEnabled: true
         };
+        
+        // Se não for UNDEFINED, definimos o tipo de pagamento específico
+        if (data.paymentMethod !== 'UNDEFINED') {
+          checkoutData.billingType = data.paymentMethod;
+        }
         
         console.log(`Dados do checkout: ${JSON.stringify(checkoutData)}`);
         
