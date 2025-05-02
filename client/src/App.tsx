@@ -54,6 +54,8 @@ import TeacherPortalButton from "@/components/admin/teacher-portal-button";
 import HubDashboard from "@/pages/hub-dashboard";
 import AdminHubViewPage from "@/pages/admin-hub-view-page";
 import SimplifiedEnrollmentPage from "@/pages/admin/simplified-enrollment-page";
+import ContractsPage from "@/pages/admin/contracts-page";
+import StudentContractsPage from "@/pages/student/contracts-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -120,12 +122,14 @@ function Router() {
       <ProtectedRoute path="/admin/teacher-view" component={AdminTeacherViewPage} />
       <ProtectedRoute path="/admin/hub-view" component={AdminHubViewPage} />
       <ProtectedRoute path="/admin/simplified-enrollment" component={SimplifiedEnrollmentPage} />
+      <ProtectedRoute path="/admin/contracts" component={ContractsPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
       <ProtectedRoute path="/student/courses" component={StudentCoursesPage} />
       <ProtectedRoute path="/student/courses/:id" component={StudentCourseDetailsPage} />
       <ProtectedRoute path="/student/documents" component={StudentDocumentsPage} />
+      <ProtectedRoute path="/student/contracts" component={StudentContractsPage} />
       
       {/* Rotas do Portal do Professor */}
       <ProtectedRoute path="/teacher/dashboard" component={TeacherDashboard} />
