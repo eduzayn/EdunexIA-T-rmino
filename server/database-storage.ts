@@ -1276,6 +1276,9 @@ export class DatabaseStorage implements IStorage {
   // Implementação dos métodos de Matrícula Simplificada
   async createSimplifiedEnrollment(data: InsertSimplifiedEnrollment): Promise<SimplifiedEnrollment> {
     try {
+      // Importar serviço de notificação
+      const { notificationService } = await import('./services/notification-service');
+      
       // Gerando referência externa única (para rastreabilidade)
       const externalReference = `MAT${new Date().getFullYear()}${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
       
@@ -1296,18 +1299,23 @@ export class DatabaseStorage implements IStorage {
       // Verificar se já existe usuário com o email fornecido
       let user = await this.getUserByEmail(data.studentEmail);
       let studentId = null;
+      let isNewUser = false;
+      let username = '';
+      let plainPassword = '';
       
       if (!user) {
-        // Gerar senha baseada no CPF (últimos 6 dígitos)
+        isNewUser = true;
+        // Gerar senha baseada no CPF (sem pontos e traços)
         const cpfRaw = data.studentCpf.replace(/\D/g, '');
-        const initialPassword = cpfRaw.slice(-6); // Últimos 6 dígitos do CPF
+        plainPassword = cpfRaw; // Senha é o CPF sem formatação
+        username = data.studentEmail; // Email como username
         
         // Criar novo usuário no sistema com role='student'
         const userData = {
-          username: data.studentEmail.split('@')[0], // Usar parte inicial do email como username
+          username: data.studentEmail, // Usar email como username
           email: data.studentEmail,
           fullName: data.studentName,
-          password: initialPassword, // Será hashada na função createUser
+          password: plainPassword, // Será hashada na função createUser
           tenantId: data.tenantId,
           role: 'student' as any, // Type cast para satisfazer o typescript
           isActive: true
@@ -1315,6 +1323,11 @@ export class DatabaseStorage implements IStorage {
         
         user = await this.createUser(userData);
         console.log(`Novo usuário criado para matrícula simplificada: ${user.id}`);
+      } else {
+        // Usuário já existe
+        username = user.email;
+        // Não temos acesso à senha em texto puro, informar que deve usar "Esqueci minha senha"
+        plainPassword = "CPF sem pontuação";
       }
       
       studentId = user.id;
@@ -1333,7 +1346,28 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`Matrícula formal criada para o aluno ${studentId} no curso ${data.courseId}`);
       
-      // TODO: Gerar contrato educacional para o aluno 
+      // Enviar credenciais por SMS se o aluno tiver telefone cadastrado
+      if (data.studentPhone) {
+        try {
+          const smsResult = await notificationService.sendAccessCredentials(
+            data.studentPhone,
+            data.studentName,
+            username,
+            plainPassword
+          );
+          
+          if (smsResult) {
+            console.log(`SMS com credenciais enviado para ${data.studentPhone}`);
+          } else {
+            console.warn(`Não foi possível enviar SMS para ${data.studentPhone}`);
+          }
+        } catch (smsError) {
+          console.error('Erro ao enviar SMS de credenciais:', smsError);
+          // Não interrompe o fluxo em caso de erro no envio de SMS
+        }
+      } else {
+        console.log('Aluno não possui telefone cadastrado, SMS não enviado');
+      }
       
       // Retornar a matrícula simplificada com studentId atualizado
       return {
