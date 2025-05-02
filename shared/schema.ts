@@ -513,3 +513,99 @@ export const insertEducationalContractSchema = createInsertSchema(educationalCon
 
 export type EducationalContract = typeof educationalContracts.$inferSelect;
 export type InsertEducationalContract = z.infer<typeof insertEducationalContractSchema>;
+
+// Enum para o status dos documentos
+export const documentStatusEnum = pgEnum('document_status', [
+  'pending', 'approved', 'rejected'
+]);
+
+// Tipos de Documentos
+export const documentTypes = pgTable('document_types', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  code: text('code').notNull(),
+  name: text('name').notNull(),
+  description: text('description'),
+  isRequired: boolean('is_required').default(false).notNull(),
+  category: text('category').default('personal').notNull(), // personal, academic, financial, etc.
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    codeUnique: unique().on(table.code, table.tenantId), // garantir que o código é único por tenant
+  };
+});
+
+// Documentos dos Alunos
+export const studentDocuments = pgTable('student_documents', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  studentId: integer('student_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  documentTypeId: integer('document_type_id').references(() => documentTypes.id, { onDelete: 'restrict' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  filePath: text('file_path').notNull(),
+  fileName: text('file_name').notNull(),
+  fileSize: integer('file_size').notNull(), // tamanho em bytes
+  mimeType: text('mime_type').notNull(),
+  uploadDate: timestamp('upload_date').defaultNow().notNull(),
+  status: documentStatusEnum('status').default('pending').notNull(),
+  comments: text('comments'),
+  reviewedBy: integer('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+  reviewedAt: timestamp('reviewed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Solicitações de Documentos
+export const documentRequests = pgTable('document_requests', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  studentId: integer('student_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  documentTypeId: integer('document_type_id').references(() => documentTypes.id, { onDelete: 'restrict' }),
+  requestDate: timestamp('request_date').defaultNow().notNull(),
+  justification: text('justification'),
+  status: text('status').default('pending').notNull(), // pending, processing, completed, rejected
+  comments: text('comments'),
+  generatedDocumentId: integer('generated_document_id').references(() => studentDocuments.id, { onDelete: 'set null' }),
+  reviewedBy: integer('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+  reviewedAt: timestamp('reviewed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Schemas para Documentos
+export const insertDocumentTypeSchema = createInsertSchema(documentTypes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStudentDocumentSchema = createInsertSchema(studentDocuments).omit({
+  id: true,
+  uploadDate: true,
+  reviewedAt: true,
+  reviewedBy: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDocumentRequestSchema = createInsertSchema(documentRequests).omit({
+  id: true,
+  requestDate: true,
+  reviewedAt: true,
+  reviewedBy: true,
+  generatedDocumentId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type DocumentType = typeof documentTypes.$inferSelect;
+export type InsertDocumentType = z.infer<typeof insertDocumentTypeSchema>;
+
+export type StudentDocument = typeof studentDocuments.$inferSelect;
+export type InsertStudentDocument = z.infer<typeof insertStudentDocumentSchema>;
+
+export type DocumentRequest = typeof documentRequests.$inferSelect;
+export type InsertDocumentRequest = z.infer<typeof insertDocumentRequestSchema>;

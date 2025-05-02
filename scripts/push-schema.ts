@@ -180,6 +180,58 @@ async function pushSchema() {
         "completed_at" TIMESTAMP,
         "cancelled_at" TIMESTAMP
       );
+      
+      CREATE TYPE "document_status" AS ENUM ('pending', 'approved', 'rejected');
+      
+      CREATE TABLE IF NOT EXISTS "document_types" (
+        "id" SERIAL PRIMARY KEY,
+        "tenant_id" INTEGER NOT NULL REFERENCES "tenants"("id") ON DELETE CASCADE,
+        "code" VARCHAR NOT NULL,
+        "name" VARCHAR NOT NULL,
+        "description" TEXT,
+        "is_required" BOOLEAN NOT NULL DEFAULT false,
+        "category" VARCHAR NOT NULL DEFAULT 'personal',
+        "is_active" BOOLEAN NOT NULL DEFAULT true,
+        "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE("tenant_id", "code")
+      );
+      
+      CREATE TABLE IF NOT EXISTS "student_documents" (
+        "id" SERIAL PRIMARY KEY,
+        "tenant_id" INTEGER NOT NULL REFERENCES "tenants"("id") ON DELETE CASCADE,
+        "student_id" INTEGER NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+        "document_type_id" INTEGER REFERENCES "document_types"("id") ON DELETE RESTRICT,
+        "title" VARCHAR NOT NULL,
+        "description" TEXT,
+        "file_path" VARCHAR NOT NULL,
+        "file_name" VARCHAR NOT NULL,
+        "file_size" INTEGER NOT NULL,
+        "mime_type" VARCHAR NOT NULL,
+        "upload_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "status" document_status NOT NULL DEFAULT 'pending',
+        "comments" TEXT,
+        "reviewed_by" INTEGER REFERENCES "users"("id") ON DELETE SET NULL,
+        "reviewed_at" TIMESTAMP,
+        "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS "document_requests" (
+        "id" SERIAL PRIMARY KEY,
+        "tenant_id" INTEGER NOT NULL REFERENCES "tenants"("id") ON DELETE CASCADE,
+        "student_id" INTEGER NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+        "document_type_id" INTEGER REFERENCES "document_types"("id") ON DELETE RESTRICT,
+        "request_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "justification" TEXT,
+        "status" VARCHAR NOT NULL DEFAULT 'pending',
+        "comments" TEXT,
+        "generated_document_id" INTEGER REFERENCES "student_documents"("id") ON DELETE SET NULL,
+        "reviewed_by" INTEGER REFERENCES "users"("id") ON DELETE SET NULL,
+        "reviewed_at" TIMESTAMP,
+        "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
     `);
     
     console.log('Verificando indexes...');
@@ -201,6 +253,18 @@ async function pushSchema() {
       CREATE INDEX IF NOT EXISTS "idx_simplified_enrollments_tenant_id" ON "simplified_enrollments" ("tenant_id");
       CREATE INDEX IF NOT EXISTS "idx_simplified_enrollments_course_id" ON "simplified_enrollments" ("course_id");
       CREATE INDEX IF NOT EXISTS "idx_simplified_enrollments_status" ON "simplified_enrollments" ("status");
+      
+      -- Índices para tabelas de documentos
+      CREATE INDEX IF NOT EXISTS "idx_document_types_tenant_id" ON "document_types" ("tenant_id");
+      CREATE INDEX IF NOT EXISTS "idx_document_types_category" ON "document_types" ("category");
+      CREATE INDEX IF NOT EXISTS "idx_student_documents_tenant_id" ON "student_documents" ("tenant_id");
+      CREATE INDEX IF NOT EXISTS "idx_student_documents_student_id" ON "student_documents" ("student_id");
+      CREATE INDEX IF NOT EXISTS "idx_student_documents_document_type_id" ON "student_documents" ("document_type_id");
+      CREATE INDEX IF NOT EXISTS "idx_student_documents_status" ON "student_documents" ("status");
+      CREATE INDEX IF NOT EXISTS "idx_document_requests_tenant_id" ON "document_requests" ("tenant_id");
+      CREATE INDEX IF NOT EXISTS "idx_document_requests_student_id" ON "document_requests" ("student_id");
+      CREATE INDEX IF NOT EXISTS "idx_document_requests_document_type_id" ON "document_requests" ("document_type_id");
+      CREATE INDEX IF NOT EXISTS "idx_document_requests_status" ON "document_requests" ("status");
     `);
     
     console.log('Schema atualizado com sucesso!');
