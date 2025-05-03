@@ -91,9 +91,9 @@ export function StatsCard({ title, value, icon, trend, onClick }: StatsCardProps
               <span>{trend.value}%</span>
               <span className="text-muted-foreground ml-1">{trend.label}</span>
             </div>
-            <a className="text-sm font-medium text-primary hover:text-primary/80">
+            <button className="text-sm font-medium text-primary hover:text-primary/80">
               Ver detalhes
-            </a>
+            </button>
           </div>
         )}
       </CardContent>
