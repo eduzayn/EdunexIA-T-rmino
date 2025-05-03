@@ -1024,13 +1024,15 @@ export class DatabaseStorage implements IStorage {
   async updateOpportunity(id: number, opportunityData: Partial<InsertOpportunity>): Promise<Opportunity> {
     try {
       // Verificar se houve alteração de status para "won" ou "lost"
+      let closedAt = null;
       if (opportunityData.status === "won" || opportunityData.status === "lost") {
-        opportunityData.closedAt = new Date();
+        closedAt = new Date();
       }
       
       const [updatedOpportunity] = await db.update(opportunities)
         .set({
           ...opportunityData,
+          closedAt,
           updatedAt: new Date()
         })
         .where(eq(opportunities.id, id))
@@ -1108,13 +1110,15 @@ export class DatabaseStorage implements IStorage {
   async updateCampaign(id: number, campaignData: Partial<InsertCampaign>): Promise<Campaign> {
     try {
       // Verificar se houve alteração de status para "completed"
+      let completedAt = null;
       if (campaignData.status === "completed") {
-        campaignData.completedAt = new Date();
+        completedAt = new Date();
       }
       
       const [updatedCampaign] = await db.update(campaigns)
         .set({
           ...campaignData,
+          completedAt,
           updatedAt: new Date()
         })
         .where(eq(campaigns.id, id))

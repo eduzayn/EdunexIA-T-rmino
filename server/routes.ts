@@ -23,6 +23,8 @@ import { certificateRouter } from "./certificate-routes";
 import simplifiedEnrollmentRouter from "./simplified-enrollment-routes";
 import contractRouter from "./contract-routes";
 import { leadRouter } from "./lead-routes";
+import { opportunityRouter } from "./opportunity-routes";
+import { campaignRouter } from "./campaign-routes";
 import { notificationService } from "./services/notification-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1657,6 +1659,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', simplifiedEnrollmentRouter);
   app.use('/api', contractRouter);
   app.use('/api', leadRouter);
+  app.use('/api', opportunityRouter);
+  app.use('/api', campaignRouter);
   
   // Rota de teste para envio de SMS (apenas para ambiente de desenvolvimento e admins)
   app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {
