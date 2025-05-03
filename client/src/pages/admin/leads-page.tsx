@@ -248,9 +248,16 @@ export default function LeadsPage() {
   // Mutação para excluir lead
   const deleteLeadMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/leads/${id}`, {
+      const response = await fetch(`/api/leads/${id}`, {
         method: 'DELETE'
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao excluir lead");
+      }
+      
+      return await response.json();
     },
     onSuccess: () => {
       toast({
