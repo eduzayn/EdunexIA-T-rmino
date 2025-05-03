@@ -57,6 +57,10 @@ import AdminHubViewPage from "@/pages/admin-hub-view-page";
 import SimplifiedEnrollmentPage from "@/pages/admin/simplified-enrollment-page";
 import ContractsPage from "@/pages/admin/contracts-page";
 import StudentContractsPage from "@/pages/student/contracts-page";
+import LeadsPage from "@/pages/admin/leads-page";
+import OpportunitiesPage from "@/pages/admin/opportunities-page";
+import CampaignsPage from "@/pages/admin/campaigns-page";
+import AutomationsPage from "@/pages/admin/automations-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -126,6 +130,12 @@ function Router() {
       <ProtectedRoute path="/admin/contracts" component={ContractsPage} />
       <ProtectedRoute path="/admin/sms-test" component={SmsTestPage} />
       
+      {/* Rotas do Módulo Comercial */}
+      <ProtectedRoute path="/admin/leads" component={LeadsPage} />
+      <ProtectedRoute path="/admin/opportunities" component={OpportunitiesPage} />
+      <ProtectedRoute path="/admin/campaigns" component={CampaignsPage} />
+      <ProtectedRoute path="/admin/automations" component={AutomationsPage} />
+      
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
       <ProtectedRoute path="/student/courses" component={StudentCoursesPage} />
@@ -153,6 +163,8 @@ function Router() {
       <ProtectedRoute path="/hub/students" component={StudentsPage} />
       <ProtectedRoute path="/hub/teachers" component={TeachersPage} />
       <ProtectedRoute path="/hub/simplified-enrollment" component={SimplifiedEnrollmentPage} />
+      <ProtectedRoute path="/hub/leads" component={LeadsPage} />
+      <ProtectedRoute path="/hub/opportunities" component={OpportunitiesPage} />
       
       {/* Rotas do Portal do Parceiro */}
       <ProtectedRoute path="/partner/dashboard" component={PartnerDashboard} />

@@ -171,10 +171,20 @@ export default function LeadsPage() {
   // Mutação para criar lead
   const createLeadMutation = useMutation({
     mutationFn: async (formData: any) => {
-      return apiRequest('/api/leads', {
+      const response = await fetch('/api/leads', {
         method: 'POST',
-        data: formData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao cadastrar lead");
+      }
+      
+      return await response.json();
     },
     onSuccess: () => {
       toast({
@@ -199,10 +209,20 @@ export default function LeadsPage() {
   // Mutação para atualizar lead
   const updateLeadMutation = useMutation({
     mutationFn: async (formData: any) => {
-      return apiRequest(`/api/leads/${formData.id}`, {
+      const response = await fetch(`/api/leads/${formData.id}`, {
         method: 'PUT',
-        data: formData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao atualizar lead");
+      }
+      
+      return await response.json();
     },
     onSuccess: () => {
       toast({

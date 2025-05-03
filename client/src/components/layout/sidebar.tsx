@@ -659,25 +659,48 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                 {openGroups.commercial && (
                   <div className="pl-9 space-y-1 mt-1">
                     {/* Leads - visível para todos os portais comerciais */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Leads</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    {['admin', 'hub'].includes(currentPortal.id) && (
+                      <Link 
+                        href={`${currentPortal.baseRoute}/leads`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/leads`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Leads
+                      </Link>
+                    )}
                     
                     {/* Oportunidades - apenas admin e hub */}
                     {['admin', 'hub'].includes(currentPortal.id) && (
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Oportunidades</span>
-                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/opportunities`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/opportunities`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Oportunidades
+                      </Link>
                     )}
                     
                     {/* Campanhas - apenas admin */}
                     {currentPortal.id === 'admin' && (
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Campanhas</span>
-                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/campaigns`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/campaigns`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Campanhas
+                      </Link>
                     )}
                     
                     {/* Matrícula Simplificada - admin e hub */}
@@ -697,10 +720,17 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     
                     {/* Automações - apenas admin */}
                     {currentPortal.id === 'admin' && (
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Automações</span>
-                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/automations`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/automations`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Automações
+                      </Link>
                     )}
                   </div>
                 )}
