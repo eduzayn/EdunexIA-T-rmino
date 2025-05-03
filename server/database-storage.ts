@@ -973,6 +973,174 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
+  // Métodos para Oportunidades (Opportunities)
+  async getOpportunitiesByTenant(tenantId: number): Promise<Opportunity[]> {
+    try {
+      return await db
+        .select()
+        .from(opportunities)
+        .where(eq(opportunities.tenantId, tenantId))
+        .orderBy(desc(opportunities.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar oportunidades por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getOpportunityById(id: number): Promise<Opportunity | undefined> {
+    try {
+      const [opportunity] = await db
+        .select()
+        .from(opportunities)
+        .where(eq(opportunities.id, id));
+      return opportunity;
+    } catch (error) {
+      console.error('Erro ao buscar oportunidade por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async createOpportunity(opportunityData: InsertOpportunity): Promise<Opportunity> {
+    try {
+      const [opportunity] = await db.insert(opportunities).values({
+        ...opportunityData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: opportunityData.status || "open",
+        value: opportunityData.value || null,
+        probability: opportunityData.probability || 50,
+        closedAt: null,
+        notes: opportunityData.notes || null,
+        assignedTo: opportunityData.assignedTo || null,
+        predictedClosingDate: opportunityData.predictedClosingDate || null
+      }).returning();
+      return opportunity;
+    } catch (error) {
+      console.error('Erro ao criar oportunidade:', error);
+      throw error;
+    }
+  }
+  
+  async updateOpportunity(id: number, opportunityData: Partial<InsertOpportunity>): Promise<Opportunity> {
+    try {
+      // Verificar se houve alteração de status para "won" ou "lost"
+      if (opportunityData.status === "won" || opportunityData.status === "lost") {
+        opportunityData.closedAt = new Date();
+      }
+      
+      const [updatedOpportunity] = await db.update(opportunities)
+        .set({
+          ...opportunityData,
+          updatedAt: new Date()
+        })
+        .where(eq(opportunities.id, id))
+        .returning();
+      
+      if (!updatedOpportunity) {
+        throw new Error('Oportunidade não encontrada');
+      }
+      
+      return updatedOpportunity;
+    } catch (error) {
+      console.error('Erro ao atualizar oportunidade:', error);
+      throw error;
+    }
+  }
+  
+  async deleteOpportunity(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(opportunities).where(eq(opportunities.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir oportunidade:', error);
+      return false;
+    }
+  }
+  
+  // Métodos para Campanhas (Campaigns)
+  async getCampaignsByTenant(tenantId: number): Promise<Campaign[]> {
+    try {
+      return await db
+        .select()
+        .from(campaigns)
+        .where(eq(campaigns.tenantId, tenantId))
+        .orderBy(desc(campaigns.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar campanhas por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getCampaignById(id: number): Promise<Campaign | undefined> {
+    try {
+      const [campaign] = await db
+        .select()
+        .from(campaigns)
+        .where(eq(campaigns.id, id));
+      return campaign;
+    } catch (error) {
+      console.error('Erro ao buscar campanha por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async createCampaign(campaignData: InsertCampaign): Promise<Campaign> {
+    try {
+      const [campaign] = await db.insert(campaigns).values({
+        ...campaignData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: campaignData.status || "draft",
+        description: campaignData.description || null,
+        budget: campaignData.budget || null,
+        audience: campaignData.audience || null,
+        completedAt: null,
+        startDate: campaignData.startDate || null,
+        endDate: campaignData.endDate || null
+      }).returning();
+      return campaign;
+    } catch (error) {
+      console.error('Erro ao criar campanha:', error);
+      throw error;
+    }
+  }
+  
+  async updateCampaign(id: number, campaignData: Partial<InsertCampaign>): Promise<Campaign> {
+    try {
+      // Verificar se houve alteração de status para "completed"
+      if (campaignData.status === "completed") {
+        campaignData.completedAt = new Date();
+      }
+      
+      const [updatedCampaign] = await db.update(campaigns)
+        .set({
+          ...campaignData,
+          updatedAt: new Date()
+        })
+        .where(eq(campaigns.id, id))
+        .returning();
+      
+      if (!updatedCampaign) {
+        throw new Error('Campanha não encontrada');
+      }
+      
+      return updatedCampaign;
+    } catch (error) {
+      console.error('Erro ao atualizar campanha:', error);
+      throw error;
+    }
+  }
+  
+  async deleteCampaign(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(campaigns).where(eq(campaigns.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir campanha:', error);
+      return false;
+    }
+  }
+  
   // Implementação dos métodos para Class Enrollments (Matrículas em Turmas)
   async getClassEnrollmentsByClass(classId: number): Promise<ClassEnrollment[]> {
     try {
