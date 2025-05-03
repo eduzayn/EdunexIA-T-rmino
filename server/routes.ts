@@ -1633,10 +1633,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Adicionar rotas do Portal do Aluno
   app.use('/api/student', isAuthenticated, studentRouter);
   
-  // Adicionar rotas administrativas
-  app.use('/api/admin', isAuthenticated, adminRouter);
-  app.use('/api/admin', isAuthenticated, adminPaymentRouter);
-  app.use('/api/admin', isAuthenticated, adminDocumentRouter);
+  // Middleware para verificar se o usuário é administrador
+  const isAdmin = (req: any, res: any, next: any) => {
+    if (req.isAuthenticated() && req.user && req.user.role === 'admin') {
+      return next();
+    }
+    res.status(403).json({ message: 'Forbidden - Requires Admin Role' });
+  };
+  
+  // Adicionar rotas administrativas com verificação de administrador
+  app.use('/api/admin', isAdmin, adminRouter);
+  app.use('/api/admin', isAdmin, adminPaymentRouter);
+  app.use('/api/admin', isAdmin, adminDocumentRouter);
   
   // Adicionar rotas do Portal do Parceiro
   app.use('/api/partner', isAuthenticated, partnerRouter);

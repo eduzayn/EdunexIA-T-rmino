@@ -5,24 +5,6 @@ import fs from 'fs';
 
 export const adminDocumentRouter = Router();
 
-// Middleware para verificar se o usuário é um admin
-function isAdmin(req: Request, res: Response, next: Function) {
-  const user = req.user;
-  
-  if (!user) {
-    return res.status(401).json({ error: 'Não autenticado' });
-  }
-  
-  if (user.role !== 'admin') {
-    return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem acessar este recurso.' });
-  }
-  
-  next();
-}
-
-// Aplicar middleware de admin em todas as rotas
-adminDocumentRouter.use(isAdmin);
-
 // Obter todos os documentos dos alunos
 adminDocumentRouter.get('/student-documents', async (req: Request, res: Response) => {
   try {

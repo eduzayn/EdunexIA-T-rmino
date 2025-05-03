@@ -3,19 +3,6 @@ import { db } from './db';
 
 export const adminPaymentRouter = Router();
 
-// Middleware para verificar se usuário é admin
-function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.user) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Forbidden - Requires Admin Role' });
-  }
-
-  next();
-}
-
 // Interface para representar um pagamento de certificação
 interface PartnerPayment {
   id: number;
@@ -35,9 +22,6 @@ interface PartnerPayment {
   receiptUrl?: string;
   transactionId?: string;
 }
-
-// Aplicar middleware de admin a todas as rotas
-adminPaymentRouter.use(isAdmin);
 
 // Obter todos os pagamentos de parceiros
 adminPaymentRouter.get('/partner-payments', async (req: Request, res: Response) => {
