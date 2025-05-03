@@ -1,0 +1,1165 @@
+client/src/App.tsx:import AdminHubViewPage from "@/pages/admin-hub-view-page";
+client/src/App.tsx:import AdminPartnerCertificationsPage from "@/pages/admin-partner-certifications-page";
+client/src/App.tsx:import AdminPartnerPaymentsPage from "@/pages/admin-partner-payments-page";
+client/src/App.tsx:import AdminPartnerViewPage from "@/pages/admin-partner-view-page";
+client/src/App.tsx:import AdminStudentDocumentsPage from "@/pages/admin-student-documents-page";
+client/src/App.tsx:import AdminTeacherViewPage from "@/pages/admin-teacher-view-page";
+client/src/App.tsx:import AssessmentDetailsPage from "@/pages/assessment-details-page";
+client/src/App.tsx:import AssessmentEditPage from "@/pages/assessment-edit-page";
+client/src/App.tsx:import AssessmentNewPage from "@/pages/assessment-new-page";
+client/src/App.tsx:import { AssessmentsPage } from "@/pages/assessments-page";
+client/src/App.tsx:import AuthPage from "@/pages/auth-page";
+client/src/App.tsx:import { AuthProvider } from "./hooks/use-auth";
+client/src/App.tsx:import CertificateTemplatePage from "@/pages/certificate-template-page";
+client/src/App.tsx:import { ClassCreatePage } from "@/pages/class-create-page";
+client/src/App.tsx:import { ClassDetailsPage } from "@/pages/class-details-page";
+client/src/App.tsx:import { ClassEditPage } from "@/pages/class-edit-page";
+client/src/App.tsx:import { ClassesPage } from "@/pages/classes-page";
+client/src/App.tsx:import ContractsPage from "@/pages/admin/contracts-page";
+client/src/App.tsx:import CourseCreatePage from "@/pages/course-create-page";
+client/src/App.tsx:import CourseDetailsPage from "@/pages/course-details-page";
+client/src/App.tsx:import CourseEditPage from "@/pages/course-edit-page";
+client/src/App.tsx:import CoursesPage from "@/pages/courses-page";
+client/src/App.tsx:import Dashboard from "@/pages/dashboard";
+client/src/App.tsx:import HubDashboard from "@/pages/hub-dashboard";
+client/src/App.tsx:import ModuleCreatePage from "@/pages/module-create-page";
+client/src/App.tsx:import ModuleEditPage from "@/pages/module-edit-page";
+client/src/App.tsx:import NotFound from "@/pages/not-found";
+client/src/App.tsx:import PartnerCertificationRequestsPage from "@/pages/partner-certification-requests-page";
+client/src/App.tsx:import PartnerDashboard from "@/pages/partner-dashboard";
+client/src/App.tsx:import PartnerPaymentsPage from "@/pages/partner-payments-page";
+client/src/App.tsx:import PartnerRegisterStudentPage from "@/pages/partner-register-student-page";
+client/src/App.tsx:import PartnerStudentDocumentsPage from "@/pages/partner-student-documents-page";
+client/src/App.tsx:import { PortalProvider, usePortal } from "./hooks/use-portal";
+client/src/App.tsx:import { ProtectedRoute } from "./lib/protected-route";
+client/src/App.tsx:import SimplifiedEnrollmentPage from "@/pages/admin/simplified-enrollment-page";
+client/src/App.tsx:import SmsTestPage from "@/pages/admin/sms-test-page";
+client/src/App.tsx:import StudentContractsPage from "@/pages/student/contracts-page";
+client/src/App.tsx:import StudentCourseDetailsPage from "@/pages/student-course-details-page";
+client/src/App.tsx:import StudentCoursesPage from "@/pages/student-courses-page";
+client/src/App.tsx:import { StudentCreatePage } from "@/pages/student-create-page";
+client/src/App.tsx:import StudentDashboard from "@/pages/student-dashboard";
+client/src/App.tsx:import { StudentDetailsPage } from "@/pages/student-details-page";
+client/src/App.tsx:import StudentDocumentsPage from "@/pages/student-documents-page";
+client/src/App.tsx:import { StudentEditPage } from "@/pages/student-edit-page";
+client/src/App.tsx:import { StudentsPage } from "@/pages/students-page";
+client/src/App.tsx:import { SubjectCreatePage } from "@/pages/subject-create-page";
+client/src/App.tsx:import { SubjectDetailsPage } from "@/pages/subject-details-page";
+client/src/App.tsx:import { SubjectEditPage } from "@/pages/subject-edit-page";
+client/src/App.tsx:import { SubjectsPage } from "@/pages/subjects-page";
+client/src/App.tsx:import { Switch, Route, useLocation } from "wouter";
+client/src/App.tsx:import TeacherCreatePage from "@/pages/teacher-create-page";
+client/src/App.tsx:import TeacherDashboard from "@/pages/teacher-dashboard";
+client/src/App.tsx:import TeacherDetailsPage from "@/pages/teacher-details-page";
+client/src/App.tsx:import TeacherEditPage from "@/pages/teacher-edit-page";
+client/src/App.tsx:import TeacherPortalButton from "@/components/admin/teacher-portal-button";
+client/src/App.tsx:import TeachersPage from "@/pages/teachers-page";
+client/src/App.tsx:import { Toaster } from "@/components/ui/toaster";
+client/src/App.tsx:import { TooltipProvider } from "@/components/ui/tooltip";
+client/src/components/admin/hub-portal-button.tsx:import { Button } from '@/components/ui/button';
+client/src/components/admin/hub-portal-button.tsx:import { Eye, EyeOff } from 'lucide-react';
+client/src/components/admin/hub-portal-button.tsx:import React, { useState } from 'react';
+client/src/components/admin/hub-portal-button.tsx:import { useLocation } from 'wouter';
+client/src/components/admin/hub-portal-button.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/admin/hub-portal-view-page.tsx:import { 
+client/src/components/admin/hub-portal-view-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/components/admin/hub-portal-view-page.tsx:import { Button } from '@/components/ui/button';
+client/src/components/admin/hub-portal-view-page.tsx:import { EyeOff } from 'lucide-react';
+client/src/components/admin/hub-portal-view-page.tsx:import HubDashboardContent from '@/components/hub/hub-dashboard-content';
+client/src/components/admin/hub-portal-view-page.tsx:import React, { Suspense } from 'react';
+client/src/components/admin/hub-portal-view-page.tsx:import { useLocation } from 'wouter';
+client/src/components/admin/hub-portal-view-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/admin/partner-portal-button.tsx:import { Button } from '@/components/ui/button';
+client/src/components/admin/partner-portal-button.tsx:import { Eye, EyeOff } from 'lucide-react';
+client/src/components/admin/partner-portal-button.tsx:import React, { useState } from 'react';
+client/src/components/admin/partner-portal-button.tsx:import { useLocation } from 'wouter';
+client/src/components/admin/partner-portal-button.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { ActivityFeed } from '@/components/dashboard/activity-feed';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { apiRequest } from '@/lib/query-client';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { Button } from '@/components/ui/button';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { DashboardCard } from '@/components/dashboard/dashboard-card';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { EyeOff } from 'lucide-react';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { PartnerPortalButton } from './partner-portal-button';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { PopularCourses } from '@/components/dashboard/popular-courses';
+client/src/components/admin/partner-portal-view-fixed.tsx:import React, { Suspense, lazy } from 'react';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { useLocation } from 'wouter';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/admin/partner-portal-view-fixed.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/components/admin/partner-portal-view.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/components/admin/partner-portal-view.tsx:import { Badge } from '@/components/ui/badge';
+client/src/components/admin/partner-portal-view.tsx:import { Button } from '@/components/ui/button';
+client/src/components/admin/partner-portal-view.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/components/admin/partner-portal-view.tsx:import { Eye, EyeOff, Download } from 'lucide-react';
+client/src/components/admin/partner-portal-view.tsx:import { ProtectedRoute } from '@/lib/protected-route';
+client/src/components/admin/partner-portal-view.tsx:import React, { useState } from 'react';
+client/src/components/admin/partner-portal-view.tsx:import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+client/src/components/admin/partner-portal-view.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+client/src/components/admin/partner-portal-view.tsx:import { useLocation } from 'wouter';
+client/src/components/admin/teacher-portal-button.tsx:import { Button } from '@/components/ui/button';
+client/src/components/admin/teacher-portal-button.tsx:import { Eye, EyeOff } from 'lucide-react';
+client/src/components/admin/teacher-portal-button.tsx:import React, { useState } from 'react';
+client/src/components/admin/teacher-portal-button.tsx:import { useLocation } from 'wouter';
+client/src/components/admin/teacher-portal-button.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/admin/teacher-portal-view-page.tsx:import { 
+client/src/components/admin/teacher-portal-view-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/components/admin/teacher-portal-view-page.tsx:import { Button } from '@/components/ui/button';
+client/src/components/admin/teacher-portal-view-page.tsx:import { EyeOff } from 'lucide-react';
+client/src/components/admin/teacher-portal-view-page.tsx:import React, { Suspense } from 'react';
+client/src/components/admin/teacher-portal-view-page.tsx:import TeacherDashboardContent from '@/components/teacher/teacher-dashboard-content'
+client/src/components/admin/teacher-portal-view-page.tsx:import { useLocation } from 'wouter';
+client/src/components/admin/teacher-portal-view-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/assessments/assessment-form.tsx:import {
+client/src/components/assessments/assessment-form.tsx:import { AlertCircle, ArrowLeft, Save } from "lucide-react";
+client/src/components/assessments/assessment-form.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/components/assessments/assessment-form.tsx:import { Assessment, InsertAssessment, insertAssessmentSchema } from "@shared/schema";
+client/src/components/assessments/assessment-form.tsx:import { Button } from "@/components/ui/button";
+client/src/components/assessments/assessment-form.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/components/assessments/assessment-form.tsx:import { format } from "date-fns";
+client/src/components/assessments/assessment-form.tsx:import { Input } from "@/components/ui/input";
+client/src/components/assessments/assessment-form.tsx:import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+client/src/components/assessments/assessment-form.tsx:import { Separator } from "@/components/ui/separator";
+client/src/components/assessments/assessment-form.tsx:import { Switch } from "@/components/ui/switch";
+client/src/components/assessments/assessment-form.tsx:import { Textarea } from "@/components/ui/textarea";
+client/src/components/assessments/assessment-form.tsx:import { useEffect, useMemo } from "react";
+client/src/components/assessments/assessment-form.tsx:import { useForm } from "react-hook-form";
+client/src/components/assessments/assessment-form.tsx:import { useLocation } from "wouter";
+client/src/components/assessments/assessment-form.tsx:import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+client/src/components/assessments/assessment-form.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/assessments/assessment-form.tsx:import { z } from "zod";
+client/src/components/assessments/assessment-form.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/components/assessments/assessment-results.tsx:import { 
+client/src/components/assessments/assessment-results.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/components/assessments/assessment-results.tsx:import { Assessment, AssessmentResult, User } from "@shared/schema";
+client/src/components/assessments/assessment-results.tsx:import { Button } from "@/components/ui/button";
+client/src/components/assessments/assessment-results.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/components/assessments/assessment-results.tsx:import { CheckCircle, Clock, Download, FileText, PenLine, X } from "lucide-react";
+client/src/components/assessments/assessment-results.tsx:import { format } from "date-fns";
+client/src/components/assessments/assessment-results.tsx:import { FormField, FormItem, FormLabel, FormMessage, Form, FormControl } from "@/components/ui/form";
+client/src/components/assessments/assessment-results.tsx:import { Input } from "@/components/ui/input";
+client/src/components/assessments/assessment-results.tsx:import { ptBR } from "date-fns/locale";
+client/src/components/assessments/assessment-results.tsx:import { Textarea } from "@/components/ui/textarea";
+client/src/components/assessments/assessment-results.tsx:import { useForm } from "react-hook-form";
+client/src/components/assessments/assessment-results.tsx:import { useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/components/assessments/assessment-results.tsx:import { useState } from "react";
+client/src/components/assessments/assessment-results.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/assessments/assessment-results.tsx:import { z } from "zod";
+client/src/components/assessments/assessment-results.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/components/assessments/assessments-list.tsx:import { 
+client/src/components/assessments/assessments-list.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/components/assessments/assessments-list.tsx:import { Assessment } from "@shared/schema";
+client/src/components/assessments/assessments-list.tsx:import { Badge } from "@/components/ui/badge";
+client/src/components/assessments/assessments-list.tsx:import { Button } from "@/components/ui/button";
+client/src/components/assessments/assessments-list.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/components/assessments/assessments-list.tsx:import { Eye, Pencil, Plus, Trash } from "lucide-react";
+client/src/components/assessments/assessments-list.tsx:import { format } from "date-fns";
+client/src/components/assessments/assessments-list.tsx:import { Link, useLocation } from "wouter";
+client/src/components/assessments/assessments-list.tsx:import { ptBR } from "date-fns/locale";
+client/src/components/assessments/assessments-list.tsx:import { useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/components/assessments/assessments-list.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/assessments/assessments-table.tsx:import {
+client/src/components/assessments/assessments-table.tsx:import { 
+client/src/components/assessments/assessments-table.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/components/assessments/assessments-table.tsx:import { Assessment } from "@shared/schema";
+client/src/components/assessments/assessments-table.tsx:import { Badge } from "@/components/ui/badge";
+client/src/components/assessments/assessments-table.tsx:import { Button } from "@/components/ui/button";
+client/src/components/assessments/assessments-table.tsx:import { Eye, Pencil, Trash } from "lucide-react";
+client/src/components/assessments/assessments-table.tsx:import { format } from "date-fns";
+client/src/components/assessments/assessments-table.tsx:import { Link } from "wouter";
+client/src/components/assessments/assessments-table.tsx:import { ptBR } from "date-fns/locale";
+client/src/components/assessments/assessments-table.tsx:import React from 'react';
+client/src/components/assessments/assessments-table.tsx:import { useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/components/assessments/assessments-table.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/certificates/postgrad-certificate.tsx:import { formatDate } from '@/lib/utils';
+client/src/components/certificates/postgrad-certificate.tsx:import React from 'react';
+client/src/components/classes/classes-list.tsx:import { 
+client/src/components/classes/classes-list.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/components/classes/classes-list.tsx:import { Badge } from '@/components/ui/badge';
+client/src/components/classes/classes-list.tsx:import { Button } from '@/components/ui/button';
+client/src/components/classes/classes-list.tsx:import { Link, useLocation } from 'wouter';
+client/src/components/classes/classes-list.tsx:import { Pencil, Trash2, AreaChart, ArrowLeft, Users, Calendar } from 'lucide-react';
+client/src/components/classes/classes-list.tsx:import React from 'react';
+client/src/components/classes/classes-list.tsx:import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+client/src/components/classes/classes-list.tsx:import type { Class } from '@shared/schema';
+client/src/components/classes/classes-list.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/classes/classes-list.tsx:import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+client/src/components/classes/classes-list.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/components/classes/class-form.tsx:import {
+client/src/components/classes/class-form.tsx:import { Button } from '@/components/ui/button';
+client/src/components/classes/class-form.tsx:import { Input } from '@/components/ui/input';
+client/src/components/classes/class-form.tsx:import { insertClassSchema } from '@shared/schema';
+client/src/components/classes/class-form.tsx:import React, { useEffect } from 'react';
+client/src/components/classes/class-form.tsx:import { Switch } from '@/components/ui/switch';
+client/src/components/classes/class-form.tsx:import { Textarea } from '@/components/ui/textarea';
+client/src/components/classes/class-form.tsx:import type { Subject } from '@shared/schema';
+client/src/components/classes/class-form.tsx:import { useForm } from 'react-hook-form';
+client/src/components/classes/class-form.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/components/classes/class-form.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/components/classes/class-form.tsx:import { z } from 'zod';
+client/src/components/classes/class-form.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/components/courses/course-form.tsx:import {
+client/src/components/courses/course-form.tsx:import { 
+client/src/components/courses/course-form.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/components/courses/course-form.tsx:import { ArrowLeft, Loader2 } from "lucide-react";
+client/src/components/courses/course-form.tsx:import { Button } from "@/components/ui/button";
+client/src/components/courses/course-form.tsx:import { Course } from "@shared/schema";
+client/src/components/courses/course-form.tsx:import { Input } from "@/components/ui/input";
+client/src/components/courses/course-form.tsx:import { insertCourseSchema } from "@shared/schema";
+client/src/components/courses/course-form.tsx:import React from "react";
+client/src/components/courses/course-form.tsx:import { Textarea } from "@/components/ui/textarea";
+client/src/components/courses/course-form.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/components/courses/course-form.tsx:import { useForm } from "react-hook-form";
+client/src/components/courses/course-form.tsx:import { useLocation } from "wouter";
+client/src/components/courses/course-form.tsx:import { useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/components/courses/course-form.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/courses/course-form.tsx:import { z } from "zod";
+client/src/components/courses/course-form.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/components/dashboard/activity-feed.tsx:import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+client/src/components/dashboard/activity-feed.tsx:import { Badge } from "@/components/ui/badge";
+client/src/components/dashboard/activity-feed.tsx:import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/components/dashboard/activity-feed.tsx:import { Separator } from "@/components/ui/separator";
+client/src/components/dashboard/activity-feed.tsx:import { User, ArrowRight } from "lucide-react";
+client/src/components/dashboard/ai-assistant.tsx:import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+client/src/components/dashboard/ai-assistant.tsx:import { Badge } from "@/components/ui/badge";
+client/src/components/dashboard/ai-assistant.tsx:import { Button } from "@/components/ui/button";
+client/src/components/dashboard/ai-assistant.tsx:import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/components/dashboard/ai-assistant.tsx:import { Input } from "@/components/ui/input";
+client/src/components/dashboard/ai-assistant.tsx:import { Send, Bot, User, Paperclip, Mic } from "lucide-react";
+client/src/components/dashboard/ai-assistant.tsx:import { Separator } from "@/components/ui/separator";
+client/src/components/dashboard/ai-assistant.tsx:import { useState } from "react";
+client/src/components/dashboard/dashboard-card.tsx:import { 
+client/src/components/dashboard/dashboard-card.tsx:import { Button } from '@/components/ui/button';
+client/src/components/dashboard/dashboard-card.tsx:import { Card, CardContent } from "@/components/ui/card";
+client/src/components/dashboard/dashboard-card.tsx:import { Link } from 'wouter';
+client/src/components/dashboard/dashboard-card.tsx:import React from 'react';
+client/src/components/dashboard/enrollments-table.tsx:import {
+client/src/components/dashboard/enrollments-table.tsx:import { ArrowRight } from "lucide-react";
+client/src/components/dashboard/enrollments-table.tsx:import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+client/src/components/dashboard/enrollments-table.tsx:import { Badge } from "@/components/ui/badge";
+client/src/components/dashboard/enrollments-table.tsx:import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/components/dashboard/enrollments-table.tsx:import { formatCurrency } from "@/lib/utils";
+client/src/components/dashboard/enrollments-table.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/components/dashboard/popular-courses.tsx:import { ArrowRight, Code, Youtube, Bot, LineChart } from "lucide-react";
+client/src/components/dashboard/popular-courses.tsx:import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/components/dashboard/popular-courses.tsx:import { formatCurrency } from "@/lib/utils";
+client/src/components/dashboard/popular-courses.tsx:import { Separator } from "@/components/ui/separator";
+client/src/components/dashboard/stats-card.tsx:import { 
+client/src/components/dashboard/stats-card.tsx:import { Card, CardContent } from "@/components/ui/card";
+client/src/components/dashboard/stats-card.tsx:import { cn } from "@/lib/utils";
+client/src/components/dashboard/stats-card.tsx:import { formatCurrency } from "@/lib/utils";
+client/src/components/hub/hub-dashboard-content.tsx:import { Badge } from '@/components/ui/badge';
+client/src/components/hub/hub-dashboard-content.tsx:import { Button } from '@/components/ui/button';
+client/src/components/hub/hub-dashboard-content.tsx:import { Calendar, School, AlertCircle } from 'lucide-react';
+client/src/components/hub/hub-dashboard-content.tsx:import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/components/hub/hub-dashboard-content.tsx:import { Progress } from '@/components/ui/progress';
+client/src/components/hub/hub-dashboard-content.tsx:import React from 'react';
+client/src/components/hub/hub-dashboard-content.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+client/src/components/hub/hub-dashboard-content.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/layout/app-shell.tsx:import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+client/src/components/layout/app-shell.tsx:import { Header } from "@/components/layout/header";
+client/src/components/layout/app-shell.tsx:import { Loader2 } from "lucide-react";
+client/src/components/layout/app-shell.tsx:import { Sidebar } from "@/components/layout/sidebar";
+client/src/components/layout/app-shell.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/components/layout/app-shell.tsx:import { useLocation } from "wouter";
+client/src/components/layout/app-shell.tsx:import { useState } from "react";
+client/src/components/layout/breadcrumbs.tsx:import { ChevronRight, Home } from "lucide-react";
+client/src/components/layout/breadcrumbs.tsx:import { useLocation, Link } from "wouter";
+client/src/components/layout/header.tsx:import {
+client/src/components/layout/header.tsx:import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+client/src/components/layout/header.tsx:import { Button } from "@/components/ui/button";
+client/src/components/layout/header.tsx:import { Link } from "wouter";
+client/src/components/layout/header.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/components/layout/header.tsx:import { useState } from "react";
+client/src/components/layout/header.tsx:import { useTheme } from "next-themes";
+client/src/components/layout/sidebar.tsx:import {
+client/src/components/layout/sidebar.tsx:import { cn } from "@/lib/utils";
+client/src/components/layout/sidebar.tsx:import { Link, useLocation } from "wouter";
+client/src/components/layout/sidebar.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/components/layout/sidebar.tsx:import { usePortal, PortalType } from "@/hooks/use-portal";
+client/src/components/layout/sidebar.tsx:import { useState, useEffect } from "react";
+client/src/components/modules/module-form.tsx:import {
+client/src/components/modules/module-form.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/components/modules/module-form.tsx:import { ArrowLeft, Loader2 } from "lucide-react";
+client/src/components/modules/module-form.tsx:import { Button } from "@/components/ui/button";
+client/src/components/modules/module-form.tsx:import { Input } from "@/components/ui/input";
+client/src/components/modules/module-form.tsx:import { insertModuleSchema } from "@shared/schema";
+client/src/components/modules/module-form.tsx:import { Module } from "@shared/schema";
+client/src/components/modules/module-form.tsx:import React from "react";
+client/src/components/modules/module-form.tsx:import { Textarea } from "@/components/ui/textarea";
+client/src/components/modules/module-form.tsx:import { useForm } from "react-hook-form";
+client/src/components/modules/module-form.tsx:import { useLocation } from "wouter";
+client/src/components/modules/module-form.tsx:import { useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/components/modules/module-form.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/modules/module-form.tsx:import { z } from "zod";
+client/src/components/modules/module-form.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/components/modules/modules-list.tsx:import {
+client/src/components/modules/modules-list.tsx:import { 
+client/src/components/modules/modules-list.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/components/modules/modules-list.tsx:import { Badge } from "@/components/ui/badge";
+client/src/components/modules/modules-list.tsx:import { Button } from "@/components/ui/button";
+client/src/components/modules/modules-list.tsx:import { Edit, File, Loader2, Plus, Trash2 } from "lucide-react";
+client/src/components/modules/modules-list.tsx:import { ModuleForm } from "./module-form";
+client/src/components/modules/modules-list.tsx:import { Module, Lesson } from "@shared/schema";
+client/src/components/modules/modules-list.tsx:import React, { useState } from "react";
+client/src/components/modules/modules-list.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/components/modules/modules-list.tsx:import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/components/modules/modules-list.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/students/student-form.tsx:import * as z from 'zod';
+client/src/components/students/student-form.tsx:import { Button } from '@/components/ui/button';
+client/src/components/students/student-form.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/components/students/student-form.tsx:import { FormDescription } from '@/components/ui/form';
+client/src/components/students/student-form.tsx:import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+client/src/components/students/student-form.tsx:import { Input } from '@/components/ui/input';
+client/src/components/students/student-form.tsx:import { insertUserSchema, User } from '@shared/schema';
+client/src/components/students/student-form.tsx:import React from 'react';
+client/src/components/students/student-form.tsx:import { Switch } from '@/components/ui/switch';
+client/src/components/students/student-form.tsx:import { useForm } from 'react-hook-form';
+client/src/components/students/student-form.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/components/students/students-list.tsx:import { 
+client/src/components/students/students-list.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/components/students/students-list.tsx:import { Badge } from '@/components/ui/badge';
+client/src/components/students/students-list.tsx:import { Button } from '@/components/ui/button';
+client/src/components/students/students-list.tsx:import { Link, useLocation } from 'wouter';
+client/src/components/students/students-list.tsx:import { Pencil, Trash2, UserRound, ArrowLeft, GraduationCap, School } from 'lucide-react';
+client/src/components/students/students-list.tsx:import React from 'react';
+client/src/components/students/students-list.tsx:import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+client/src/components/students/students-list.tsx:import type { User } from '@shared/schema';
+client/src/components/students/students-list.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/students/students-list.tsx:import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+client/src/components/students/students-list.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/components/subjects/subject-form.tsx:import {
+client/src/components/subjects/subject-form.tsx:import { Button } from '@/components/ui/button';
+client/src/components/subjects/subject-form.tsx:import { Input } from '@/components/ui/input';
+client/src/components/subjects/subject-form.tsx:import { insertSubjectSchema } from '@shared/schema';
+client/src/components/subjects/subject-form.tsx:import React from 'react';
+client/src/components/subjects/subject-form.tsx:import { Switch } from '@/components/ui/switch';
+client/src/components/subjects/subject-form.tsx:import { Textarea } from '@/components/ui/textarea';
+client/src/components/subjects/subject-form.tsx:import { useForm } from 'react-hook-form';
+client/src/components/subjects/subject-form.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/components/subjects/subject-form.tsx:import { z } from 'zod';
+client/src/components/subjects/subject-form.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/components/subjects/subjects-list.tsx:import { 
+client/src/components/subjects/subjects-list.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/components/subjects/subjects-list.tsx:import { Badge } from '@/components/ui/badge';
+client/src/components/subjects/subjects-list.tsx:import { Button } from '@/components/ui/button';
+client/src/components/subjects/subjects-list.tsx:import { Link, useLocation } from 'wouter';
+client/src/components/subjects/subjects-list.tsx:import { Pencil, Trash2, BookOpen, AreaChart, ArrowLeft } from 'lucide-react';
+client/src/components/subjects/subjects-list.tsx:import React from 'react';
+client/src/components/subjects/subjects-list.tsx:import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+client/src/components/subjects/subjects-list.tsx:import type { Subject } from '@shared/schema';
+client/src/components/subjects/subjects-list.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/subjects/subjects-list.tsx:import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+client/src/components/subjects/subjects-list.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/components/teachers/teacher-form.tsx:import {
+client/src/components/teachers/teacher-form.tsx:import { ArrowLeft, Loader2 } from "lucide-react";
+client/src/components/teachers/teacher-form.tsx:import { Button } from "@/components/ui/button";
+client/src/components/teachers/teacher-form.tsx:import { Card, CardContent } from "@/components/ui/card";
+client/src/components/teachers/teacher-form.tsx:import { Input } from "@/components/ui/input";
+client/src/components/teachers/teacher-form.tsx:import { insertUserSchema, User } from "@shared/schema";
+client/src/components/teachers/teacher-form.tsx:import { Link } from "wouter";
+client/src/components/teachers/teacher-form.tsx:import { Switch } from "@/components/ui/switch";
+client/src/components/teachers/teacher-form.tsx:import { useForm } from "react-hook-form";
+client/src/components/teachers/teacher-form.tsx:import { useState } from "react";
+client/src/components/teachers/teacher-form.tsx:import { z } from "zod";
+client/src/components/teachers/teacher-form.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/components/teachers/teachers-list.tsx:import {
+client/src/components/teachers/teachers-list.tsx:import { Badge } from "@/components/ui/badge";
+client/src/components/teachers/teachers-list.tsx:import { Button } from "@/components/ui/button";
+client/src/components/teachers/teachers-list.tsx:import { Link } from "wouter";
+client/src/components/teachers/teachers-list.tsx:import { Pencil, Trash2, Eye } from "lucide-react";
+client/src/components/teachers/teachers-list.tsx:import { queryClient, apiRequest } from "@/lib/queryClient";
+client/src/components/teachers/teachers-list.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/components/teachers/teachers-list.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/components/teachers/teachers-list.tsx:import { User } from "@shared/schema";
+client/src/components/teachers/teachers-list.tsx:import { useState } from "react";
+client/src/components/teachers/teachers-list.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/components/teacher/teacher-dashboard-content.tsx:import { 
+client/src/components/teacher/teacher-dashboard-content.tsx:import { apiRequest } from '@/lib/query-client';
+client/src/components/teacher/teacher-dashboard-content.tsx:import { Button } from '@/components/ui/button';
+client/src/components/teacher/teacher-dashboard-content.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/components/teacher/teacher-dashboard-content.tsx:import { cn } from '@/lib/utils';
+client/src/components/teacher/teacher-dashboard-content.tsx:import { Input } from '@/components/ui/input';
+client/src/components/teacher/teacher-dashboard-content.tsx:import { Link } from 'wouter';
+client/src/components/teacher/teacher-dashboard-content.tsx:import React from 'react';
+client/src/components/teacher/teacher-dashboard-content.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/components/teacher/teacher-dashboard-content.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/components/ui/accordion.tsx:import * as AccordionPrimitive from "@radix-ui/react-accordion"
+client/src/components/ui/accordion.tsx:import * as React from "react"
+client/src/components/ui/accordion.tsx:import { ChevronDown } from "lucide-react"
+client/src/components/ui/accordion.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/alert-dialog.tsx:import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
+client/src/components/ui/alert-dialog.tsx:import * as React from "react"
+client/src/components/ui/alert-dialog.tsx:import { buttonVariants } from "@/components/ui/button"
+client/src/components/ui/alert-dialog.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/alert.tsx:import * as React from "react"
+client/src/components/ui/alert.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/alert.tsx:import { cva, type VariantProps } from "class-variance-authority"
+client/src/components/ui/avatar.tsx:import * as AvatarPrimitive from "@radix-ui/react-avatar"
+client/src/components/ui/avatar.tsx:import * as React from "react"
+client/src/components/ui/avatar.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/badge.tsx:import * as React from "react"
+client/src/components/ui/badge.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/badge.tsx:import { cva, type VariantProps } from "class-variance-authority"
+client/src/components/ui/breadcrumb.tsx:import * as React from "react"
+client/src/components/ui/breadcrumb.tsx:import { ChevronRight } from "lucide-react"
+client/src/components/ui/breadcrumb.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/breadcrumb.tsx:import { Slot } from "@radix-ui/react-slot"
+client/src/components/ui/button.tsx:import * as React from "react"
+client/src/components/ui/button.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/button.tsx:import { cva, type VariantProps } from "class-variance-authority"
+client/src/components/ui/button.tsx:import { Slot } from "@radix-ui/react-slot"
+client/src/components/ui/card.tsx:import * as React from "react"
+client/src/components/ui/card.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/checkbox.tsx:import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+client/src/components/ui/checkbox.tsx:import * as React from "react"
+client/src/components/ui/checkbox.tsx:import { Check } from "lucide-react"
+client/src/components/ui/checkbox.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/dialog.tsx:import * as DialogPrimitive from "@radix-ui/react-dialog"
+client/src/components/ui/dialog.tsx:import * as React from "react"
+client/src/components/ui/dialog.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/dialog.tsx:import { X } from "lucide-react"
+client/src/components/ui/dropdown-menu.tsx:import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
+client/src/components/ui/dropdown-menu.tsx:import * as React from "react"
+client/src/components/ui/dropdown-menu.tsx:import { Check, ChevronRight, Circle } from "lucide-react"
+client/src/components/ui/dropdown-menu.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/form.tsx:import {
+client/src/components/ui/form.tsx:import * as LabelPrimitive from "@radix-ui/react-label"
+client/src/components/ui/form.tsx:import * as React from "react"
+client/src/components/ui/form.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/form.tsx:import { Label } from "@/components/ui/label"
+client/src/components/ui/form.tsx:import { Slot } from "@radix-ui/react-slot"
+client/src/components/ui/input.tsx:import * as React from "react"
+client/src/components/ui/input.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/label.tsx:import * as LabelPrimitive from "@radix-ui/react-label"
+client/src/components/ui/label.tsx:import * as React from "react"
+client/src/components/ui/label.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/label.tsx:import { cva, type VariantProps } from "class-variance-authority"
+client/src/components/ui/popover.tsx:import * as PopoverPrimitive from "@radix-ui/react-popover"
+client/src/components/ui/popover.tsx:import * as React from "react"
+client/src/components/ui/popover.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/progress.tsx:import * as ProgressPrimitive from "@radix-ui/react-progress"
+client/src/components/ui/progress.tsx:import * as React from "react"
+client/src/components/ui/progress.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/scroll-area.tsx:import * as React from "react"
+client/src/components/ui/scroll-area.tsx:import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
+client/src/components/ui/scroll-area.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/select.tsx:import * as React from "react"
+client/src/components/ui/select.tsx:import * as SelectPrimitive from "@radix-ui/react-select"
+client/src/components/ui/select.tsx:import { Check, ChevronDown, ChevronUp } from "lucide-react"
+client/src/components/ui/select.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/separator.tsx:import * as React from "react"
+client/src/components/ui/separator.tsx:import * as SeparatorPrimitive from "@radix-ui/react-separator"
+client/src/components/ui/separator.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/sheet.tsx:import * as React from "react"
+client/src/components/ui/sheet.tsx:import * as SheetPrimitive from "@radix-ui/react-dialog"
+client/src/components/ui/sheet.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/sheet.tsx:import { cva, type VariantProps } from "class-variance-authority"
+client/src/components/ui/sheet.tsx:import { X } from "lucide-react"
+client/src/components/ui/skeleton.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/switch.tsx:import * as React from "react"
+client/src/components/ui/switch.tsx:import * as SwitchPrimitives from "@radix-ui/react-switch"
+client/src/components/ui/switch.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/table.tsx:import * as React from "react"
+client/src/components/ui/table.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/tabs.tsx:import * as React from "react"
+client/src/components/ui/tabs.tsx:import * as TabsPrimitive from "@radix-ui/react-tabs"
+client/src/components/ui/tabs.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/textarea.tsx:import * as React from "react"
+client/src/components/ui/textarea.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/toaster.tsx:import {
+client/src/components/ui/toaster.tsx:import { useToast } from "@/hooks/use-toast"
+client/src/components/ui/toast.tsx:import * as React from "react"
+client/src/components/ui/toast.tsx:import * as ToastPrimitives from "@radix-ui/react-toast"
+client/src/components/ui/toast.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/toast.tsx:import { cva, type VariantProps } from "class-variance-authority"
+client/src/components/ui/toast.tsx:import { X } from "lucide-react"
+client/src/components/ui/toggle.tsx:import * as React from "react"
+client/src/components/ui/toggle.tsx:import * as TogglePrimitive from "@radix-ui/react-toggle"
+client/src/components/ui/toggle.tsx:import { cn } from "@/lib/utils"
+client/src/components/ui/toggle.tsx:import { cva, type VariantProps } from "class-variance-authority"
+client/src/components/ui/tooltip.tsx:import * as React from "react"
+client/src/components/ui/tooltip.tsx:import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+client/src/components/ui/tooltip.tsx:import { cn } from "@/lib/utils"
+client/src/hooks/use-auth.tsx:import {
+client/src/hooks/use-auth.tsx:import { createContext, ReactNode, useContext } from "react";
+client/src/hooks/use-auth.tsx:import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
+client/src/hooks/use-auth.tsx:import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
+client/src/hooks/use-auth.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/hooks/use-mobile.tsx:import * as React from "react"
+client/src/hooks/use-portal.tsx:import { createContext, useContext, useState, ReactNode } from "react";
+client/src/hooks/use-toast.ts:import * as React from "react"
+client/src/hooks/use-toast.ts:import type {
+client/src/lib/protected-route.tsx:import { Loader2 } from "lucide-react";
+client/src/lib/protected-route.tsx:import { Redirect, Route } from "wouter";
+client/src/lib/protected-route.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/lib/query-client.ts:import { QueryClient } from '@tanstack/react-query';
+client/src/lib/queryClient.ts:import { QueryClient, QueryFunction } from "@tanstack/react-query";
+client/src/lib/utils.ts:import { clsx, type ClassValue } from "clsx";
+client/src/lib/utils.ts:import { twMerge } from "tailwind-merge";
+client/src/main.tsx:import App from "./App";
+client/src/main.tsx:import { AuthProvider } from "@/hooks/use-auth";
+client/src/main.tsx:import { createRoot } from "react-dom/client";
+client/src/main.tsx:import "./index.css";
+client/src/main.tsx:import { queryClient } from "./lib/queryClient";
+client/src/main.tsx:import { QueryClientProvider } from "@tanstack/react-query";
+client/src/main.tsx:import { ThemeProvider } from "next-themes";
+client/src/pages/admin/contracts-page.tsx:import {
+client/src/pages/admin/contracts-page.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/pages/admin/contracts-page.tsx:import { AppShell } from "../../components/layout/app-shell";
+client/src/pages/admin/contracts-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/admin/contracts-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/admin/contracts-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/admin/contracts-page.tsx:import { Eye, FileText, Check, XCircle, Clock } from "lucide-react";
+client/src/pages/admin/contracts-page.tsx:import { format } from "date-fns";
+client/src/pages/admin/contracts-page.tsx:import { ptBR } from "date-fns/locale";
+client/src/pages/admin/contracts-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/pages/admin/contracts-page.tsx:import { useQuery, useQueryClient } from "@tanstack/react-query";
+client/src/pages/admin/contracts-page.tsx:import { useState, useEffect } from "react";
+client/src/pages/admin/contracts-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/admin/documents-page.tsx:import {
+client/src/pages/admin/documents-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/admin/documents-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/admin/documents-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/admin/documents-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/admin/documents-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/admin/documents-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/admin/documents-page.tsx:import React, { useState } from 'react';
+client/src/pages/admin/documents-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+client/src/pages/admin/documents-page.tsx:import { Textarea } from '@/components/ui/textarea';
+client/src/pages/admin/documents-page.tsx:import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+client/src/pages/admin/documents-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/admin-hub-view-page.tsx:import AdminHubViewPage from '@/components/admin/hub-portal-view-page';
+client/src/pages/admin-partner-certifications-page.tsx:import { 
+client/src/pages/admin-partner-certifications-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/admin-partner-certifications-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/admin-partner-certifications-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/admin-partner-certifications-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/admin-partner-certifications-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/admin-partner-certifications-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/admin-partner-certifications-page.tsx:import { queryClient, apiRequest } from '@/lib/query-client';
+client/src/pages/admin-partner-certifications-page.tsx:import React, { useState } from 'react';
+client/src/pages/admin-partner-certifications-page.tsx:import { Textarea } from '@/components/ui/textarea';
+client/src/pages/admin-partner-certifications-page.tsx:import { useForm } from 'react-hook-form';
+client/src/pages/admin-partner-certifications-page.tsx:import { useQuery, useMutation } from '@tanstack/react-query';
+client/src/pages/admin-partner-certifications-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/admin-partner-certifications-page.tsx:import { z } from 'zod';
+client/src/pages/admin-partner-certifications-page.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/pages/admin-partner-payments-page.tsx:import {
+client/src/pages/admin-partner-payments-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/admin-partner-payments-page.tsx:import { ArrowLeft, Download, Filter, Loader2, FileText, AlertTriangle, CheckCircle2, Clock, ExternalLink } from 'lucide-react';
+client/src/pages/admin-partner-payments-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/admin-partner-payments-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/admin-partner-payments-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/admin-partner-payments-page.tsx:import { format } from 'date-fns';
+client/src/pages/admin-partner-payments-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/admin-partner-payments-page.tsx:import { ptBR } from 'date-fns/locale';
+client/src/pages/admin-partner-payments-page.tsx:import { useLocation } from 'wouter';
+client/src/pages/admin-partner-payments-page.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/pages/admin-partner-payments-page.tsx:import { useState } from 'react';
+client/src/pages/admin-partner-view-page.tsx:import { AdminPartnerViewPage } from '@/components/admin/partner-portal-view-fixed';
+client/src/pages/admin/simplified-enrollment-page.tsx:import {
+client/src/pages/admin/simplified-enrollment-page.tsx:import { 
+client/src/pages/admin/simplified-enrollment-page.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { formatCurrency } from "@/lib/formatters";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { Input } from "@/components/ui/input";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { useEffect, useState } from "react";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { useForm } from "react-hook-form";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { z } from "zod";
+client/src/pages/admin/simplified-enrollment-page.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/pages/admin/sms-test-page.tsx:import { Alert, AlertDescription } from '@/components/ui/alert';
+client/src/pages/admin/sms-test-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/admin/sms-test-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/admin/sms-test-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/admin/sms-test-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/admin/sms-test-page.tsx:import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+client/src/pages/admin/sms-test-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/admin/sms-test-page.tsx:import { Label } from '@/components/ui/label';
+client/src/pages/admin/sms-test-page.tsx:import React, { useState } from 'react';
+client/src/pages/admin/sms-test-page.tsx:import { Send, AlertTriangle, RotateCw } from 'lucide-react';
+client/src/pages/admin/sms-test-page.tsx:import { useForm } from 'react-hook-form';
+client/src/pages/admin/sms-test-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/admin/sms-test-page.tsx:import { z } from 'zod';
+client/src/pages/admin/sms-test-page.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/pages/admin-student-documents-page.tsx:import {
+client/src/pages/admin-student-documents-page.tsx:import { 
+client/src/pages/admin-student-documents-page.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/pages/admin-student-documents-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/admin-student-documents-page.tsx:import * as z from "zod";
+client/src/pages/admin-student-documents-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/admin-student-documents-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/admin-student-documents-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/admin-student-documents-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/admin-student-documents-page.tsx:import { Input } from "@/components/ui/input";
+client/src/pages/admin-student-documents-page.tsx:import React, { useState } from "react";
+client/src/pages/admin-student-documents-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/admin-student-documents-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/pages/admin-student-documents-page.tsx:import { Textarea } from "@/components/ui/textarea";
+client/src/pages/admin-student-documents-page.tsx:import { useForm } from "react-hook-form";
+client/src/pages/admin-student-documents-page.tsx:import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/pages/admin-student-documents-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/admin-student-documents-page.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/pages/admin-teacher-view-page.tsx:import AdminTeacherViewPage from '@/components/admin/teacher-portal-view-page';
+client/src/pages/assessment-details-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/assessment-details-page.tsx:import { ArrowLeft, Edit, Save } from "lucide-react";
+client/src/pages/assessment-details-page.tsx:import AssessmentResults from "@/components/assessments/assessment-results";
+client/src/pages/assessment-details-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/assessment-details-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/assessment-details-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/assessment-details-page.tsx:import { format } from "date-fns";
+client/src/pages/assessment-details-page.tsx:import { Link, useParams, useLocation } from "wouter";
+client/src/pages/assessment-details-page.tsx:import { ptBR } from "date-fns/locale";
+client/src/pages/assessment-details-page.tsx:import { Separator } from "@/components/ui/separator";
+client/src/pages/assessment-details-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/assessment-details-page.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/pages/assessment-details-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/assessment-edit-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/assessment-edit-page.tsx:import { ArrowLeft } from "lucide-react";
+client/src/pages/assessment-edit-page.tsx:import AssessmentForm from "@/components/assessments/assessment-form";
+client/src/pages/assessment-edit-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/assessment-edit-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/assessment-edit-page.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/pages/assessment-edit-page.tsx:import { useLocation } from "wouter";
+client/src/pages/assessment-edit-page.tsx:import { useParams } from "wouter";
+client/src/pages/assessment-edit-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/assessment-new-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/assessment-new-page.tsx:import { ArrowLeft } from "lucide-react";
+client/src/pages/assessment-new-page.tsx:import AssessmentForm from "@/components/assessments/assessment-form";
+client/src/pages/assessment-new-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/assessment-new-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/assessment-new-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/assessment-new-page.tsx:import { useParams, useLocation } from "wouter";
+client/src/pages/assessment-new-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/assessments-page.tsx:import {
+client/src/pages/assessments-page.tsx:import { 
+client/src/pages/assessments-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/assessments-page.tsx:import AssessmentsTable from '@/components/assessments/assessments-table';
+client/src/pages/assessments-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/assessments-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/assessments-page.tsx:import { Input } from "@/components/ui/input";
+client/src/pages/assessments-page.tsx:import { Label } from "@/components/ui/label";
+client/src/pages/assessments-page.tsx:import { Link, useLocation } from "wouter";
+client/src/pages/assessments-page.tsx:import { Plus, Filter, Search, FileDown } from "lucide-react";
+client/src/pages/assessments-page.tsx:import React, { useState } from 'react';
+client/src/pages/assessments-page.tsx:import { Skeleton } from '@/components/ui/skeleton';
+client/src/pages/assessments-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+client/src/pages/assessments-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/assessments-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/assessments-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/auth-page.tsx:import {
+client/src/pages/auth-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/auth-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/auth-page.tsx:import { Input } from "@/components/ui/input";
+client/src/pages/auth-page.tsx:import { insertUserSchema } from "@shared/schema";
+client/src/pages/auth-page.tsx:import { Loader2, Mail, Key, User, BookOpen, Bot, LineChart, Store } from "lucide-react";
+client/src/pages/auth-page.tsx:import { Redirect, Link } from "wouter";
+client/src/pages/auth-page.tsx:import { Separator } from "@/components/ui/separator";
+client/src/pages/auth-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/pages/auth-page.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/pages/auth-page.tsx:import { useForm } from "react-hook-form";
+client/src/pages/auth-page.tsx:import { useState, useEffect } from "react";
+client/src/pages/auth-page.tsx:import { z } from "zod";
+client/src/pages/auth-page.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/pages/certificate-template-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/certificate-template-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/certificate-template-page.tsx:import { Card, CardContent } from '@/components/ui/card';
+client/src/pages/certificate-template-page.tsx:import { Loader2, Printer } from 'lucide-react';
+client/src/pages/certificate-template-page.tsx:import { PostgradCertificate } from '@/components/certificates/postgrad-certificate';
+client/src/pages/certificate-template-page.tsx:import React from 'react';
+client/src/pages/certificate-template-page.tsx:import { useParams } from 'wouter';
+client/src/pages/certificate-template-page.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/pages/class-create-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/class-create-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/class-create-page.tsx:import { ArrowLeft } from 'lucide-react';
+client/src/pages/class-create-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/class-create-page.tsx:import { ClassForm } from '@/components/classes/class-form';
+client/src/pages/class-create-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/class-create-page.tsx:import { Link, useLocation } from 'wouter';
+client/src/pages/class-create-page.tsx:import React from 'react';
+client/src/pages/class-create-page.tsx:import { useMutation, useQueryClient } from '@tanstack/react-query';
+client/src/pages/class-create-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/class-create-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/class-details-page.tsx:import {
+client/src/pages/class-details-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/class-details-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/class-details-page.tsx:import { ArrowLeft, Users, Calendar, MapPin, Clock, Pencil, BookOpen, School, AlertTriangle, FileText } from 'lucide-react';
+client/src/pages/class-details-page.tsx:import AssessmentsList from '@/components/assessments/assessments-list';
+client/src/pages/class-details-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/class-details-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/class-details-page.tsx:import { Card, CardContent } from '@/components/ui/card';
+client/src/pages/class-details-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/class-details-page.tsx:import React from 'react';
+client/src/pages/class-details-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+client/src/pages/class-details-page.tsx:import { useLocation, Link } from 'wouter';
+client/src/pages/class-details-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/class-details-page.tsx:import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+client/src/pages/class-details-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/class-edit-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/class-edit-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/class-edit-page.tsx:import { ArrowLeft } from 'lucide-react';
+client/src/pages/class-edit-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/class-edit-page.tsx:import { ClassForm } from '@/components/classes/class-form';
+client/src/pages/class-edit-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/class-edit-page.tsx:import React from 'react';
+client/src/pages/class-edit-page.tsx:import { useLocation } from 'wouter';
+client/src/pages/class-edit-page.tsx:import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+client/src/pages/class-edit-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/class-edit-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/classes-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/classes-page.tsx:import { ClassesList } from '@/components/classes/classes-list';
+client/src/pages/classes-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/classes-page.tsx:import React from 'react';
+client/src/pages/course-create-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/course-create-page.tsx:import { ArrowLeft } from "lucide-react";
+client/src/pages/course-create-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/course-create-page.tsx:import { CourseForm } from "@/components/courses/course-form";
+client/src/pages/course-create-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/course-create-page.tsx:import { Link } from "wouter";
+client/src/pages/course-create-page.tsx:import React from "react";
+client/src/pages/course-details-page.tsx:import { 
+client/src/pages/course-details-page.tsx:import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+client/src/pages/course-details-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/course-details-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/course-details-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/course-details-page.tsx:import { Course } from "@shared/schema";
+client/src/pages/course-details-page.tsx:import { formatCurrency } from "@/lib/utils";
+client/src/pages/course-details-page.tsx:import { getQueryFn } from "@/lib/queryClient";
+client/src/pages/course-details-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/course-details-page.tsx:import { ModulesList } from "@/components/modules/modules-list";
+client/src/pages/course-details-page.tsx:import React from "react";
+client/src/pages/course-details-page.tsx:import { Separator } from "@/components/ui/separator";
+client/src/pages/course-details-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/course-details-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/pages/course-details-page.tsx:import { useParams, Link } from "wouter";
+client/src/pages/course-details-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/course-edit-page.tsx:import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+client/src/pages/course-edit-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/course-edit-page.tsx:import { ArrowLeft, AlertTriangle, Loader2 } from "lucide-react";
+client/src/pages/course-edit-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/course-edit-page.tsx:import { CourseForm } from "@/components/courses/course-form";
+client/src/pages/course-edit-page.tsx:import { Course } from "@shared/schema";
+client/src/pages/course-edit-page.tsx:import { getQueryFn } from "@/lib/queryClient";
+client/src/pages/course-edit-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/course-edit-page.tsx:import React from "react";
+client/src/pages/course-edit-page.tsx:import { useParams, Link } from "wouter";
+client/src/pages/course-edit-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/courses-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/courses-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/courses-page.tsx:import { BookOpen, Calendar, Clock, Filter, GraduationCap, Grid3X3, List, PlusCircle, Search, Users } from "lucide-react";
+client/src/pages/courses-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/courses-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/courses-page.tsx:import { Course } from "@shared/schema";
+client/src/pages/courses-page.tsx:import { formatCurrency, truncateText } from "@/lib/utils";
+client/src/pages/courses-page.tsx:import { getQueryFn } from "@/lib/queryClient";
+client/src/pages/courses-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/courses-page.tsx:import { Input } from "@/components/ui/input";
+client/src/pages/courses-page.tsx:import { Link } from "wouter";
+client/src/pages/courses-page.tsx:import React, { useState } from "react";
+client/src/pages/courses-page.tsx:import { Separator } from "@/components/ui/separator";
+client/src/pages/courses-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/courses-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/pages/courses-page.tsx:import { usePortal } from "@/hooks/use-portal";
+client/src/pages/courses-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/dashboard.tsx:import { ActivityFeed } from "@/components/dashboard/activity-feed";
+client/src/pages/dashboard.tsx:import { AiAssistant } from "@/components/dashboard/ai-assistant";
+client/src/pages/dashboard.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/dashboard.tsx:import { EnrollmentsTable } from "@/components/dashboard/enrollments-table";
+client/src/pages/dashboard.tsx:import { Helmet } from "react-helmet";
+client/src/pages/dashboard.tsx:import { Loader2 } from "lucide-react";
+client/src/pages/dashboard.tsx:import { PopularCourses } from "@/components/dashboard/popular-courses";
+client/src/pages/dashboard.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/dashboard.tsx:import { StatsCard } from "@/components/dashboard/stats-card";
+client/src/pages/dashboard.tsx:import { useAuth } from "@/hooks/use-auth";
+client/src/pages/dashboard.tsx:import { useEffect, useState } from "react";
+client/src/pages/dashboard.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/hub-dashboard.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/hub-dashboard.tsx:import HubDashboardContent from '@/components/hub/hub-dashboard-content';
+client/src/pages/hub-dashboard.tsx:import React from 'react';
+client/src/pages/module-create-page.tsx:import { AlertTriangle, ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
+client/src/pages/module-create-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/module-create-page.tsx:import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+client/src/pages/module-create-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/module-create-page.tsx:import { Course } from "@shared/schema";
+client/src/pages/module-create-page.tsx:import { getQueryFn } from "@/lib/queryClient";
+client/src/pages/module-create-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/module-create-page.tsx:import { ModuleForm } from "@/components/modules/module-form";
+client/src/pages/module-create-page.tsx:import React from "react";
+client/src/pages/module-create-page.tsx:import { useParams, Link } from "wouter";
+client/src/pages/module-create-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/module-edit-page.tsx:import { AlertTriangle, ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
+client/src/pages/module-edit-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/module-edit-page.tsx:import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+client/src/pages/module-edit-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/module-edit-page.tsx:import { Course, Module } from "@shared/schema";
+client/src/pages/module-edit-page.tsx:import { getQueryFn } from "@/lib/queryClient";
+client/src/pages/module-edit-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/module-edit-page.tsx:import { ModuleForm } from "@/components/modules/module-form";
+client/src/pages/module-edit-page.tsx:import React from "react";
+client/src/pages/module-edit-page.tsx:import { useParams, Link } from "wouter";
+client/src/pages/module-edit-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/not-found.tsx:import { AlertCircle } from "lucide-react";
+client/src/pages/not-found.tsx:import { Card, CardContent } from "@/components/ui/card";
+client/src/pages/partner-certification-requests-page.tsx:import { 
+client/src/pages/partner-certification-requests-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/partner-certification-requests-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/partner-certification-requests-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/partner-certification-requests-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/partner-certification-requests-page.tsx:import { Checkbox } from '@/components/ui/checkbox';
+client/src/pages/partner-certification-requests-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/partner-certification-requests-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/partner-certification-requests-page.tsx:import { queryClient, apiRequest } from '@/lib/query-client';
+client/src/pages/partner-certification-requests-page.tsx:import React, { useState } from 'react';
+client/src/pages/partner-certification-requests-page.tsx:import { ScrollArea } from '@/components/ui/scroll-area';
+client/src/pages/partner-certification-requests-page.tsx:import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+client/src/pages/partner-certification-requests-page.tsx:import { Textarea } from '@/components/ui/textarea';
+client/src/pages/partner-certification-requests-page.tsx:import { useForm } from 'react-hook-form';
+client/src/pages/partner-certification-requests-page.tsx:import { useQuery, useMutation } from '@tanstack/react-query';
+client/src/pages/partner-certification-requests-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/partner-certification-requests-page.tsx:import { z } from 'zod';
+client/src/pages/partner-certification-requests-page.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/pages/partner-dashboard.tsx:import { ActivityFeed } from '@/components/dashboard/activity-feed';
+client/src/pages/partner-dashboard.tsx:import { apiRequest } from '@/lib/query-client';
+client/src/pages/partner-dashboard.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/partner-dashboard.tsx:import { AreaChart, Calendar, CheckCircle, FileText, Users } from 'lucide-react';
+client/src/pages/partner-dashboard.tsx:import { DashboardCard } from '@/components/dashboard/dashboard-card';
+client/src/pages/partner-dashboard.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/partner-dashboard.tsx:import { PopularCourses } from '@/components/dashboard/popular-courses';
+client/src/pages/partner-dashboard.tsx:import React from 'react';
+client/src/pages/partner-dashboard.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/pages/partner-payments-page.tsx:import {
+client/src/pages/partner-payments-page.tsx:import { apiRequest, queryClient } from '@/lib/queryClient';
+client/src/pages/partner-payments-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/partner-payments-page.tsx:import { ArrowLeft } from 'lucide-react';
+client/src/pages/partner-payments-page.tsx:import * as z from 'zod';
+client/src/pages/partner-payments-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/partner-payments-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/partner-payments-page.tsx:import { format } from 'date-fns';
+client/src/pages/partner-payments-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/partner-payments-page.tsx:import { Label } from '@/components/ui/label';
+client/src/pages/partner-payments-page.tsx:import { Loader2, Calendar, FileText, AlertTriangle, CheckCircle2, Clock, DownloadCloud, ExternalLink } from 'lucide-react';
+client/src/pages/partner-payments-page.tsx:import { ptBR } from 'date-fns/locale';
+client/src/pages/partner-payments-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+client/src/pages/partner-payments-page.tsx:import { toast } from '@/hooks/use-toast';
+client/src/pages/partner-payments-page.tsx:import { useForm } from 'react-hook-form';
+client/src/pages/partner-payments-page.tsx:import { useLocation } from 'wouter';
+client/src/pages/partner-payments-page.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/pages/partner-payments-page.tsx:import { useState } from 'react';
+client/src/pages/partner-payments-page.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/pages/partner-register-student-page.tsx:import { 
+client/src/pages/partner-register-student-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/partner-register-student-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/partner-register-student-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/partner-register-student-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/partner-register-student-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/partner-register-student-page.tsx:import { queryClient, apiRequest } from '@/lib/query-client';
+client/src/pages/partner-register-student-page.tsx:import React from 'react';
+client/src/pages/partner-register-student-page.tsx:import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+client/src/pages/partner-register-student-page.tsx:import { useForm } from 'react-hook-form';
+client/src/pages/partner-register-student-page.tsx:import { useQuery, useMutation } from '@tanstack/react-query';
+client/src/pages/partner-register-student-page.tsx:import { User, AlertCircle, Save } from 'lucide-react';
+client/src/pages/partner-register-student-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/partner-register-student-page.tsx:import { z } from 'zod';
+client/src/pages/partner-register-student-page.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/pages/partner-student-documents-page.tsx:import { 
+client/src/pages/partner-student-documents-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/partner-student-documents-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/partner-student-documents-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/partner-student-documents-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/partner-student-documents-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/partner-student-documents-page.tsx:import { Input } from '@/components/ui/input';
+client/src/pages/partner-student-documents-page.tsx:import { queryClient, apiRequest } from '@/lib/query-client';
+client/src/pages/partner-student-documents-page.tsx:import React, { useState } from 'react';
+client/src/pages/partner-student-documents-page.tsx:import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+client/src/pages/partner-student-documents-page.tsx:import { Textarea } from '@/components/ui/textarea';
+client/src/pages/partner-student-documents-page.tsx:import { useForm } from 'react-hook-form';
+client/src/pages/partner-student-documents-page.tsx:import { useQuery, useMutation } from '@tanstack/react-query';
+client/src/pages/partner-student-documents-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/partner-student-documents-page.tsx:import { z } from 'zod';
+client/src/pages/partner-student-documents-page.tsx:import { zodResolver } from '@hookform/resolvers/zod';
+client/src/pages/student/contracts-page.tsx:import {
+client/src/pages/student/contracts-page.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/pages/student/contracts-page.tsx:import { AppShell } from "../../components/layout/app-shell";
+client/src/pages/student/contracts-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/student/contracts-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/student/contracts-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/student/contracts-page.tsx:import { Eye, FileText, Check } from "lucide-react";
+client/src/pages/student/contracts-page.tsx:import { format } from "date-fns";
+client/src/pages/student/contracts-page.tsx:import { ptBR } from "date-fns/locale";
+client/src/pages/student/contracts-page.tsx:import { useQuery, useQueryClient } from "@tanstack/react-query";
+client/src/pages/student/contracts-page.tsx:import { useState } from "react";
+client/src/pages/student/contracts-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/student-course-details-page.tsx:import { 
+client/src/pages/student-course-details-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/student-course-details-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/student-course-details-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/student-course-details-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/student-course-details-page.tsx:import { getQueryFn } from "@/lib/queryClient";
+client/src/pages/student-course-details-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/student-course-details-page.tsx:import { Progress } from "@/components/ui/progress";
+client/src/pages/student-course-details-page.tsx:import React, { useState } from "react";
+client/src/pages/student-course-details-page.tsx:import { Separator } from "@/components/ui/separator";
+client/src/pages/student-course-details-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/student-course-details-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/pages/student-course-details-page.tsx:import { useParams, Link } from "wouter";
+client/src/pages/student-course-details-page.tsx:import { usePortal } from "@/hooks/use-portal";
+client/src/pages/student-course-details-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/student-courses-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/student-courses-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/student-courses-page.tsx:import { BookOpen, Grid3X3, List, Search, GraduationCap } from "lucide-react";
+client/src/pages/student-courses-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/student-courses-page.tsx:import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/student-courses-page.tsx:import { formatCurrency, truncateText } from "@/lib/utils";
+client/src/pages/student-courses-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/student-courses-page.tsx:import { Input } from "@/components/ui/input";
+client/src/pages/student-courses-page.tsx:import { Link } from "wouter";
+client/src/pages/student-courses-page.tsx:import { Progress } from "@/components/ui/progress";
+client/src/pages/student-courses-page.tsx:import React, { useState } from "react";
+client/src/pages/student-courses-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/student-courses-page.tsx:import { usePortal } from "@/hooks/use-portal";
+client/src/pages/student-courses-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/student-create-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/student-create-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/student-create-page.tsx:import { ArrowLeft } from 'lucide-react';
+client/src/pages/student-create-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/student-create-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/student-create-page.tsx:import React from 'react';
+client/src/pages/student-create-page.tsx:import { StudentForm } from '@/components/students/student-form';
+client/src/pages/student-create-page.tsx:import { useLocation } from 'wouter';
+client/src/pages/student-create-page.tsx:import { useMutation } from '@tanstack/react-query';
+client/src/pages/student-create-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/student-create-page.tsx:import { User } from '@shared/schema';
+client/src/pages/student-create-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/student-dashboard.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/pages/student-dashboard.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/student-dashboard.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/student-dashboard.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/student-dashboard.tsx:import { Calendar, Clock, BookOpen, GraduationCap, CreditCard, Bell, CalendarRange } from "lucide-react";
+client/src/pages/student-dashboard.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/student-dashboard.tsx:import { Link } from "wouter";
+client/src/pages/student-dashboard.tsx:import { Progress } from "@/components/ui/progress";
+client/src/pages/student-dashboard.tsx:import { useEffect, useState } from "react";
+client/src/pages/student-dashboard.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/student-dashboard.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/student-details-page.tsx:import { 
+client/src/pages/student-details-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/student-details-page.tsx:import { ArrowLeft, Loader2, GraduationCap, User, CalendarRange, Pencil } from 'lucide-react';
+client/src/pages/student-details-page.tsx:import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+client/src/pages/student-details-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/student-details-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/student-details-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/student-details-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/student-details-page.tsx:import React from 'react';
+client/src/pages/student-details-page.tsx:import { useLocation, useParams, Link } from 'wouter';
+client/src/pages/student-details-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/student-details-page.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/pages/student-details-page.tsx:import { User as UserType, ClassEnrollment } from '@shared/schema';
+client/src/pages/student-details-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/student-documents-page.tsx:import {
+client/src/pages/student-documents-page.tsx:import { AlertCircle, Calendar, Clock, Download, File, FileCheck, FilePlus, FileText, Upload, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+client/src/pages/student-documents-page.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/pages/student-documents-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/student-documents-page.tsx:import * as z from "zod";
+client/src/pages/student-documents-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/student-documents-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/student-documents-page.tsx:import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/student-documents-page.tsx:import { Helmet } from "react-helmet";
+client/src/pages/student-documents-page.tsx:import React, { useState, useRef } from "react";
+client/src/pages/student-documents-page.tsx:import { Separator } from "@/components/ui/separator";
+client/src/pages/student-documents-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/student-documents-page.tsx:import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+client/src/pages/student-documents-page.tsx:import { Textarea } from "@/components/ui/textarea";
+client/src/pages/student-documents-page.tsx:import { useForm } from "react-hook-form";
+client/src/pages/student-documents-page.tsx:import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+client/src/pages/student-documents-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/student-documents-page.tsx:import { zodResolver } from "@hookform/resolvers/zod";
+client/src/pages/student-edit-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/student-edit-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/student-edit-page.tsx:import { ArrowLeft, Loader2 } from 'lucide-react';
+client/src/pages/student-edit-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/student-edit-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/student-edit-page.tsx:import React from 'react';
+client/src/pages/student-edit-page.tsx:import { StudentForm } from '@/components/students/student-form';
+client/src/pages/student-edit-page.tsx:import { useLocation, useParams } from 'wouter';
+client/src/pages/student-edit-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/student-edit-page.tsx:import { useQuery, useMutation } from '@tanstack/react-query';
+client/src/pages/student-edit-page.tsx:import { User } from '@shared/schema';
+client/src/pages/student-edit-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/students-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/students-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/students-page.tsx:import React from 'react';
+client/src/pages/students-page.tsx:import { StudentsList } from '@/components/students/students-list';
+client/src/pages/subject-create-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/subject-create-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/subject-create-page.tsx:import { ArrowLeft } from 'lucide-react';
+client/src/pages/subject-create-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/subject-create-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/subject-create-page.tsx:import React from 'react';
+client/src/pages/subject-create-page.tsx:import { SubjectForm } from '@/components/subjects/subject-form';
+client/src/pages/subject-create-page.tsx:import { useLocation } from 'wouter';
+client/src/pages/subject-create-page.tsx:import { useMutation, useQueryClient } from '@tanstack/react-query';
+client/src/pages/subject-create-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/subject-create-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/subject-details-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/subject-details-page.tsx:import { ArrowLeft, Pencil, Clock, BookOpen, CheckCircle, XCircle } from 'lucide-react';
+client/src/pages/subject-details-page.tsx:import { Badge } from '@/components/ui/badge';
+client/src/pages/subject-details-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/subject-details-page.tsx:import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+client/src/pages/subject-details-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/subject-details-page.tsx:import React from 'react';
+client/src/pages/subject-details-page.tsx:import { Separator } from '@/components/ui/separator';
+client/src/pages/subject-details-page.tsx:import { useLocation, useParams } from 'wouter';
+client/src/pages/subject-details-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/subject-details-page.tsx:import { useQuery } from '@tanstack/react-query';
+client/src/pages/subject-edit-page.tsx:import { apiRequest } from '@/lib/queryClient';
+client/src/pages/subject-edit-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/subject-edit-page.tsx:import { ArrowLeft } from 'lucide-react';
+client/src/pages/subject-edit-page.tsx:import { Button } from '@/components/ui/button';
+client/src/pages/subject-edit-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/subject-edit-page.tsx:import React from 'react';
+client/src/pages/subject-edit-page.tsx:import { SubjectForm } from '@/components/subjects/subject-form';
+client/src/pages/subject-edit-page.tsx:import { useLocation, useParams } from 'wouter';
+client/src/pages/subject-edit-page.tsx:import { useMutation, useQuery } from '@tanstack/react-query';
+client/src/pages/subject-edit-page.tsx:import { usePortal } from '@/hooks/use-portal';
+client/src/pages/subject-edit-page.tsx:import { useToast } from '@/hooks/use-toast';
+client/src/pages/subjects-page.tsx:import { AppShell } from '@/components/layout/app-shell';
+client/src/pages/subjects-page.tsx:import { Helmet } from 'react-helmet';
+client/src/pages/subjects-page.tsx:import React from 'react';
+client/src/pages/subjects-page.tsx:import { SubjectsList } from '@/components/subjects/subjects-list';
+client/src/pages/teacher-create-page.tsx:import { apiRequest } from "@/lib/queryClient";
+client/src/pages/teacher-create-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/teacher-create-page.tsx:import TeacherForm from "@/components/teachers/teacher-form";
+client/src/pages/teacher-create-page.tsx:import { useLocation } from "wouter";
+client/src/pages/teacher-create-page.tsx:import { useState } from "react";
+client/src/pages/teacher-create-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/teacher-dashboard.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/teacher-dashboard.tsx:import { TeacherDashboardContent } from "@/components/teacher/teacher-dashboard-content";
+client/src/pages/teacher-details-page.tsx:import {
+client/src/pages/teacher-details-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/teacher-details-page.tsx:import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+client/src/pages/teacher-details-page.tsx:import { Badge } from "@/components/ui/badge";
+client/src/pages/teacher-details-page.tsx:import { Button } from "@/components/ui/button";
+client/src/pages/teacher-details-page.tsx:import { CalendarDays, Edit, ArrowLeft, BookOpen } from "lucide-react";
+client/src/pages/teacher-details-page.tsx:import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+client/src/pages/teacher-details-page.tsx:import { Class } from "@shared/schema";
+client/src/pages/teacher-details-page.tsx:import { format } from "date-fns";
+client/src/pages/teacher-details-page.tsx:import { Link } from "wouter";
+client/src/pages/teacher-details-page.tsx:import { ptBR } from "date-fns/locale";
+client/src/pages/teacher-details-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/teacher-details-page.tsx:import { useEffect, useState } from "react";
+client/src/pages/teacher-details-page.tsx:import { useLocation } from "wouter";
+client/src/pages/teacher-details-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/teacher-details-page.tsx:import { User } from "@shared/schema";
+client/src/pages/teacher-details-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/teacher-edit-page.tsx:import { apiRequest, queryClient } from "@/lib/queryClient";
+client/src/pages/teacher-edit-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/teacher-edit-page.tsx:import { Skeleton } from "@/components/ui/skeleton";
+client/src/pages/teacher-edit-page.tsx:import TeacherForm from "@/components/teachers/teacher-form";
+client/src/pages/teacher-edit-page.tsx:import { useLocation } from "wouter";
+client/src/pages/teacher-edit-page.tsx:import { useQuery } from "@tanstack/react-query";
+client/src/pages/teacher-edit-page.tsx:import { User } from "@shared/schema";
+client/src/pages/teacher-edit-page.tsx:import { useState, useEffect } from "react";
+client/src/pages/teacher-edit-page.tsx:import { useToast } from "@/hooks/use-toast";
+client/src/pages/teachers-page.tsx:import { AppShell } from "@/components/layout/app-shell";
+client/src/pages/teachers-page.tsx:import TeachersList from "@/components/teachers/teachers-list";
+server/admin-document-routes.ts:import fs from 'fs';
+server/admin-document-routes.ts:import { Router, Request, Response } from 'express';
+server/admin-document-routes.ts:import { storage } from './database-storage';
+server/admin-document-routes.ts:import { z } from 'zod';
+server/admin-payment-routes.ts:import { db } from './db';
+server/admin-payment-routes.ts:import { Router, Request, Response, NextFunction } from 'express';
+server/admin-routes.ts:import fs from 'fs';
+server/admin-routes.ts:import path from 'path';
+server/admin-routes.ts:import { Router, Request, Response, NextFunction } from 'express';
+server/admin-routes.ts:import { storage } from './database-storage';
+server/admin-routes.ts:import { z } from 'zod';
+server/auth.ts:import createMemoryStore from "memorystore";
+server/auth.ts:import { Express } from "express";
+server/auth.ts:import passport from "passport";
+server/auth.ts:import { promisify } from "util";
+server/auth.ts:import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+server/auth.ts:import session from "express-session";
+server/auth.ts:import { storage } from "./database-storage";
+server/auth.ts:import { Strategy as LocalStrategy } from "passport-local";
+server/auth.ts:import { User as SelectUser } from "@shared/schema";
+server/certificate-routes.ts:import { Router, Request, Response, NextFunction } from 'express';
+server/certificate-routes.ts:import { storage } from './database-storage';
+server/contract-routes.ts:import { contractService } from './services/contract-service';
+server/contract-routes.ts:import { Router } from 'express';
+server/contract-routes.ts:import { storage } from './database-storage';
+server/database-storage.ts:import { 
+server/database-storage.ts:import connectPg from "connect-pg-simple";
+server/database-storage.ts:import { db } from "./db";
+server/database-storage.ts:import { eq, and, desc, sql, inArray, like, or, isNull, isNotNull } from "drizzle-orm";
+server/database-storage.ts:import { pool } from "./db";
+server/database-storage.ts:import session from "express-session";
+server/db.ts:import * as schema from "@shared/schema";
+server/db.ts:import { drizzle } from 'drizzle-orm/neon-serverless';
+server/db.ts:import { Pool, neonConfig } from '@neondatabase/serverless';
+server/db.ts:import ws from "ws";
+server/index.ts:import { enrollmentMonitoringService } from "./services/enrollment-monitoring-service";
+server/index.ts:import express, { type Request, Response, NextFunction } from "express";
+server/index.ts:import { notificationService } from "./services/notification-service";
+server/index.ts:import { registerRoutes } from "./routes";
+server/index.ts:import { setupVite, serveStatic, log } from "./vite";
+server/index.ts:import { simplifiedEnrollmentMonitoring } from "./services/simplified-enrollment-monitoring";
+server/partner-routes.ts:import fs from 'fs';
+server/partner-routes.ts:import multer from 'multer';
+server/partner-routes.ts:import path from 'path';
+server/partner-routes.ts:import { paymentService } from './services/payment-service';
+server/partner-routes.ts:import { Router, Request, Response, NextFunction } from 'express';
+server/partner-routes.ts:import { storage } from './database-storage';
+server/routes.ts:import { 
+server/routes.ts:import { adminDocumentRouter } from "./admin-document-routes";
+server/routes.ts:import { adminPaymentRouter } from "./admin-payment-routes";
+server/routes.ts:import { adminRouter } from "./admin-routes";
+server/routes.ts:import { certificateRouter } from "./certificate-routes";
+server/routes.ts:import contractRouter from "./contract-routes";
+server/routes.ts:import { createServer, type Server } from "http";
+server/routes.ts:import { db } from "./db";
+server/routes.ts:import { log } from "./vite";
+server/routes.ts:import { notificationService } from "./services/notification-service";
+server/routes.ts:import { partnerRouter } from "./partner-routes";
+server/routes.ts:import { setupAuth } from "./auth";
+server/routes.ts:import simplifiedEnrollmentRouter from "./simplified-enrollment-routes";
+server/routes.ts:import { sql } from "drizzle-orm";
+server/routes.ts:import { storage } from "./database-storage";
+server/routes.ts:import { studentRouter } from "./student-routes";
+server/routes.ts:import { tenants, users } from "@shared/schema";
+server/routes.ts:import { testDatabaseConnection } from "./db";
+server/routes.ts:import type { Express } from "express";
+server/routes.ts:import { z } from "zod";
+server/services/contract-service.ts:import { InsertEducationalContract, type SimplifiedEnrollment, type Course, type User } from '../../shared/schema';
+server/services/contract-service.ts:import { storage } from '../database-storage';
+server/services/enrollment-monitoring-service.ts:import { paymentService } from './payment-service';
+server/services/enrollment-monitoring-service.ts:import { simplifiedEnrollmentStatusEnum } from '@shared/schema';
+server/services/enrollment-monitoring-service.ts:import { storage } from '../database-storage';
+server/services/notification-service.ts:import twilio from 'twilio';
+server/services/payment-service.ts:import axios from 'axios';
+server/services/simplified-enrollment-monitoring.ts:import { paymentService } from './payment-service';
+server/services/simplified-enrollment-monitoring.ts:import { storage } from '../database-storage';
+server/services/simplified-enrollment-monitoring.ts:import { type SimplifiedEnrollment } from '../../shared/schema';
+server/simplified-enrollment-routes.ts:import { contractService } from './services/contract-service';
+server/simplified-enrollment-routes.ts:import { insertSimplifiedEnrollmentSchema } from '@shared/schema';
+server/simplified-enrollment-routes.ts:import { paymentService } from './services/payment-service';
+server/simplified-enrollment-routes.ts:import { Router } from 'express';
+server/simplified-enrollment-routes.ts:import { storage } from './database-storage';
+server/simplified-enrollment-routes.ts:import { z } from 'zod';
+server/student-routes.ts:import fs from 'fs';
+server/student-routes.ts:import multer from 'multer';
+server/student-routes.ts:import path from 'path';
+server/student-routes.ts:import { Router, Request, Response, NextFunction } from 'express';
+server/student-routes.ts:import { storage } from './database-storage';
+server/student-routes.ts:import { z } from 'zod';
+server/vite.ts:import { createServer as createViteServer, createLogger } from "vite";
+server/vite.ts:import express, { type Express } from "express";
+server/vite.ts:import fs from "fs";
+server/vite.ts:import { nanoid } from "nanoid";
+server/vite.ts:import path from "path";
+server/vite.ts:import { type Server } from "http";
+server/vite.ts:import viteConfig from "../vite.config";
