@@ -1,15 +1,23 @@
-import { Router, Request, Response } from 'express';
-import { isAdmin, isAdminOrHub } from './routes';
-import { db } from './storage';
+import { Router, Request, Response, NextFunction } from 'express';
+import { db } from './db';
 import { eq, and } from 'drizzle-orm';
-import { leads } from '../shared/schema';
+import { leads, courses, users } from '../shared/schema';
 
 export const leadRouter = Router();
 
 // Middleware para verificar autenticação
-function isAuthenticated(req: Request, res: Response, next: Function) {
+function isAuthenticated(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: 'Não autorizado' });
+  }
+  next();
+}
+
+// Middleware para verificar se o usuário é admin ou hub
+function isAdminOrHub(req: Request, res: Response, next: NextFunction) {
+  const user = req.user as any;
+  if (user.role !== 'admin' && user.role !== 'educational_center') {
+    return res.status(403).json({ error: 'Acesso negado. Apenas administradores e centros educacionais podem acessar este recurso.' });
   }
   next();
 }
@@ -67,10 +75,10 @@ leadRouter.post('/leads', isAuthenticated, isAdminOrHub, async (req: Request, re
     }
     
     // Verificar se o lead já existe
-    const existingLead = await db.query.lead.findFirst({
+    const existingLead = await db.query.leads.findFirst({
       where: and(
-        eq(lead.email, email),
-        eq(lead.tenantId, tenantId)
+        eq(leads.email, email),
+        eq(leads.tenantId, tenantId)
       )
     });
     
@@ -79,7 +87,7 @@ leadRouter.post('/leads', isAuthenticated, isAdminOrHub, async (req: Request, re
     }
     
     // Criar novo lead
-    const newLead = await db.insert(lead).values({
+    const newLead = await db.insert(leads).values({
       tenantId,
       name,
       email,
@@ -111,10 +119,10 @@ leadRouter.put('/leads/:id', isAuthenticated, isAdminOrHub, async (req: Request,
     const tenantId = user.tenantId;
     
     // Verificar se o lead existe
-    const existingLead = await db.query.lead.findFirst({
+    const existingLead = await db.query.leads.findFirst({
       where: and(
-        eq(lead.id, parseInt(id)),
-        eq(lead.tenantId, tenantId)
+        eq(leads.id, parseInt(id)),
+        eq(leads.tenantId, tenantId)
       )
     });
     
@@ -123,7 +131,7 @@ leadRouter.put('/leads/:id', isAuthenticated, isAdminOrHub, async (req: Request,
     }
     
     // Atualizar lead
-    const updatedLead = await db.update(lead)
+    const updatedLead = await db.update(leads)
       .set({
         name,
         email,
@@ -135,7 +143,7 @@ leadRouter.put('/leads/:id', isAuthenticated, isAdminOrHub, async (req: Request,
         assignedTo,
         updatedAt: new Date()
       })
-      .where(eq(lead.id, parseInt(id)))
+      .where(eq(leads.id, parseInt(id)))
       .returning();
     
     return res.status(200).json(updatedLead[0]);
