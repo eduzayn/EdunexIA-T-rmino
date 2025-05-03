@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { leads, courses, users } from '../shared/schema';
 
 export const leadRouter = Router();
@@ -32,30 +32,54 @@ leadRouter.get('/leads', isAuthenticated, isAdminOrHub, async (req: Request, res
     // Buscar leads associados ao tenant do usuário
     const leadsData = await db.query.leads.findMany({
       where: eq(leads.tenantId, tenantId),
-      with: {
-        course: true,
-        assignedToUser: true
-      },
       orderBy: (lead, { desc }) => [desc(lead.createdAt)]
     });
     
+    // Buscar cursos associados
+    const courseIds = leadsData.filter(l => l.courseInterest !== null).map(l => l.courseInterest as number);
+    const coursesData = courseIds.length > 0 
+      ? await db.query.courses.findMany({
+          where: inArray(courses.id, courseIds)
+        })
+      : [];
+      
+    // Buscar usuários associados (assigned to)
+    const userIds = leadsData.filter(l => l.assignedTo !== null).map(l => l.assignedTo as number);
+    const usersData = userIds.length > 0
+      ? await db.query.users.findMany({
+          where: inArray(users.id, userIds)
+        })
+      : [];
+    
     // Formatar os leads para enviar ao cliente
-    const formattedLeads = leadsData.map(l => ({
-      id: l.id,
-      tenantId: l.tenantId,
-      name: l.name,
-      email: l.email,
-      phone: l.phone,
-      courseInterest: l.courseInterest,
-      courseName: l.course?.name,
-      status: l.status,
-      source: l.source,
-      notes: l.notes,
-      assignedTo: l.assignedTo,
-      assignedToName: l.assignedToUser?.fullName,
-      createdAt: l.createdAt,
-      updatedAt: l.updatedAt
-    }));
+    const formattedLeads = leadsData.map(l => {
+      // Encontrar o curso associado, se houver
+      const relatedCourse = l.courseInterest 
+        ? coursesData.find(c => c.id === l.courseInterest) 
+        : null;
+        
+      // Encontrar o usuário associado, se houver
+      const relatedUser = l.assignedTo 
+        ? usersData.find(u => u.id === l.assignedTo) 
+        : null;
+      
+      return {
+        id: l.id,
+        tenantId: l.tenantId,
+        name: l.name,
+        email: l.email,
+        phone: l.phone,
+        courseInterest: l.courseInterest,
+        courseName: relatedCourse ? relatedCourse.title : null,
+        status: l.status,
+        source: l.source,
+        notes: l.notes,
+        assignedTo: l.assignedTo,
+        assignedToName: relatedUser ? relatedUser.fullName : null,
+        createdAt: l.createdAt,
+        updatedAt: l.updatedAt
+      };
+    });
 
     return res.status(200).json(formattedLeads);
   } catch (error: any) {
@@ -163,10 +187,10 @@ leadRouter.delete('/leads/:id', isAuthenticated, isAdminOrHub, async (req: Reque
     const tenantId = user.tenantId;
     
     // Verificar se o lead existe
-    const existingLead = await db.query.lead.findFirst({
+    const existingLead = await db.query.leads.findFirst({
       where: and(
-        eq(lead.id, parseInt(id)),
-        eq(lead.tenantId, tenantId)
+        eq(leads.id, parseInt(id)),
+        eq(leads.tenantId, tenantId)
       )
     });
     
@@ -175,7 +199,7 @@ leadRouter.delete('/leads/:id', isAuthenticated, isAdminOrHub, async (req: Reque
     }
     
     // Excluir lead
-    await db.delete(lead).where(eq(lead.id, parseInt(id)));
+    await db.delete(leads).where(eq(leads.id, parseInt(id)));
     
     return res.status(200).json({ message: 'Lead excluído com sucesso' });
   } catch (error: any) {
