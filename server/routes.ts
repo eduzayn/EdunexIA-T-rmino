@@ -1656,6 +1656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Adicionar rotas de matrícula simplificada
   app.use('/api', simplifiedEnrollmentRouter);
   app.use('/api', contractRouter);
+  app.use('/api', leadRouter);
   
   // Rota de teste para envio de SMS (apenas para ambiente de desenvolvimento e admins)
   app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {
