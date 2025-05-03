@@ -27,6 +27,14 @@ export const leadStatusEnum = pgEnum('lead_status', [
   'new', 'contacted', 'qualified', 'converted', 'lost'
 ]);
 
+export const opportunityStatusEnum = pgEnum('opportunity_status', [
+  'open', 'negotiation', 'won', 'lost', 'cancelled'
+]);
+
+export const campaignStatusEnum = pgEnum('campaign_status', [
+  'draft', 'scheduled', 'active', 'paused', 'completed', 'cancelled'
+]);
+
 export const classStatusEnum = pgEnum('class_status', [
   'scheduled', 'in_progress', 'completed', 'cancelled'
 ]);
@@ -187,6 +195,43 @@ export const leads = pgTable('leads', {
   assignedTo: integer('assigned_to').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Opportunities (CRM)
+export const opportunities = pgTable('opportunities', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  leadId: integer('lead_id').references(() => leads.id, { onDelete: 'set null' }),
+  title: text('title').notNull(),
+  courseId: integer('course_id').references(() => courses.id),
+  value: integer('value'), // in cents
+  predictedClosingDate: timestamp('predicted_closing_date'),
+  status: opportunityStatusEnum('status').default('open').notNull(),
+  assignedTo: integer('assigned_to').references(() => users.id),
+  probability: integer('probability').default(50), // percentage 0-100
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  closedAt: timestamp('closed_at'),
+});
+
+// Campaigns (Marketing)
+export const campaigns = pgTable('campaigns', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  name: text('name').notNull(),
+  description: text('description'),
+  type: text('type').notNull(), // email, sms, whatsapp, social_media
+  courseId: integer('course_id').references(() => courses.id),
+  budget: integer('budget'), // in cents
+  status: campaignStatusEnum('status').default('draft').notNull(),
+  audience: json('audience'), // target audience criteria
+  startDate: timestamp('start_date'),
+  endDate: timestamp('end_date'),
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
 });
 
 // AI Knowledge Base
@@ -374,6 +419,28 @@ export type InsertEnrollment = z.infer<typeof insertEnrollmentSchema>;
 
 export type Lead = typeof leads.$inferSelect;
 export type InsertLead = z.infer<typeof insertLeadSchema>;
+
+// Schemas para Opportunities (Oportunidades)
+export const insertOpportunitySchema = createInsertSchema(opportunities).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  closedAt: true,
+});
+
+export type Opportunity = typeof opportunities.$inferSelect;
+export type InsertOpportunity = z.infer<typeof insertOpportunitySchema>;
+
+// Schemas para Campaigns (Campanhas)
+export const insertCampaignSchema = createInsertSchema(campaigns).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+});
+
+export type Campaign = typeof campaigns.$inferSelect;
+export type InsertCampaign = z.infer<typeof insertCampaignSchema>;
 
 // Esquemas e Tipos para Módulos e Aulas
 export const insertModuleSchema = createInsertSchema(modules).omit({

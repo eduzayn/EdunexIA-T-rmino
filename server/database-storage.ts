@@ -6,6 +6,8 @@ import {
   Lesson, InsertLesson,
   Enrollment, InsertEnrollment,
   Lead, InsertLead,
+  Opportunity, InsertOpportunity,
+  Campaign, InsertCampaign,
   Subject, InsertSubject,
   Class, InsertClass,
   ClassEnrollment, InsertClassEnrollment,
@@ -20,7 +22,7 @@ import {
 import { db } from "./db";
 import { eq, and, desc, sql, inArray, like, or, isNull, isNotNull } from "drizzle-orm";
 import { 
-  users, tenants, courses, modules, lessons, enrollments, leads, subjects,
+  users, tenants, courses, modules, lessons, enrollments, leads, opportunities, campaigns, subjects,
   lessonProgress, payments, classes, classEnrollments,
   aiKnowledgeBase, productivityLogs, assessments, assessmentResults,
   simplifiedEnrollments, educationalContracts, documentTypes, studentDocuments,
@@ -121,6 +123,20 @@ export interface IStorage {
   // Lead operations
   getLeadsByTenant(tenantId: number): Promise<Lead[]>;
   createLead(lead: InsertLead): Promise<Lead>;
+  
+  // Opportunity operations
+  getOpportunitiesByTenant(tenantId: number): Promise<Opportunity[]>;
+  getOpportunityById(id: number): Promise<Opportunity | undefined>;
+  createOpportunity(opportunity: InsertOpportunity): Promise<Opportunity>;
+  updateOpportunity(id: number, opportunityData: Partial<InsertOpportunity>): Promise<Opportunity>;
+  deleteOpportunity(id: number): Promise<boolean>;
+  
+  // Campaign operations
+  getCampaignsByTenant(tenantId: number): Promise<Campaign[]>;
+  getCampaignById(id: number): Promise<Campaign | undefined>;
+  createCampaign(campaign: InsertCampaign): Promise<Campaign>;
+  updateCampaign(id: number, campaignData: Partial<InsertCampaign>): Promise<Campaign>;
+  deleteCampaign(id: number): Promise<boolean>;
   
   // Dashboard statistics
   getDashboardStats(tenantId: number): Promise<any>;
