@@ -35,8 +35,8 @@ export function truncateText(text: string, maxLength: number): string {
  * @param filename Nome do arquivo a ser baixado
  * @param headers Cabeçalhos personalizados (opcional)
  */
-export function exportToCSV<T extends Record<string, any>>(
-  data: T[],
+export function exportToCSV(
+  data: any[],
   filename: string,
   headers?: Record<string, string>
 ): void {

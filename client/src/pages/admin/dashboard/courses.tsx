@@ -41,6 +41,12 @@ export default function DashboardCoursesPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [isMounted, setIsMounted] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [minRating, setMinRating] = useState<string>("");
+  const [instructorFilter, setInstructorFilter] = useState<string>("");
+  const [, navigate] = useLocation();
 
   // Consulta para obter dados de cursos
   const { data: coursesData, isLoading } = useQuery<{
@@ -135,6 +141,37 @@ export default function DashboardCoursesPage() {
 
   if (!isMounted) return null;
 
+  // Função para exportar cursos para CSV
+  const handleExportCourses = () => {
+    if (!filteredCourses.length) return;
+    
+    // Traduzir campos para português e formatar dados
+    const exportData = filteredCourses.map(course => ({
+      ID: course.id,
+      Título: course.title,
+      Categoria: course.category,
+      Alunos: course.enrolledStudents,
+      'Taxa de Conclusão': `${course.completionRate}%`,
+      Status: course.status === 'active' ? 'Ativo' : 
+              course.status === 'draft' ? 'Rascunho' : 
+              course.status === 'archived' ? 'Arquivado' : 'Agendado',
+      Preço: formatCurrency(course.price),
+      Avaliação: course.rating.toFixed(1),
+      'Data de Criação': course.createdAt,
+      'Última Atualização': course.lastUpdated,
+      Instrutor: course.instructor
+    }));
+    
+    // Nome do arquivo baseado na data atual
+    const today = new Date().toISOString().split('T')[0];
+    exportToCSV(exportData, `cursos-${today}`);
+  };
+  
+  // Função para redirecionar para página de novo curso
+  const handleNewCourse = () => {
+    navigate("/course-create-page");
+  };
+
   // Filtrar cursos com base no termo de busca e filtros selecionados
   const filteredCourses = coursesData?.courses.filter(course => {
     // Filtro de pesquisa
@@ -152,7 +189,16 @@ export default function DashboardCoursesPage() {
       (tab === "arquivados" && course.status === "archived") ||
       (tab === "agendados" && course.status === "scheduled");
     
-    return matchesSearch && matchesCategory && matchesTab;
+    // Filtros avançados
+    const matchesInstructor = !instructorFilter || 
+      course.instructor.toLowerCase().includes(instructorFilter.toLowerCase());
+    
+    const matchesMinPrice = !minPrice || course.price >= parseFloat(minPrice) * 100;
+    const matchesMaxPrice = !maxPrice || course.price <= parseFloat(maxPrice) * 100;
+    const matchesMinRating = !minRating || course.rating >= parseFloat(minRating);
+    
+    return matchesSearch && matchesCategory && matchesTab && 
+           matchesInstructor && matchesMinPrice && matchesMaxPrice && matchesMinRating;
   }) || [];
 
   // Renderizar esqueletos de carregamento
@@ -225,11 +271,11 @@ export default function DashboardCoursesPage() {
             </div>
             
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleExportCourses}>
                 <Download className="h-4 w-4 mr-2" />
                 Exportar
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={handleNewCourse}>
                 <FilePlus className="h-4 w-4 mr-2" />
                 Novo Curso
               </Button>
@@ -393,10 +439,93 @@ export default function DashboardCoursesPage() {
                   </Select>
                 </div>
                 
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Filter className="h-4 w-4" />
-                  Mais filtros
-                </Button>
+                <Dialog open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <SlidersHorizontal className="h-4 w-4" />
+                      Mais filtros
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Filtros Avançados</DialogTitle>
+                      <DialogDescription>
+                        Refine sua busca com filtros adicionais
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="min-price">Preço Mínimo (R$)</Label>
+                          <Input
+                            id="min-price"
+                            placeholder="0,00"
+                            value={minPrice}
+                            onChange={(e) => setMinPrice(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="max-price">Preço Máximo (R$)</Label>
+                          <Input
+                            id="max-price"
+                            placeholder="1.000,00"
+                            value={maxPrice}
+                            onChange={(e) => setMaxPrice(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="instructor-filter">Instrutor</Label>
+                        <Input
+                          id="instructor-filter"
+                          placeholder="Nome do instrutor"
+                          value={instructorFilter}
+                          onChange={(e) => setInstructorFilter(e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="min-rating">Avaliação Mínima</Label>
+                        <Select 
+                          value={minRating} 
+                          onValueChange={setMinRating}
+                        >
+                          <SelectTrigger id="min-rating">
+                            <SelectValue placeholder="Qualquer avaliação" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Qualquer avaliação</SelectItem>
+                            <SelectItem value="5">5 estrelas</SelectItem>
+                            <SelectItem value="4">4+ estrelas</SelectItem>
+                            <SelectItem value="3">3+ estrelas</SelectItem>
+                            <SelectItem value="2">2+ estrelas</SelectItem>
+                            <SelectItem value="1">1+ estrela</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <DialogFooter>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setMinPrice("");
+                          setMaxPrice("");
+                          setMinRating("");
+                          setInstructorFilter("");
+                          setShowAdvancedFilters(false);
+                        }}
+                      >
+                        Limpar Filtros
+                      </Button>
+                      <Button onClick={() => setShowAdvancedFilters(false)}>
+                        Aplicar Filtros
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             
