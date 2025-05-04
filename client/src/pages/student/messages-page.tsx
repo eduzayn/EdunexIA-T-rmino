@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MailIcon, PlusIcon, EyeIcon, ArchiveIcon, TrashIcon, RefreshIcon, SendIcon, SearchIcon, CheckIcon } from "lucide-react";
+import { MailIcon, PlusIcon, EyeIcon, ArchiveIcon, TrashIcon, RefreshCwIcon, SendIcon, SearchIcon, CheckIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -160,7 +160,7 @@ export default function StudentMessagesPage() {
               />
             </div>
             <Button variant="outline" size="icon" onClick={() => refetch()}>
-              <RefreshIcon className="h-4 w-4" />
+              <RefreshCwIcon className="h-4 w-4" />
             </Button>
             <Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
               <DialogTrigger asChild>

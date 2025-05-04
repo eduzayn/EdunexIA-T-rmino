@@ -21,7 +21,10 @@ import {
   FileText,
   ChevronsLeft,
   ChevronsRight,
-  Menu
+  Menu,
+  Library,
+  MessageSquare,
+  UserCog
 } from "lucide-react";
 
 interface SidebarProps {
@@ -207,22 +210,54 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </Link>
             )}
             
-            {/* Link específico para o dashboard do aluno */}
+            {/* Links específicos para o portal do aluno */}
             {currentPortal.id === 'student' && (
-              <Link 
-                href="/student/dashboard" 
-                className={cn(
-                  "flex items-center text-base font-medium rounded-md transition-colors",
-                  collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
-                  isActive("/student/dashboard") 
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground" 
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                )}
-                title="Meu Dashboard"
-              >
-                <LayoutDashboard className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
-                {!collapsed && "Meu Dashboard"}
-              </Link>
+              <>
+                <Link 
+                  href="/student/dashboard" 
+                  className={cn(
+                    "flex items-center text-base font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
+                    isActive("/student/dashboard") 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                  title="Meu Dashboard"
+                >
+                  <LayoutDashboard className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                  {!collapsed && "Meu Dashboard"}
+                </Link>
+
+                <Link 
+                  href="/student/messages" 
+                  className={cn(
+                    "flex items-center text-base font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
+                    isActive("/student/messages") 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                  title="Mensagens"
+                >
+                  <MessageSquare className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                  {!collapsed && "Mensagens"}
+                </Link>
+
+                <Link 
+                  href="/student/settings" 
+                  className={cn(
+                    "flex items-center text-base font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
+                    isActive("/student/settings") 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                  title="Configurações"
+                >
+                  <UserCog className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                  {!collapsed && "Configurações"}
+                </Link>
+              </>
             )}
 
             {/* Academic Module */}
@@ -296,6 +331,18 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                         )}
                       >
                         Contratos
+                      </Link>
+
+                      <Link 
+                        href={`${currentPortal.baseRoute}/library`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/library`) || location.startsWith(`${currentPortal.baseRoute}/library/`)
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Biblioteca
                       </Link>
                     </>
                   )}
