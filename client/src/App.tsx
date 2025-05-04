@@ -61,6 +61,9 @@ import LeadsPage from "@/pages/admin/leads-page";
 import OpportunitiesPage from "@/pages/admin/opportunities-page";
 import CampaignsPage from "@/pages/admin/campaigns-page";
 import AutomationsPage from "@/pages/admin/automations-page";
+import PaymentsPage from "@/pages/admin/payments-page";
+import SubscriptionsPage from "@/pages/admin/subscriptions-page";
+import BillingPage from "@/pages/admin/billing-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -135,6 +138,11 @@ function Router() {
       <ProtectedRoute path="/admin/opportunities" component={OpportunitiesPage} />
       <ProtectedRoute path="/admin/campaigns" component={CampaignsPage} />
       <ProtectedRoute path="/admin/automations" component={AutomationsPage} />
+      
+      {/* Rotas do Módulo Financeiro */}
+      <ProtectedRoute path="/admin/payments" component={PaymentsPage} />
+      <ProtectedRoute path="/admin/subscriptions" component={SubscriptionsPage} />
+      <ProtectedRoute path="/admin/billing" component={BillingPage} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />

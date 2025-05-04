@@ -758,23 +758,43 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
                 {openGroups.financial && (
                   <div className="pl-9 space-y-1 mt-1">
-                    {/* Módulo financeiro em desenvolvimento */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Pagamentos</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link 
+                      to="/admin/payments" 
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                        location === "/admin/payments"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-item-hover hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Pagamentos
+                    </Link>
                     
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Assinaturas</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link 
+                      to="/admin/subscriptions" 
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                        location === "/admin/subscriptions"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-item-hover hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Assinaturas
+                    </Link>
                     
                     {currentPortal.id === 'admin' && (
                       <>
-                        <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                          <span>Faturamento</span>
-                          <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                        </div>
+                        <Link 
+                          to="/admin/billing" 
+                          className={cn(
+                            "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                            location === "/admin/billing"
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground hover:bg-sidebar-item-hover hover:text-sidebar-foreground"
+                          )}
+                        >
+                          Faturamento
+                        </Link>
                         
                         <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                           <span>Relatórios</span>
