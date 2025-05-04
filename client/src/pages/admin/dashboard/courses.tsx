@@ -141,37 +141,6 @@ export default function DashboardCoursesPage() {
 
   if (!isMounted) return null;
 
-  // Função para exportar cursos para CSV
-  const handleExportCourses = () => {
-    if (!filteredCourses.length) return;
-    
-    // Traduzir campos para português e formatar dados
-    const exportData = filteredCourses.map(course => ({
-      ID: course.id,
-      Título: course.title,
-      Categoria: course.category,
-      Alunos: course.enrolledStudents,
-      'Taxa de Conclusão': `${course.completionRate}%`,
-      Status: course.status === 'active' ? 'Ativo' : 
-              course.status === 'draft' ? 'Rascunho' : 
-              course.status === 'archived' ? 'Arquivado' : 'Agendado',
-      Preço: formatCurrency(course.price),
-      Avaliação: course.rating.toFixed(1),
-      'Data de Criação': course.createdAt,
-      'Última Atualização': course.lastUpdated,
-      Instrutor: course.instructor
-    }));
-    
-    // Nome do arquivo baseado na data atual
-    const today = new Date().toISOString().split('T')[0];
-    exportToCSV(exportData, `cursos-${today}`);
-  };
-  
-  // Função para redirecionar para página de novo curso
-  const handleNewCourse = () => {
-    navigate("/course-create-page");
-  };
-
   // Filtrar cursos com base no termo de busca e filtros selecionados
   const filteredCourses = coursesData?.courses.filter(course => {
     // Filtro de pesquisa
@@ -200,6 +169,8 @@ export default function DashboardCoursesPage() {
     return matchesSearch && matchesCategory && matchesTab && 
            matchesInstructor && matchesMinPrice && matchesMaxPrice && matchesMinRating;
   }) || [];
+
+
 
   // Renderizar esqueletos de carregamento
   if (isLoading) {
@@ -271,11 +242,41 @@ export default function DashboardCoursesPage() {
             </div>
             
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={handleExportCourses}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  if (!filteredCourses.length) return;
+                  
+                  // Traduzir campos para português e formatar dados
+                  const exportData = filteredCourses.map(course => ({
+                    ID: course.id,
+                    Título: course.title,
+                    Categoria: course.category,
+                    Alunos: course.enrolledStudents,
+                    'Taxa de Conclusão': `${course.completionRate}%`,
+                    Status: course.status === 'active' ? 'Ativo' : 
+                            course.status === 'draft' ? 'Rascunho' : 
+                            course.status === 'archived' ? 'Arquivado' : 'Agendado',
+                    Preço: formatCurrency(course.price),
+                    Avaliação: course.rating.toFixed(1),
+                    'Data de Criação': course.createdAt,
+                    'Última Atualização': course.lastUpdated,
+                    Instrutor: course.instructor
+                  }));
+                  
+                  // Nome do arquivo baseado na data atual
+                  const today = new Date().toISOString().split('T')[0];
+                  exportToCSV(exportData, `cursos-${today}`);
+                }}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Exportar
               </Button>
-              <Button size="sm" onClick={handleNewCourse}>
+              <Button 
+                size="sm" 
+                onClick={() => navigate("/admin/courses/create")}
+              >
                 <FilePlus className="h-4 w-4 mr-2" />
                 Novo Curso
               </Button>
