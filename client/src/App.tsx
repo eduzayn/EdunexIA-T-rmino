@@ -153,6 +153,14 @@ function Router() {
       <ProtectedRoute path="/admin/ai/content-generator" component={dynamic(() => import('@/pages/admin/ai-content-generator'))} />
       <ProtectedRoute path="/admin/ai/image-analyzer" component={dynamic(() => import('@/pages/admin/ai-image-analyzer'))} />
       
+      {/* Rotas do Módulo de Produtividade */}
+      <ProtectedRoute path="/admin/productivity/time-analysis" component={dynamic(() => import('@/pages/admin/productivity/time-analysis'))} />
+      <ProtectedRoute path="/admin/productivity/goals" component={dynamic(() => import('@/pages/admin/productivity/goals'))} />
+      <ProtectedRoute path="/admin/productivity/reports" component={dynamic(() => import('@/pages/admin/productivity/reports'))} />
+      <ProtectedRoute path="/teacher/productivity/time-analysis" component={dynamic(() => import('@/pages/admin/productivity/time-analysis'))} />
+      <ProtectedRoute path="/teacher/productivity/goals" component={dynamic(() => import('@/pages/admin/productivity/goals'))} />
+      <ProtectedRoute path="/teacher/productivity/reports" component={dynamic(() => import('@/pages/admin/productivity/reports'))} />
+      
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
       <ProtectedRoute path="/student/courses" component={StudentCoursesPage} />
