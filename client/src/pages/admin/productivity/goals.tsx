@@ -175,6 +175,18 @@ export default function GoalsPage() {
       dueDate: '2025-05-01',
       ownerName: 'Beatriz Lima',
       ownerAvatar: '/assets/avatars/user3.png'
+    },
+    {
+      id: 7,
+      title: 'Aumentar conversão de leads em matrículas',
+      category: 'Comercial',
+      target: '40% de conversão',
+      current: '28% atual',
+      progress: 70,
+      status: 'em progresso',
+      dueDate: '2025-06-30',
+      ownerName: 'Roberto Alves',
+      ownerAvatar: '/assets/avatars/user4.png'
     }
   ];
   
@@ -300,6 +312,7 @@ export default function GoalsPage() {
                       <SelectItem value="Administrativo">Administrativo</SelectItem>
                       <SelectItem value="Capacitação">Capacitação</SelectItem>
                       <SelectItem value="Conteúdo">Conteúdo</SelectItem>
+                      <SelectItem value="Comercial">Comercial</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -323,7 +336,7 @@ export default function GoalsPage() {
                 </Label>
                 <Input 
                   id="target" 
-                  placeholder="Ex: Média 8.0 / 100% de participação / 5 novas práticas" 
+                  placeholder="Ex: Média 8.0 / 40% conversão de leads / 5 novas práticas" 
                   value={newGoal.target}
                   onChange={(e) => setNewGoal({...newGoal, target: e.target.value})}
                 />
@@ -435,12 +448,13 @@ export default function GoalsPage() {
               <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
                 <div className="flex-1">
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="w-full grid grid-cols-5">
+                    <TabsList className="w-full grid grid-cols-6">
                       <TabsTrigger value="all">Todas</TabsTrigger>
                       <TabsTrigger value="acadêmico">Acadêmicas</TabsTrigger>
                       <TabsTrigger value="institucional">Institucionais</TabsTrigger>
                       <TabsTrigger value="pedagógico">Pedagógicas</TabsTrigger>
                       <TabsTrigger value="administrativo">Administrativas</TabsTrigger>
+                      <TabsTrigger value="comercial">Comerciais</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
