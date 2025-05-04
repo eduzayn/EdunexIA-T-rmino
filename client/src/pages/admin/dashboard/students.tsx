@@ -11,8 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { ArrowLeft, Search, Filter, Download, UserPlus, UserCheck, UserX, Users } from "lucide-react";
+import { ArrowLeft, Search, Filter, Download, UserPlus, UserCheck, UserX, Users, Calendar, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 // Interface para tipagem dos dados de alunos
 interface Student {
@@ -34,6 +36,35 @@ export default function DashboardStudentsPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isMounted, setIsMounted] = useState(false);
+  
+  // Estados para o diálogo de filtros avançados
+  const [showFiltersDialog, setShowFiltersDialog] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("name");
+  const [sortOrder, setSortOrder] = useState<string>("asc");
+  const [courseCountMin, setCourseCountMin] = useState<number>(0);
+  const [courseCountMax, setCourseCountMax] = useState<number>(10);
+  const [completionRateMin, setCompletionRateMin] = useState<number>(0);
+  const [completionRateMax, setCompletionRateMax] = useState<number>(100);
+  const [activityPeriod, setActivityPeriod] = useState<string>("all");
+  
+  // Função para aplicar filtros avançados
+  const applyAdvancedFilters = () => {
+    setShowFiltersDialog(false);
+    // Os filtros são aplicados automaticamente através do estado
+  };
+  
+  // Função para limpar todos os filtros
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setSortBy("name");
+    setSortOrder("asc");
+    setCourseCountMin(0);
+    setCourseCountMax(10);
+    setCompletionRateMin(0);
+    setCompletionRateMax(100);
+    setActivityPeriod("all");
+  };
 
   // Consulta para obter dados de alunos
   const { data: studentsData, isLoading } = useQuery<{
@@ -376,10 +407,110 @@ export default function DashboardStudentsPage() {
                   </Select>
                 </div>
                 
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Filter className="h-4 w-4" />
-                  Mais filtros
-                </Button>
+                <Dialog open={showFiltersDialog} onOpenChange={setShowFiltersDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Filter className="h-4 w-4" />
+                      Mais filtros
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Filtros Avançados</DialogTitle>
+                      <DialogDescription>
+                        Configure filtros adicionais para refinar sua busca de alunos.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      {/* Ordenação */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="sortBy" className="text-right">
+                          Ordenar por
+                        </Label>
+                        <Select
+                          value={sortBy}
+                          onValueChange={setSortBy}
+                        >
+                          <SelectTrigger id="sortBy" className="col-span-3">
+                            <SelectValue placeholder="Selecione o campo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="name">Nome</SelectItem>
+                            <SelectItem value="date">Data de matrícula</SelectItem>
+                            <SelectItem value="progress">Progresso</SelectItem>
+                            <SelectItem value="activity">Último acesso</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Direção da ordenação */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="sortDir" className="text-right">
+                          Direção
+                        </Label>
+                        <Select
+                          value={sortOrder}
+                          onValueChange={setSortOrder}
+                        >
+                          <SelectTrigger id="sortDir" className="col-span-3">
+                            <SelectValue placeholder="Selecione a direção" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="asc">Crescente (A-Z)</SelectItem>
+                            <SelectItem value="desc">Decrescente (Z-A)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Período de atividade */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="activity" className="text-right">
+                          Atividade
+                        </Label>
+                        <Select
+                          value={activityPeriod}
+                          onValueChange={setActivityPeriod}
+                        >
+                          <SelectTrigger id="activity" className="col-span-3">
+                            <SelectValue placeholder="Selecione o período" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Todos os períodos</SelectItem>
+                            <SelectItem value="today">Hoje</SelectItem>
+                            <SelectItem value="week">Esta semana</SelectItem>
+                            <SelectItem value="month">Este mês</SelectItem>
+                            <SelectItem value="inactive">Inativos (30+ dias)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Outros filtros */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">Cursos</Label>
+                        <div className="col-span-3 flex items-center justify-between">
+                          <span className="text-sm">Mínimo: {courseCountMin}</span>
+                          <span className="text-sm">Máximo: {courseCountMax}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">Conclusão</Label>
+                        <div className="col-span-3 flex items-center justify-between">
+                          <span className="text-sm">Mínimo: {completionRateMin}%</span>
+                          <span className="text-sm">Máximo: {completionRateMax}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={clearAllFilters}>
+                        Limpar filtros
+                      </Button>
+                      <Button type="button" onClick={applyAdvancedFilters}>
+                        Aplicar filtros
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             
