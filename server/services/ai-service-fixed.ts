@@ -203,7 +203,7 @@ export const aiService = {
   async analyzeImage(
     base64Image: string,
     prompt: string = 'Analise esta imagem e descreva seu conteúdo educacional.'
-  ): Promise<{ content: string }> {
+  ): Promise<{ analysis: string }> {
     try {
       const response = await anthropic.messages.create({
         model: MODEL,
@@ -232,7 +232,7 @@ export const aiService = {
         ],
       });
 
-      return { content: extractResponseText(response.content) };
+      return { analysis: extractResponseText(response.content) };
     } catch (error) {
       console.error('Erro ao analisar imagem:', error);
       throw new Error('Erro ao analisar imagem com a IA');

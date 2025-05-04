@@ -144,14 +144,14 @@ aiRouter.post('/analyze-text', async (req: Request, res: Response) => {
         originalText: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
         analysis: response.analysis
       }),
-      metadata: {
+      parameters: {
         textLength: text.length,
         instruction: instruction
       }
     });
     
     res.json({
-      ...response,
+      analysis: response.analysis,
       id: generatedContent.id
     });
   } catch (error: any) {
@@ -216,13 +216,11 @@ aiRouter.post('/generate-content', async (req: Request, res: Response) => {
         type: type,
         content: response.content
       }),
-      metadata: {
-        parameters: parameters || {}
-      }
+      parameters: parameters || {}
     });
     
     res.json({
-      ...response,
+      content: response.content,
       id: generatedContent.id,
       title: title
     });
@@ -282,7 +280,7 @@ aiRouter.post('/analyze-image', upload.single('image'), async (req: Request, res
         analysis: result.analysis,
         prompt: prompt
       }),
-      metadata: {
+      parameters: {
         imageUrl: newPath,
         fileName: fileName,
         fileSize: req.file.size,
@@ -291,7 +289,7 @@ aiRouter.post('/analyze-image', upload.single('image'), async (req: Request, res
     });
     
     res.json({
-      ...result,
+      analysis: result.analysis,
       id: generatedContent.id,
       imageUrl: newPath,
       title: title
