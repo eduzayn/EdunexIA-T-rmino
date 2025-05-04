@@ -138,6 +138,12 @@ function Router() {
       {/* Rotas do Módulo de Secretaria */}
       <ProtectedRoute path="/admin/secretary/academic-transcript" component={dynamic(() => import('@/pages/admin/secretary/academic-transcript'))} />
       
+      {/* Rotas do Dashboard */}
+      <ProtectedRoute path="/admin/dashboard/students" component={dynamic(() => import('@/pages/admin/dashboard/students'))} />
+      <ProtectedRoute path="/admin/dashboard/courses" component={dynamic(() => import('@/pages/admin/dashboard/courses'))} />
+      <ProtectedRoute path="/admin/dashboard/revenue" component={dynamic(() => import('@/pages/admin/dashboard/revenue'))} />
+      <ProtectedRoute path="/admin/dashboard/completion" component={dynamic(() => import('@/pages/admin/dashboard/completion'))} />
+      
       {/* Rotas do Módulo Comercial */}
       <ProtectedRoute path="/admin/leads" component={LeadsPage} />
       <ProtectedRoute path="/admin/opportunities" component={OpportunitiesPage} />
