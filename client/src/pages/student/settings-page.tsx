@@ -555,24 +555,33 @@ export default function StudentSettingsPage() {
                 
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Autenticação de Dois Fatores</h3>
-                  <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Ativar Autenticação de Dois Fatores</FormLabel>
-                      <FormDescription>
-                        Adicione uma camada extra de segurança à sua conta.
-                      </FormDescription>
-                    </div>
-                    <Switch
-                      disabled
-                      checked={form.getValues().twoFactorEnabled || false}
-                      onCheckedChange={(checked) => {
-                        toast({
-                          title: "Recurso em desenvolvimento",
-                          description: "A autenticação de dois fatores estará disponível em breve.",
-                        });
-                      }}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="twoFactorEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Ativar Autenticação de Dois Fatores</FormLabel>
+                          <FormDescription>
+                            Adicione uma camada extra de segurança à sua conta.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            disabled
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              toast({
+                                title: "Recurso em desenvolvimento",
+                                description: "A autenticação de dois fatores estará disponível em breve.",
+                              });
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 
                 <Separator />
