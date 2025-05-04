@@ -274,6 +274,115 @@ studentRouter.get('/financial', async (req: Request, res: Response) => {
   }
 });
 
+// Endpoint para obter configurações do usuário
+studentRouter.get('/settings', isStudent, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    // Buscar as configurações do usuário no banco de dados
+    const [settings] = await db
+      .select()
+      .from(userSettings)
+      .where(eq(userSettings.userId, req.user.id));
+
+    // Se não encontrar configurações, criar configurações padrão
+    if (!settings) {
+      const defaultSettings = {
+        userId: req.user.id,
+        theme: 'system',
+        language: 'pt-BR',
+        emailNotifications: true,
+        smsNotifications: true,
+        pushNotifications: true,
+        twoFactorEnabled: false,
+        timezone: 'America/Sao_Paulo',
+        dateFormat: 'DD/MM/YYYY',
+        timeFormat: 'HH:mm'
+      };
+
+      const [newSettings] = await db
+        .insert(userSettings)
+        .values(defaultSettings)
+        .returning();
+
+      return res.json(newSettings);
+    }
+
+    return res.json(settings);
+  } catch (error) {
+    console.error('Erro ao buscar configurações do usuário:', error);
+    res.status(500).json({ error: 'Erro ao buscar configurações do usuário' });
+  }
+});
+
+// Endpoint para atualizar configurações do usuário
+studentRouter.put('/settings', isStudent, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const updateSchema = z.object({
+      theme: z.enum(['light', 'dark', 'system']),
+      language: z.string().min(1),
+      emailNotifications: z.boolean(),
+      smsNotifications: z.boolean(),
+      pushNotifications: z.boolean(),
+      twoFactorEnabled: z.boolean().default(false),
+      timezone: z.string().min(1),
+      dateFormat: z.string().optional(),
+      timeFormat: z.string().optional()
+    });
+
+    // Validar os dados recebidos
+    const validatedData = updateSchema.parse(req.body);
+
+    // Verificar se o usuário já tem configurações
+    const [existingSettings] = await db
+      .select()
+      .from(userSettings)
+      .where(eq(userSettings.userId, req.user.id));
+
+    let updatedSettings;
+
+    if (existingSettings) {
+      // Atualizar configurações existentes
+      [updatedSettings] = await db
+        .update(userSettings)
+        .set({
+          ...validatedData,
+          updatedAt: new Date()
+        })
+        .where(eq(userSettings.userId, req.user.id))
+        .returning();
+    } else {
+      // Criar novas configurações
+      [updatedSettings] = await db
+        .insert(userSettings)
+        .values({
+          userId: req.user.id,
+          ...validatedData
+        })
+        .returning();
+    }
+
+    return res.json(updatedSettings);
+  } catch (error) {
+    console.error('Erro ao atualizar configurações do usuário:', error);
+    
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        error: 'Dados inválidos',
+        details: error.errors 
+      });
+    }
+    
+    res.status(500).json({ error: 'Erro ao atualizar configurações do usuário' });
+  }
+});
+
 // Endpoint para solicitações de documentos do aluno
 studentRouter.get('/document-requests', async (req: Request, res: Response) => {
   try {
@@ -523,104 +632,34 @@ studentRouter.put('/messages/:id/read', async (req: Request, res: Response) => {
   }
 });
 
-// Endpoint para obter configurações do usuário
-studentRouter.get('/settings', async (req: Request, res: Response) => {
+// Endpoint para exportar dados do usuário (LGPD)
+studentRouter.get('/export-data', async (req: Request, res: Response) => {
   try {
     if (!req.user || !req.user.id) {
       return res.status(401).json({ error: 'Usuário não autenticado' });
     }
 
     const userId = req.user.id;
-    
-    // Buscar configurações do usuário
-    const [userConfig] = await db.select()
-      .from(userSettings)
-      .where(eq(userSettings.userId, userId));
-    
-    if (!userConfig) {
-      // Se não existirem configurações, criar com valores padrão
-      const [newConfig] = await db.insert(userSettings)
-        .values({
-          userId,
-          theme: 'system',
-          language: 'pt-BR',
-          emailNotifications: true,
-          smsNotifications: true,
-          pushNotifications: true,
-          twoFactorEnabled: false,
-          timezone: 'America/Sao_Paulo'
-        })
-        .returning();
-      
-      return res.json(newConfig);
-    }
-    
-    res.json(userConfig);
-  } catch (error) {
-    console.error('Erro ao buscar configurações do usuário:', error);
-    res.status(500).json({ error: 'Erro ao buscar configurações do usuário' });
-  }
-});
+    const tenantId = req.user.tenantId;
 
-// Endpoint para atualizar configurações do usuário
-studentRouter.put('/settings', async (req: Request, res: Response) => {
-  try {
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ error: 'Usuário não autenticado' });
-    }
-
-    const userId = req.user.id;
+    // Buscar dados do usuário
+    const userData = {
+      user: req.user,
+      // Aqui poderíamos adicionar mais dados do usuário como matrículas, mensagens, etc.
+    };
     
-    // Validar dados
-    const settingsSchema = z.object({
-      theme: z.enum(['system', 'light', 'dark']).optional(),
-      language: z.string().optional(),
-      emailNotifications: z.boolean().optional(),
-      smsNotifications: z.boolean().optional(),
-      pushNotifications: z.boolean().optional(),
-      timezone: z.string().optional(),
-      dateFormat: z.string().optional(),
-      timeFormat: z.string().optional()
-    });
+    // Gerar arquivo JSON com os dados
+    const dataStr = JSON.stringify(userData, null, 2);
     
-    const validationResult = settingsSchema.safeParse(req.body);
+    // Configurar cabeçalhos para download
+    res.setHeader('Content-Disposition', 'attachment; filename=dados_pessoais.json');
+    res.setHeader('Content-Type', 'application/json');
     
-    if (!validationResult.success) {
-      return res.status(400).json({ error: 'Dados inválidos', details: validationResult.error.format() });
-    }
-    
-    const settingsData = validationResult.data;
-    
-    // Verificar se as configurações existem
-    const [existingSettings] = await db.select()
-      .from(userSettings)
-      .where(eq(userSettings.userId, userId));
-    
-    if (!existingSettings) {
-      // Se não existirem, criar com os valores fornecidos
-      const [newSettings] = await db.insert(userSettings)
-        .values({
-          userId,
-          ...settingsData,
-        })
-        .returning();
-      
-      return res.json(newSettings);
-    }
-    
-    // Atualizar configurações existentes
-    const [updatedSettings] = await db.update(userSettings)
-      .set({
-        ...settingsData,
-        updatedAt: new Date()
-      })
-      .where(eq(userSettings.userId, userId))
-      .returning();
-    
-    res.json(updatedSettings);
+    // Enviar dados
+    res.send(dataStr);
   } catch (error) {
-    console.error('Erro ao atualizar configurações do usuário:', error);
-    res.status(500).json({ error: 'Erro ao atualizar configurações do usuário' });
+    console.error('Erro ao exportar dados do usuário:', error);
+    res.status(500).json({ error: 'Erro ao exportar dados do usuário' });
   }
 });
 

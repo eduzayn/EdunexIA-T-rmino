@@ -36,6 +36,22 @@ interface UserSettings {
   updatedAt: string;
 }
 
+// Definir o schema de validação
+const settingsSchema = z.object({
+  theme: z.enum(["light", "dark", "system"]),
+  language: z.string().min(1, "Selecione um idioma"),
+  emailNotifications: z.boolean(),
+  smsNotifications: z.boolean(),
+  pushNotifications: z.boolean(),
+  timezone: z.string().min(1, "Selecione um fuso horário"),
+  dateFormat: z.string().optional(),
+  timeFormat: z.string().optional(),
+  twoFactorEnabled: z.boolean().default(false)
+});
+
+// Definir o tipo para os dados do formulário
+type FormValues = z.infer<typeof settingsSchema>;
+
 export default function StudentSettingsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -44,19 +60,6 @@ export default function StudentSettingsPage() {
   // Buscar configurações do usuário
   const { data: settings, isLoading, isError } = useQuery<UserSettings>({
     queryKey: ['/api/student/settings'],
-  });
-
-  // Definir o schema de validação
-  const settingsSchema = z.object({
-    theme: z.enum(["light", "dark", "system"]),
-    language: z.string().min(1, "Selecione um idioma"),
-    emailNotifications: z.boolean(),
-    smsNotifications: z.boolean(),
-    pushNotifications: z.boolean(),
-    timezone: z.string().min(1, "Selecione um fuso horário"),
-    dateFormat: z.string().optional(),
-    timeFormat: z.string().optional(),
-    twoFactorEnabled: z.boolean().default(false)
   });
 
   // Inicializar o formulário com valores padrão
@@ -74,9 +77,6 @@ export default function StudentSettingsPage() {
       twoFactorEnabled: false
     }
   });
-  
-  // Definir o tipo para os dados do formulário
-  type FormValues = z.infer<typeof settingsSchema>;
 
   // Atualizar o formulário quando os dados forem carregados
   const resetForm = () => {
@@ -89,7 +89,8 @@ export default function StudentSettingsPage() {
         pushNotifications: settings.pushNotifications,
         timezone: settings.timezone || "America/Sao_Paulo",
         dateFormat: settings.dateFormat || "DD/MM/YYYY",
-        timeFormat: settings.timeFormat || "HH:mm"
+        timeFormat: settings.timeFormat || "HH:mm",
+        twoFactorEnabled: settings.twoFactorEnabled
       });
     }
   };
@@ -99,16 +100,10 @@ export default function StudentSettingsPage() {
     resetForm();
   }
 
-  // Definir o tipo para os dados do formulário
-  type FormValues = z.infer<typeof settingsSchema>;
-
   // Mutação para salvar as configurações
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      return await apiRequest('/api/student/settings', {
-        method: 'PUT', 
-        data
-      });
+      return await apiRequest('PUT', '/api/student/settings', data);
     },
     onSuccess: () => {
       toast({
@@ -567,29 +562,15 @@ export default function StudentSettingsPage() {
                         Adicione uma camada extra de segurança à sua conta.
                       </FormDescription>
                     </div>
-                    <FormField
-                      control={form.control}
-                      name="twoFactorEnabled"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  // Abrir modal para configuração de 2FA
-                                  toast({
-                                    title: "Recurso em desenvolvimento",
-                                    description: "A autenticação de dois fatores estará disponível em breve.",
-                                  });
-                                  return;
-                                }
-                                field.onChange(checked);
-                              }}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
+                    <Switch
+                      disabled
+                      checked={form.getValues().twoFactorEnabled || false}
+                      onCheckedChange={(checked) => {
+                        toast({
+                          title: "Recurso em desenvolvimento",
+                          description: "A autenticação de dois fatores estará disponível em breve.",
+                        });
+                      }}
                     />
                   </div>
                 </div>
