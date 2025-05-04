@@ -25,7 +25,7 @@ function isAuthenticatedAdminOrTeacher(req: Request, res: Response, next: Functi
 /**
  * Rota para obter as configurações do sistema
  */
-settingsRouter.get('/', isAuthenticatedAdminOrTeacher, async (req: Request, res: Response) => {
+settingsRouter.get('/', async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
     const tenantId = user.tenantId;
@@ -72,7 +72,7 @@ settingsRouter.get('/', isAuthenticatedAdminOrTeacher, async (req: Request, res:
 /**
  * Rota para atualizar as configurações do sistema
  */
-settingsRouter.put('/', isAuthenticatedAdminOrTeacher, async (req: Request, res: Response) => {
+settingsRouter.put('/', async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
     const tenantId = user.tenantId;
