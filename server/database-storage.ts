@@ -17,14 +17,20 @@ import {
   EducationalContract, InsertEducationalContract,
   DocumentType, InsertDocumentType,
   StudentDocument, InsertStudentDocument,
-  DocumentRequest, InsertDocumentRequest
+  DocumentRequest, InsertDocumentRequest,
+  AiKnowledgeBase, InsertAiKnowledgeBase,
+  AiSettings, InsertAiSettings,
+  AiConversation, InsertAiConversation,
+  AiMessage, InsertAiMessage,
+  AiGeneratedContent, InsertAiGeneratedContent
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, inArray, like, or, isNull, isNotNull } from "drizzle-orm";
 import { 
   users, tenants, courses, modules, lessons, enrollments, leads, opportunities, campaigns, subjects,
   lessonProgress, payments, classes, classEnrollments,
-  aiKnowledgeBase, productivityLogs, assessments, assessmentResults,
+  aiKnowledgeBase, aiSettings, aiConversations, aiMessages, aiGeneratedContent,
+  productivityLogs, assessments, assessmentResults,
   simplifiedEnrollments, educationalContracts, documentTypes, studentDocuments,
   documentRequests
 } from "@shared/schema";
@@ -188,6 +194,38 @@ export interface IStorage {
   getAllDocumentRequests(tenantId: number): Promise<DocumentRequest[]>;
   updateDocumentRequestStatus(id: number, status: string, reviewedBy: number, comments?: string): Promise<DocumentRequest>;
   linkGeneratedDocument(requestId: number, documentId: number): Promise<DocumentRequest>;
+  
+  // AI Knowledge Base operations
+  createAiKnowledgeBase(data: InsertAiKnowledgeBase): Promise<AiKnowledgeBase>;
+  getAiKnowledgeBaseById(id: number): Promise<AiKnowledgeBase | undefined>;
+  getAiKnowledgeBaseByTenant(tenantId: number): Promise<AiKnowledgeBase[]>;
+  getAiKnowledgeBaseByCategory(tenantId: number, category: string): Promise<AiKnowledgeBase[]>;
+  updateAiKnowledgeBase(id: number, data: Partial<InsertAiKnowledgeBase>): Promise<AiKnowledgeBase>;
+  deleteAiKnowledgeBase(id: number): Promise<boolean>;
+  
+  // AI Settings operations
+  getAiSettingsByTenant(tenantId: number): Promise<AiSettings | undefined>;
+  createOrUpdateAiSettings(tenantId: number, data: Partial<InsertAiSettings>): Promise<AiSettings>;
+  
+  // AI Conversation operations
+  createAiConversation(data: InsertAiConversation): Promise<AiConversation>;
+  getAiConversationById(id: number): Promise<AiConversation | undefined>;
+  getAiConversationsByUser(userId: number): Promise<AiConversation[]>;
+  getAiConversationsByTenant(tenantId: number): Promise<AiConversation[]>;
+  updateAiConversationTitle(id: number, title: string): Promise<AiConversation>;
+  deleteAiConversation(id: number): Promise<boolean>;
+  
+  // AI Message operations
+  createAiMessage(data: InsertAiMessage): Promise<AiMessage>;
+  getAiMessagesByConversation(conversationId: number): Promise<AiMessage[]>;
+  
+  // AI Generated Content operations
+  createAiGeneratedContent(data: InsertAiGeneratedContent): Promise<AiGeneratedContent>;
+  getAiGeneratedContentById(id: number): Promise<AiGeneratedContent | undefined>;
+  getAiGeneratedContentByUser(userId: number): Promise<AiGeneratedContent[]>;
+  getAiGeneratedContentByTenant(tenantId: number): Promise<AiGeneratedContent[]>;
+  getAiGeneratedContentByType(tenantId: number, contentType: string): Promise<AiGeneratedContent[]>;
+  deleteAiGeneratedContent(id: number): Promise<boolean>;
   
   // Session store
   sessionStore: session.Store;
