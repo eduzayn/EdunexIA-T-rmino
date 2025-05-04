@@ -64,7 +64,7 @@ interface StudentTranscript {
   startDate: string;
   endDate?: string;
   status: string;
-  finalGrade?: number;
+  finalGrade?: number | null;
 }
 
 export default function AcademicTranscriptPage() {
