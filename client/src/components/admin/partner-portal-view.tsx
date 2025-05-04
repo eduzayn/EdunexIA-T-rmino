@@ -13,6 +13,7 @@ import { usePortal } from '@/hooks/use-portal';
 
 // Importamos o componente de botão de portal do parceiro separado
 import { PartnerPortalButton } from './partner-portal-button';
+export { PartnerPortalButton as PartnerPortalView };
 
 /**
  * Página de administrador para visualizar o Portal do Parceiro
