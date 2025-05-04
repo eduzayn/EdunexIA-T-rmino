@@ -579,7 +579,7 @@ export default function StudentSettingsPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="bg-primary/10 p-2 rounded-full">
-                          <DesktopIcon className="h-5 w-5 text-primary" />
+                          <MonitorIcon className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <p className="font-medium">Este Dispositivo</p>
