@@ -48,13 +48,31 @@ const settingsFormSchema = z.object({
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
+// Tipo para a resposta da API de configurações
+interface SystemSettings {
+  id: number;
+  tenantId: number;
+  maintenanceMode: boolean;
+  maintenanceMessage: string | null;
+  theme: string;
+  defaultDateFormat: string;
+  defaultTimeFormat: string;
+  timezone: string;
+  notificationsEnabled: boolean;
+  emailNotificationsEnabled: boolean;
+  smsNotificationsEnabled: boolean;
+  customCss: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function SettingsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("general");
 
   // Buscar configurações atuais
-  const { data: settings, isLoading, error } = useQuery({
+  const { data: settings, isLoading, error } = useQuery<SystemSettings>({
     queryKey: ["/api/settings"],
     retry: 1
   });
@@ -97,10 +115,7 @@ export default function SettingsPage() {
   // Mutação para atualizar configurações
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: SettingsFormValues) => {
-      return apiRequest("/api/settings", {
-        method: "PUT",
-        data,
-      });
+      return apiRequest("PUT", "/api/settings", data);
     },
     onSuccess: () => {
       toast({
