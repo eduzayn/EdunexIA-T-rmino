@@ -774,3 +774,31 @@ export const insertAiGeneratedContentSchema = createInsertSchema(aiGeneratedCont
 
 export type AiGeneratedContent = typeof aiGeneratedContent.$inferSelect;
 export type InsertAiGeneratedContent = z.infer<typeof insertAiGeneratedContentSchema>;
+
+// System Settings
+export const systemSettings = pgTable('system_settings', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  maintenanceMode: boolean('maintenance_mode').default(false).notNull(),
+  maintenanceMessage: text('maintenance_message'),
+  theme: text('theme').default('light'),
+  defaultDateFormat: text('default_date_format').default('DD/MM/YYYY'),
+  defaultTimeFormat: text('default_time_format').default('HH:mm'),
+  timezone: text('timezone').default('America/Sao_Paulo'),
+  notificationsEnabled: boolean('notifications_enabled').default(true).notNull(),
+  emailNotificationsEnabled: boolean('email_notifications_enabled').default(true).notNull(),
+  smsNotificationsEnabled: boolean('sms_notifications_enabled').default(true).notNull(),
+  customCss: text('custom_css'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Schemas for System Settings
+export const insertSystemSettingsSchema = createInsertSchema(systemSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type SystemSettings = typeof systemSettings.$inferSelect;
+export type InsertSystemSettings = z.infer<typeof insertSystemSettingsSchema>;
