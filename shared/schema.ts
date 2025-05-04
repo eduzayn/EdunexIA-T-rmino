@@ -240,7 +240,56 @@ export const aiKnowledgeBase = pgTable('ai_knowledge_base', {
   tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
   content: text('content').notNull(),
+  category: text('category').default('general'),
+  fileUrl: text('file_url'),
+  fileType: text('file_type'),
+  fileSize: integer('file_size'),
   metadata: json('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// AI Settings
+export const aiSettings = pgTable('ai_settings', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  assistantName: text('assistant_name').default('Prof. Ana').notNull(),
+  defaultModel: text('default_model').default('claude-3-7-sonnet-20250219').notNull(),
+  maxTokensPerRequest: integer('max_tokens_per_request').default(2048).notNull(),
+  enabledFeatures: json('enabled_features').default(['chat', 'contentGeneration', 'textAnalysis', 'imageAnalysis']),
+  customInstructions: text('custom_instructions').default('Atue como uma assistente educacional focada no contexto brasileiro.'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// AI Conversation History
+export const aiConversations = pgTable('ai_conversations', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: text('title').default('Nova conversa'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// AI Conversation Messages
+export const aiMessages = pgTable('ai_messages', {
+  id: serial('id').primaryKey(),
+  conversationId: integer('conversation_id').references(() => aiConversations.id, { onDelete: 'cascade' }).notNull(),
+  role: text('role').notNull(), // 'user' ou 'assistant'
+  content: text('content').notNull(),
+  timestamp: timestamp('timestamp').defaultNow().notNull(),
+});
+
+// AI Generated Content
+export const aiGeneratedContent = pgTable('ai_generated_content', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  contentType: text('content_type').notNull(), // 'lesson-plan', 'exercise', 'assessment', etc.
+  parameters: json('parameters'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -676,3 +725,52 @@ export type InsertStudentDocument = z.infer<typeof insertStudentDocumentSchema>;
 
 export type DocumentRequest = typeof documentRequests.$inferSelect;
 export type InsertDocumentRequest = z.infer<typeof insertDocumentRequestSchema>;
+
+// Schemas para AI Knowledge Base
+export const insertAiKnowledgeBaseSchema = createInsertSchema(aiKnowledgeBase).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type AiKnowledgeBase = typeof aiKnowledgeBase.$inferSelect;
+export type InsertAiKnowledgeBase = z.infer<typeof insertAiKnowledgeBaseSchema>;
+
+// Schemas para AI Settings
+export const insertAiSettingsSchema = createInsertSchema(aiSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type AiSettings = typeof aiSettings.$inferSelect;
+export type InsertAiSettings = z.infer<typeof insertAiSettingsSchema>;
+
+// Schemas para AI Conversations
+export const insertAiConversationSchema = createInsertSchema(aiConversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type AiConversation = typeof aiConversations.$inferSelect;
+export type InsertAiConversation = z.infer<typeof insertAiConversationSchema>;
+
+// Schemas para AI Messages
+export const insertAiMessageSchema = createInsertSchema(aiMessages).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type AiMessage = typeof aiMessages.$inferSelect;
+export type InsertAiMessage = z.infer<typeof insertAiMessageSchema>;
+
+// Schemas para AI Generated Content
+export const insertAiGeneratedContentSchema = createInsertSchema(aiGeneratedContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type AiGeneratedContent = typeof aiGeneratedContent.$inferSelect;
+export type InsertAiGeneratedContent = z.infer<typeof insertAiGeneratedContentSchema>;
