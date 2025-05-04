@@ -41,10 +41,29 @@ const createEnrollmentSchema = insertSimplifiedEnrollmentSchema.extend({
 });
 
 // Rota para criar matrícula simplificada (com checkout Asaas)
-router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
+router.post('/simplified-enrollments', isAuthenticated, async (req: any, res) => {
   try {
+    const user = req.user as AuthUser;
+    console.log('Usuário autenticado:', { id: user.id, tenantId: user.tenantId, role: user.role });
+    
+    // Pré-processar dados de entrada para garantir valores válidos
+    const enrollmentInput = {
+      ...req.body,
+      // Garantir que temos valores válidos para consultantId e tenantId
+      consultantId: parseInt(req.body.consultantId) || user.id,
+      tenantId: parseInt(req.body.tenantId) || user.tenantId,
+      // Garantir que o CPF está no formato correto (apenas números) 
+      studentCpf: req.body.studentCpf ? req.body.studentCpf.replace(/[^0-9]/g, '') : '',
+      // Valores numéricos
+      amount: parseFloat(req.body.amount) || 0,
+      installments: parseInt(req.body.installments) || 1,
+      courseId: parseInt(req.body.courseId) || 0
+    };
+    
+    console.log('Dados recebidos da matrícula (pré-processados):', enrollmentInput);
+    
     // Validar dados de entrada
-    const enrollmentData = createEnrollmentSchema.parse(req.body);
+    const enrollmentData = createEnrollmentSchema.parse(enrollmentInput);
     
     // Buscar curso para obter título
     const course = await storage.getCourseById(enrollmentData.courseId);
