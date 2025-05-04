@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet";
+import { Link } from "wouter";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -47,20 +48,10 @@ export default function DashboardStudentsPage() {
   const [completionRateMax, setCompletionRateMax] = useState<number>(100);
   const [activityPeriod, setActivityPeriod] = useState<string>("all");
   
-  // Estados para os modais de exportação e novo aluno
+  // Estados para o modal de exportação
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const [showNewStudentDialog, setShowNewStudentDialog] = useState(false);
   const [exportFormat, setExportFormat] = useState<string>("csv");
   const [exportSelection, setExportSelection] = useState<string>("all");
-  
-  // Estado para o formulário de novo aluno
-  const [newStudent, setNewStudent] = useState({
-    name: "",
-    email: "",
-    status: "pending",
-    phone: "",
-    document: ""
-  });
   
   // Função para aplicar filtros avançados
   const applyAdvancedFilters = () => {
@@ -98,29 +89,7 @@ export default function DashboardStudentsPage() {
     document.body.removeChild(element);
   };
   
-  // Função para criar novo aluno
-  const handleCreateStudent = () => {
-    // Em uma implementação real, aqui faria uma requisição POST ao servidor
-    console.log("Criando novo aluno:", newStudent);
-    
-    // Reset do formulário e fechamento do modal
-    setNewStudent({
-      name: "",
-      email: "",
-      status: "pending",
-      phone: "",
-      document: ""
-    });
-    setShowNewStudentDialog(false);
-  };
-  
-  // Função para atualizar campos do novo aluno
-  const updateNewStudent = (field: string, value: string) => {
-    setNewStudent(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+
 
   // Consulta para obter dados de alunos
   const { data: studentsData, isLoading } = useQuery<{
@@ -386,104 +355,13 @@ export default function DashboardStudentsPage() {
                 </DialogContent>
               </Dialog>
               
-              {/* Dialog de Novo Aluno */}
-              <Dialog open={showNewStudentDialog} onOpenChange={setShowNewStudentDialog}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Novo Aluno
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[525px]">
-                  <DialogHeader>
-                    <DialogTitle>Adicionar Novo Aluno</DialogTitle>
-                    <DialogDescription>
-                      Preencha os dados básicos do novo aluno para registrá-lo no sistema.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="studentName" className="text-right">
-                        Nome Completo
-                      </Label>
-                      <Input
-                        id="studentName"
-                        className="col-span-3"
-                        placeholder="Nome completo do aluno"
-                        value={newStudent.name}
-                        onChange={(e) => updateNewStudent('name', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="studentEmail" className="text-right">
-                        Email
-                      </Label>
-                      <Input
-                        id="studentEmail"
-                        className="col-span-3"
-                        placeholder="email@exemplo.com"
-                        type="email"
-                        value={newStudent.email}
-                        onChange={(e) => updateNewStudent('email', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="studentPhone" className="text-right">
-                        Telefone
-                      </Label>
-                      <Input
-                        id="studentPhone"
-                        className="col-span-3"
-                        placeholder="(00) 00000-0000"
-                        value={newStudent.phone}
-                        onChange={(e) => updateNewStudent('phone', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="studentDocument" className="text-right">
-                        CPF
-                      </Label>
-                      <Input
-                        id="studentDocument"
-                        className="col-span-3"
-                        placeholder="000.000.000-00"
-                        value={newStudent.document}
-                        onChange={(e) => updateNewStudent('document', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="studentStatus" className="text-right">
-                        Status
-                      </Label>
-                      <Select
-                        value={newStudent.status}
-                        onValueChange={(value) => updateNewStudent('status', value)}
-                      >
-                        <SelectTrigger id="studentStatus" className="col-span-3">
-                          <SelectValue placeholder="Selecione o status inicial" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pendente</SelectItem>
-                          <SelectItem value="active">Ativo</SelectItem>
-                          <SelectItem value="inactive">Inativo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setShowNewStudentDialog(false)}>
-                      Cancelar
-                    </Button>
-                    <Button type="button" onClick={handleCreateStudent}>
-                      Criar Aluno
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              {/* Botão de Matrícula Simplificada */}
+              <Button size="sm" asChild>
+                <Link href="/admin/simplified-enrollment">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Matrícula Simplificada
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
