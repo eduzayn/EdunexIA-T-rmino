@@ -775,6 +775,76 @@ export const insertAiGeneratedContentSchema = createInsertSchema(aiGeneratedCont
 export type AiGeneratedContent = typeof aiGeneratedContent.$inferSelect;
 export type InsertAiGeneratedContent = z.infer<typeof insertAiGeneratedContentSchema>;
 
+// Library Materials
+export const libraryMaterialTypeEnum = pgEnum('library_material_type', [
+  'ebook', 'article', 'video', 'link', 'document', 'other'
+]);
+
+export const libraryMaterials = pgTable('library_materials', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  type: libraryMaterialTypeEnum('type').notNull(),
+  url: text('url'),
+  fileUrl: text('file_url'),
+  fileSize: integer('file_size'),
+  author: text('author'),
+  publisher: text('publisher'),
+  publicationDate: timestamp('publication_date'),
+  coverImageUrl: text('cover_image_url'),
+  tags: text('tags').array(),
+  isPublic: boolean('is_public').default(true).notNull(),
+  metadata: json('metadata'),
+  courseId: integer('course_id').references(() => courses.id, { onDelete: 'set null' }),
+  subjectId: integer('subject_id').references(() => subjects.id, { onDelete: 'set null' }),
+  uploadedBy: integer('uploaded_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Messages
+export const messageStatusEnum = pgEnum('message_status', [
+  'unread', 'read', 'archived', 'deleted'
+]);
+
+export const userMessages = pgTable('user_messages', {
+  id: serial('id').primaryKey(),
+  tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  senderId: integer('sender_id').references(() => users.id, { onDelete: 'set null' }),
+  recipientId: integer('recipient_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  subject: text('subject').notNull(),
+  content: text('content').notNull(),
+  status: messageStatusEnum('status').default('unread').notNull(),
+  threadId: integer('thread_id'), // Para agrupar conversas relacionadas
+  attachmentUrl: text('attachment_url'),
+  attachmentName: text('attachment_name'),
+  attachmentSize: integer('attachment_size'),
+  sentAt: timestamp('sent_at').defaultNow().notNull(),
+  readAt: timestamp('read_at'),
+});
+
+// User Settings
+export const userSettings = pgTable('user_settings', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  theme: text('theme').default('system'),
+  language: text('language').default('pt-BR'),
+  emailNotifications: boolean('email_notifications').default(true).notNull(),
+  smsNotifications: boolean('sms_notifications').default(true).notNull(),
+  pushNotifications: boolean('push_notifications').default(true).notNull(),
+  twoFactorEnabled: boolean('two_factor_enabled').default(false).notNull(),
+  timezone: text('timezone').default('America/Sao_Paulo'),
+  dateFormat: text('date_format'),
+  timeFormat: text('time_format'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    userIdUnique: unique().on(table.userId),
+  };
+});
+
 // System Settings
 export const systemSettings = pgTable('system_settings', {
   id: serial('id').primaryKey(),
@@ -799,6 +869,37 @@ export const insertSystemSettingsSchema = createInsertSchema(systemSettings).omi
   createdAt: true,
   updatedAt: true,
 });
+
+// Schemas for Library Materials
+export const insertLibraryMaterialSchema = createInsertSchema(libraryMaterials).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type LibraryMaterial = typeof libraryMaterials.$inferSelect;
+export type InsertLibraryMaterial = z.infer<typeof insertLibraryMaterialSchema>;
+
+// Schemas for Messages
+export const insertMessageSchema = createInsertSchema(userMessages).omit({
+  id: true,
+  status: true,
+  sentAt: true,
+  readAt: true,
+});
+
+export type Message = typeof userMessages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+
+// Schemas for User Settings
+export const insertUserSettingsSchema = createInsertSchema(userSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type UserSettings = typeof userSettings.$inferSelect;
+export type InsertUserSettings = z.infer<typeof insertUserSettingsSchema>;
 
 export type SystemSettings = typeof systemSettings.$inferSelect;
 export type InsertSystemSettings = z.infer<typeof insertSystemSettingsSchema>;
