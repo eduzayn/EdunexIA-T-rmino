@@ -65,8 +65,8 @@ export const aiService = {
   async answerEducationalQuestion(
     question: string,
     conversationHistory: Array<{ role: string, content: string }> = [],
-    contextData?: string
-  ): Promise<{ content: string }> {
+    contextData?: any
+  ): Promise<{ answer: string, sources?: string[] }> {
     try {
       // Formata o histórico de conversação no formato esperado pela API
       const messages = conversationHistory.map(msg => ({
@@ -80,6 +80,16 @@ export const aiService = {
         content: question
       });
 
+      // Contexto adicional formatado como string, se existir
+      let contextString = '';
+      if (contextData) {
+        if (typeof contextData === 'string') {
+          contextString = contextData;
+        } else if (typeof contextData === 'object') {
+          contextString = JSON.stringify(contextData);
+        }
+      }
+
       // Instruções para a IA atuar como assistente educacional
       const systemPrompt = `Você é Prof. Ana, uma assistente educacional especializada para o sistema Edunéxia. 
       Seu papel é fornecer informações precisas e úteis sobre tópicos educacionais, 
@@ -87,7 +97,7 @@ export const aiService = {
       
       Responda usando linguagem clara e acessível, adequada para educadores brasileiros.
       Quando relevante, mencione práticas pedagógicas baseadas em evidências.
-      ${contextData ? `\n\nContexto adicional sobre o usuário ou a situação:\n${contextData}` : ''}`;
+      ${contextString ? `\n\nContexto adicional sobre o usuário ou a situação:\n${contextString}` : ''}`;
 
       // Faz a chamada para a API
       const response = await anthropic.messages.create({
@@ -97,7 +107,8 @@ export const aiService = {
         messages,
       });
 
-      return { content: extractResponseText(response.content) };
+      const answer = extractResponseText(response.content);
+      return { answer };
     } catch (error) {
       console.error('Erro ao responder pergunta:', error);
       throw new Error('Erro ao processar sua pergunta com a IA');
@@ -113,7 +124,7 @@ export const aiService = {
   async analyzeText(
     text: string,
     instruction: string = 'Analise este texto e forneça insights pedagógicos.'
-  ): Promise<{ content: string }> {
+  ): Promise<{ analysis: string }> {
     try {
       const response = await anthropic.messages.create({
         model: MODEL,
@@ -129,7 +140,7 @@ export const aiService = {
         ],
       });
 
-      return { content: extractResponseText(response.content) };
+      return { analysis: extractResponseText(response.content) };
     } catch (error) {
       console.error('Erro ao analisar texto:', error);
       throw new Error('Erro ao processar análise do texto com a IA');

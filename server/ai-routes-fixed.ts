@@ -5,7 +5,6 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { storage } from './database-storage';
-import { authenticateToken } from './middleware/auth-middleware';
 import { InsertAiConversation, InsertAiMessage, InsertAiGeneratedContent } from '@shared/schema';
 
 // Configuração do multer para upload de arquivos temporários
@@ -19,8 +18,8 @@ const unlinkAsync = promisify(fs.unlink);
 
 export const aiRouter = Router();
 
-// Aplicar middleware de autenticação em todas as rotas da IA
-aiRouter.use(authenticateToken);
+// Middleware de autenticação aplicado no arquivo routes.ts
+// aiRouter.use(authenticateToken);
 
 /**
  * Rota para perguntas educacionais à IA
