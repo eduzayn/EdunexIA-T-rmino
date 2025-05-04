@@ -408,14 +408,22 @@ class PaymentService {
       console.log('Criando link de pagamento no Asaas via endpoint de paymentLinks...');
       
       try {
-        // Configuração base do link de pagamento
-        const paymentLinkData: any = {
+        // Configuração base do link de pagamento com os tipos explícitos
+        const paymentLinkData = {
           name: `Matrícula ${data.enrollmentId} - ${data.studentName}`,
           description: description,
           endDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0],
           value: data.value,
           dueDateLimitDays: 5,
           maxInstallmentCount: data.installments && data.installments > 1 ? data.installments : 1,
+          billingType: data.paymentMethod || 'BOLETO', // Garantir que sempre temos um billingType
+          // Configurando métodos de pagamento explicitamente
+          charge: {
+            // Adicionando tipo explícito para o charge para resolver erro "initialize: The type of 'request' must be provided"
+            type: 'PAYMENT_REQUEST', 
+            description: description,
+            dueDate: dueDate
+          },
           // Por padrão, desabilita todos os métodos
           acceptCreditCard: false,
           acceptDebitCard: false,
@@ -426,11 +434,12 @@ class PaymentService {
         // Habilita apenas o método específico selecionado
         paymentLinkData.acceptCreditCard = data.paymentMethod === 'CREDIT_CARD';
         paymentLinkData.acceptPix = data.paymentMethod === 'PIX';
-        paymentLinkData.acceptBoleto = data.paymentMethod === 'BOLETO';
+        paymentLinkData.acceptBoleto = data.paymentMethod === 'BOLETO' || !data.paymentMethod;
         
-        // Se não for especificado, usa boleto como padrão (fallback)
-        if (!data.paymentMethod) {
+        // Se não for especificado, habilita boleto como padrão
+        if (!data.paymentMethod || data.paymentMethod === 'UNDEFINED') {
           paymentLinkData.acceptBoleto = true;
+          paymentLinkData.billingType = 'BOLETO';
         }
         
         console.log(`Dados do payment link: ${JSON.stringify(paymentLinkData)}`);
