@@ -1,0 +1,6 @@
+Lista de arquivos a serem removidos:
+1. server/ai-routes.ts (obsoleto, substituído por ai-routes-fixed.ts)
+2. server/services/ai-service.ts (obsoleto, substituído por ai-service-fixed.ts)
+3. test-login.js (arquivo de teste obsoleto)
+4. test-login.mjs (arquivo de teste obsoleto)
+5. .cache/ (diretório de cache temporário)
