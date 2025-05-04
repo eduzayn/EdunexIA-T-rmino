@@ -25,7 +25,7 @@ import contractRouter from "./contract-routes";
 import { leadRouter } from "./lead-routes";
 import { opportunityRouter } from "./opportunity-routes";
 import { campaignRouter } from "./campaign-routes";
-import { aiRouter } from "./ai-routes";
+import { aiRouter } from "./ai-routes-fixed";
 import { notificationService } from "./services/notification-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { aiService } from './services/ai-service';
+import { aiService } from './services/ai-service-fixed';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
@@ -15,17 +15,6 @@ const readFileAsync = promisify(fs.readFile);
 const unlinkAsync = promisify(fs.unlink);
 
 export const aiRouter = Router();
-
-/**
- * Middleware para verificar se o usuário está autenticado - não utilizado diretamente
- * pois já usamos o middleware de autenticação definido em routes.ts
- */
-function checkAuthenticated(req: Request, res: Response, next: Function) {
-  if (req.isAuthenticated && req.isAuthenticated()) {
-    return next();
-  }
-  return res.status(401).json({ error: 'Não autorizado' });
-}
 
 /**
  * Rota para perguntas educacionais à IA
@@ -54,7 +43,7 @@ aiRouter.post('/chat', async (req: Request, res: Response) => {
 /**
  * Rota para analisar textos educacionais
  */
-aiRouter.post('/analyze-text', isAuthenticated, async (req: Request, res: Response) => {
+aiRouter.post('/analyze-text', async (req: Request, res: Response) => {
   try {
     const { text, instruction } = req.body;
 
@@ -77,7 +66,7 @@ aiRouter.post('/analyze-text', isAuthenticated, async (req: Request, res: Respon
 /**
  * Rota para gerar conteúdo educacional
  */
-aiRouter.post('/generate-content', isAuthenticated, async (req: Request, res: Response) => {
+aiRouter.post('/generate-content', async (req: Request, res: Response) => {
   try {
     const { topic, type, parameters } = req.body;
 
@@ -101,7 +90,7 @@ aiRouter.post('/generate-content', isAuthenticated, async (req: Request, res: Re
 /**
  * Rota para analisar imagens
  */
-aiRouter.post('/analyze-image', isAuthenticated, upload.single('image'), async (req: Request, res: Response) => {
+aiRouter.post('/analyze-image', upload.single('image'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhuma imagem fornecida' });
@@ -139,7 +128,7 @@ aiRouter.post('/analyze-image', isAuthenticated, upload.single('image'), async (
 /**
  * Rota para obter configurações atuais da IA
  */
-aiRouter.get('/settings', isAuthenticated, (req: Request, res: Response) => {
+aiRouter.get('/settings', (req: Request, res: Response) => {
   try {
     // Aqui implementaríamos a lógica para buscar as configurações do banco de dados
     // Por enquanto, retornamos configurações padrão
@@ -159,7 +148,7 @@ aiRouter.get('/settings', isAuthenticated, (req: Request, res: Response) => {
 /**
  * Rota para atualizar configurações da IA
  */
-aiRouter.post('/settings', isAuthenticated, (req: Request, res: Response) => {
+aiRouter.post('/settings', (req: Request, res: Response) => {
   try {
     const { assistantName, customInstructions, enabledFeatures } = req.body;
     
@@ -185,7 +174,7 @@ aiRouter.post('/settings', isAuthenticated, (req: Request, res: Response) => {
 /**
  * Rota para adicionar documentos à base de conhecimento da IA
  */
-aiRouter.post('/knowledge-base', isAuthenticated, upload.single('document'), async (req: Request, res: Response) => {
+aiRouter.post('/knowledge-base', upload.single('document'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhum documento fornecido' });
@@ -247,7 +236,7 @@ aiRouter.post('/knowledge-base', isAuthenticated, upload.single('document'), asy
 /**
  * Rota para obter documentos da base de conhecimento
  */
-aiRouter.get('/knowledge-base', isAuthenticated, (req: Request, res: Response) => {
+aiRouter.get('/knowledge-base', (req: Request, res: Response) => {
   try {
     // Aqui implementaríamos a lógica para buscar os documentos do banco de dados
     // Por enquanto, retornamos uma lista vazia
@@ -263,7 +252,7 @@ aiRouter.get('/knowledge-base', isAuthenticated, (req: Request, res: Response) =
 /**
  * Rota para remover documento da base de conhecimento
  */
-aiRouter.delete('/knowledge-base/:id', isAuthenticated, (req: Request, res: Response) => {
+aiRouter.delete('/knowledge-base/:id', (req: Request, res: Response) => {
   try {
     const documentId = req.params.id;
     
