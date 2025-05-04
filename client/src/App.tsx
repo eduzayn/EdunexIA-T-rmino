@@ -5,6 +5,7 @@ import dynamic from "@/lib/dynamic.tsx";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import AuthPage from "@/pages/auth-page";
+import { AutoLogin } from "@/components/auto-login";
 import CoursesPage from "@/pages/courses-page";
 import CourseDetailsPage from "@/pages/course-details-page";
 import CourseCreatePage from "@/pages/course-create-page";
@@ -255,6 +256,7 @@ function App() {
       <Toaster />
       <AppWithProviders />
       <PortalViewButtons />
+      <AutoLogin />
     </TooltipProvider>
   );
 }
