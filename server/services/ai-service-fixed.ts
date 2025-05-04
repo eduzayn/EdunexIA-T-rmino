@@ -176,7 +176,7 @@ export const aiService = {
         ],
       });
 
-      return { content: response.content[0].text };
+      return { content: extractResponseText(response.content) };
     } catch (error) {
       console.error('Erro ao gerar conteúdo:', error);
       throw new Error('Erro ao gerar conteúdo educacional com a IA');
@@ -221,7 +221,7 @@ export const aiService = {
         ],
       });
 
-      return { content: response.content[0].text };
+      return { content: extractResponseText(response.content) };
     } catch (error) {
       console.error('Erro ao analisar imagem:', error);
       throw new Error('Erro ao analisar imagem com a IA');
