@@ -32,6 +32,18 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 // Icons
 import {
@@ -57,9 +69,21 @@ import {
 
 export default function GoalsPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('all');
   const [periodFilter, setPeriodFilter] = useState('month');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isNewGoalModalOpen, setIsNewGoalModalOpen] = useState(false);
+  
+  // Form state for new goal
+  const [newGoal, setNewGoal] = useState({
+    title: '',
+    category: 'Acadêmico',
+    target: '',
+    dueDate: '',
+    description: '',
+    responsibleId: ''
+  });
   
   // Status das metas
   const statusColors = {
@@ -176,6 +200,46 @@ export default function GoalsPage() {
     overdue: goalsData.filter(g => g.status === 'atrasada').length
   };
   
+  // Lista de usuários para atribuição de responsabilidade (simulado)
+  const users = [
+    { id: 1, name: 'Carlos Martins', role: 'Professor' },
+    { id: 2, name: 'Beatriz Lima', role: 'Coordenadora' },
+    { id: 3, name: 'Gisele Santos', role: 'Professora' },
+    { id: 4, name: 'Roberto Alves', role: 'Professor' }
+  ];
+  
+  // Função para criar nova meta
+  const handleCreateGoal = () => {
+    // Validar campos obrigatórios
+    if (!newGoal.title || !newGoal.target || !newGoal.dueDate) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, preencha todos os campos obrigatórios.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    // Aqui seria feita a chamada à API para criar a meta
+    // Simulação:
+    toast({
+      title: 'Meta criada com sucesso',
+      description: `A meta "${newGoal.title}" foi criada.`,
+      variant: 'default'
+    });
+    
+    // Resetar formulário e fechar modal
+    setNewGoal({
+      title: '',
+      category: 'Acadêmico',
+      target: '',
+      dueDate: '',
+      description: '',
+      responsibleId: ''
+    });
+    setIsNewGoalModalOpen(false);
+  };
+  
   return (
     <AppShell>
       <div className="container mx-auto py-6">
@@ -187,12 +251,129 @@ export default function GoalsPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button>
+            <Button onClick={() => setIsNewGoalModalOpen(true)}>
               <PlusCircle className="h-4 w-4 mr-2" />
               Nova Meta
             </Button>
           </div>
         </div>
+        
+        {/* Modal de criação de nova meta */}
+        <Dialog open={isNewGoalModalOpen} onOpenChange={setIsNewGoalModalOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Criar Nova Meta</DialogTitle>
+              <DialogDescription>
+                Defina os detalhes da meta, incluindo objetivo, categoria e data limite.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid gap-5 py-4">
+              <div className="grid gap-3">
+                <Label htmlFor="title" className="font-medium">
+                  Título da Meta <span className="text-destructive">*</span>
+                </Label>
+                <Input 
+                  id="title" 
+                  placeholder="Ex: Aumentar média dos alunos em Matemática" 
+                  value={newGoal.title}
+                  onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid gap-3">
+                  <Label htmlFor="category" className="font-medium">
+                    Categoria <span className="text-destructive">*</span>
+                  </Label>
+                  <Select 
+                    value={newGoal.category} 
+                    onValueChange={(value) => setNewGoal({...newGoal, category: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Acadêmico">Acadêmico</SelectItem>
+                      <SelectItem value="Institucional">Institucional</SelectItem>
+                      <SelectItem value="Pedagógico">Pedagógico</SelectItem>
+                      <SelectItem value="Administrativo">Administrativo</SelectItem>
+                      <SelectItem value="Capacitação">Capacitação</SelectItem>
+                      <SelectItem value="Conteúdo">Conteúdo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid gap-3">
+                  <Label htmlFor="dueDate" className="font-medium">
+                    Data Limite <span className="text-destructive">*</span>
+                  </Label>
+                  <Input 
+                    id="dueDate" 
+                    type="date" 
+                    value={newGoal.dueDate}
+                    onChange={(e) => setNewGoal({...newGoal, dueDate: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor="target" className="font-medium">
+                  Objetivo <span className="text-destructive">*</span>
+                </Label>
+                <Input 
+                  id="target" 
+                  placeholder="Ex: Média 8.0 / 100% de participação / 5 novas práticas" 
+                  value={newGoal.target}
+                  onChange={(e) => setNewGoal({...newGoal, target: e.target.value})}
+                />
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor="responsible" className="font-medium">
+                  Responsável
+                </Label>
+                <Select 
+                  value={newGoal.responsibleId} 
+                  onValueChange={(value) => setNewGoal({...newGoal, responsibleId: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um responsável" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users.map(user => (
+                      <SelectItem key={user.id} value={user.id.toString()}>
+                        {user.name} ({user.role})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor="description" className="font-medium">
+                  Descrição
+                </Label>
+                <Textarea 
+                  id="description" 
+                  placeholder="Descreva a meta em detalhes, incluindo como será mensurada..." 
+                  rows={3}
+                  value={newGoal.description}
+                  onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsNewGoalModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleCreateGoal}>
+                Criar Meta
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         
         {/* Cards de estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
