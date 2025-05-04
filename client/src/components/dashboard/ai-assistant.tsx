@@ -19,11 +19,12 @@ export function AiAssistant() {
     {
       id: 1,
       sender: "ai",
-      content: "Olá! Sou o assistente IA do Edunéxia. Como posso ajudar você hoje?",
+      content: "Olá! Sou a Prof. Ana, sua assistente educacional IA da Edunéxia. Como posso ajudar você hoje?",
       timestamp: new Date(Date.now() - 5 * 60000)
     }
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -80,9 +81,12 @@ export function AiAssistant() {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3 flex flex-row items-center justify-between">
-        <CardTitle>Assistente IA</CardTitle>
+        <CardTitle className="flex items-center">
+          <Bot className="mr-2 h-5 w-5 text-primary" />
+          Prof. Ana
+        </CardTitle>
         <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-          Edunéxia AI
+          Assistente Educacional
         </Badge>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col h-[320px] p-0">

@@ -5,7 +5,7 @@ async function testLogin() {
     console.log('Tentando fazer login...');
     const response = await axios.post('http://localhost:5000/api/login', {
       username: 'admintest',
-      password: 'admin123'
+      password: 'password123'
     }, {
       headers: {
         'Content-Type': 'application/json',
