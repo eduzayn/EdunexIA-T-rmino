@@ -19,13 +19,30 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { SaveIcon, KeyIcon, UserIcon, BellIcon, MoonIcon, SunIcon, MonitorIcon, GlobeIcon, AlertTriangleIcon, SmartphoneIcon } from "lucide-react";
 
+// Definição da interface para as configurações do usuário
+interface UserSettings {
+  id: number;
+  userId: number;
+  theme: "light" | "dark" | "system";
+  language: string;
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+  pushNotifications: boolean;
+  twoFactorEnabled: boolean;
+  timezone: string;
+  dateFormat?: string;
+  timeFormat?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function StudentSettingsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
   // Buscar configurações do usuário
-  const { data: settings, isLoading, isError } = useQuery({
+  const { data: settings, isLoading, isError } = useQuery<UserSettings>({
     queryKey: ['/api/student/settings'],
   });
 
@@ -38,11 +55,12 @@ export default function StudentSettingsPage() {
     pushNotifications: z.boolean(),
     timezone: z.string().min(1, "Selecione um fuso horário"),
     dateFormat: z.string().optional(),
-    timeFormat: z.string().optional()
+    timeFormat: z.string().optional(),
+    twoFactorEnabled: z.boolean().default(false)
   });
 
   // Inicializar o formulário com valores padrão
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
       theme: "system",
@@ -52,9 +70,13 @@ export default function StudentSettingsPage() {
       pushNotifications: true,
       timezone: "America/Sao_Paulo",
       dateFormat: "DD/MM/YYYY",
-      timeFormat: "HH:mm"
+      timeFormat: "HH:mm",
+      twoFactorEnabled: false
     }
   });
+  
+  // Definir o tipo para os dados do formulário
+  type FormValues = z.infer<typeof settingsSchema>;
 
   // Atualizar o formulário quando os dados forem carregados
   const resetForm = () => {
@@ -77,9 +99,12 @@ export default function StudentSettingsPage() {
     resetForm();
   }
 
+  // Definir o tipo para os dados do formulário
+  type FormValues = z.infer<typeof settingsSchema>;
+
   // Mutação para salvar as configurações
   const updateSettingsMutation = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async (data: FormValues) => {
       return await apiRequest('/api/student/settings', {
         method: 'PUT', 
         data
@@ -93,7 +118,7 @@ export default function StudentSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/student/settings'] });
       form.reset(form.getValues());
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Erro ao salvar configurações",
         description: "Não foi possível atualizar suas preferências. Tente novamente.",
@@ -104,7 +129,7 @@ export default function StudentSettingsPage() {
   });
 
   // Enviar o formulário
-  const onSubmit = (formData) => {
+  const onSubmit = (formData: FormValues) => {
     updateSettingsMutation.mutate(formData);
   };
 
