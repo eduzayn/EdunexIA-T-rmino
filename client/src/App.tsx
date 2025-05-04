@@ -174,6 +174,10 @@ function Router() {
       <ProtectedRoute path="/student/courses/:id" component={StudentCourseDetailsPage} />
       <ProtectedRoute path="/student/documents" component={StudentDocumentsPage} />
       <ProtectedRoute path="/student/contracts" component={StudentContractsPage} />
+      <ProtectedRoute path="/student/library" component={dynamic(() => import('@/pages/student/library-page'))} />
+      <ProtectedRoute path="/student/library/:id" component={dynamic(() => import('@/pages/student/library-detail-page'))} />
+      <ProtectedRoute path="/student/messages" component={dynamic(() => import('@/pages/student/messages-page'))} />
+      <ProtectedRoute path="/student/settings" component={dynamic(() => import('@/pages/student/settings-page'))} />
       
       {/* Rotas do Portal do Professor */}
       <ProtectedRoute path="/teacher/dashboard" component={TeacherDashboard} />
