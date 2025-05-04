@@ -134,6 +134,9 @@ function Router() {
       <ProtectedRoute path="/admin/contracts" component={ContractsPage} />
       <ProtectedRoute path="/admin/sms-test" component={SmsTestPage} />
       
+      {/* Rotas do Módulo de Secretaria */}
+      <ProtectedRoute path="/admin/secretary/academic-transcript" component={dynamic(() => import('@/pages/admin/secretary/academic-transcript'))} />
+      
       {/* Rotas do Módulo Comercial */}
       <ProtectedRoute path="/admin/leads" component={LeadsPage} />
       <ProtectedRoute path="/admin/opportunities" component={OpportunitiesPage} />
