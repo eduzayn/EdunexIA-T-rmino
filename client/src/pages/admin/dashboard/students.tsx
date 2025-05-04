@@ -47,6 +47,21 @@ export default function DashboardStudentsPage() {
   const [completionRateMax, setCompletionRateMax] = useState<number>(100);
   const [activityPeriod, setActivityPeriod] = useState<string>("all");
   
+  // Estados para os modais de exportação e novo aluno
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showNewStudentDialog, setShowNewStudentDialog] = useState(false);
+  const [exportFormat, setExportFormat] = useState<string>("csv");
+  const [exportSelection, setExportSelection] = useState<string>("all");
+  
+  // Estado para o formulário de novo aluno
+  const [newStudent, setNewStudent] = useState({
+    name: "",
+    email: "",
+    status: "pending",
+    phone: "",
+    document: ""
+  });
+  
   // Função para aplicar filtros avançados
   const applyAdvancedFilters = () => {
     setShowFiltersDialog(false);
@@ -64,6 +79,47 @@ export default function DashboardStudentsPage() {
     setCompletionRateMin(0);
     setCompletionRateMax(100);
     setActivityPeriod("all");
+  };
+  
+  // Função para exportar dados de alunos
+  const handleExport = () => {
+    // Em uma implementação real, aqui faria uma requisição ao servidor
+    // para gerar o arquivo de exportação no formato desejado
+    console.log(`Exportando ${exportSelection} alunos no formato ${exportFormat}`);
+    setShowExportDialog(false);
+    
+    // Mock de download - em produção seria substituído por um download real
+    const element = document.createElement("a");
+    const file = new Blob([JSON.stringify(studentsData?.students)], {type: "text/plain"});
+    element.href = URL.createObjectURL(file);
+    element.download = `alunos-edunexia-${new Date().toISOString().split('T')[0]}.${exportFormat}`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+  
+  // Função para criar novo aluno
+  const handleCreateStudent = () => {
+    // Em uma implementação real, aqui faria uma requisição POST ao servidor
+    console.log("Criando novo aluno:", newStudent);
+    
+    // Reset do formulário e fechamento do modal
+    setNewStudent({
+      name: "",
+      email: "",
+      status: "pending",
+      phone: "",
+      document: ""
+    });
+    setShowNewStudentDialog(false);
+  };
+  
+  // Função para atualizar campos do novo aluno
+  const updateNewStudent = (field: string, value: string) => {
+    setNewStudent(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   // Consulta para obter dados de alunos
@@ -230,14 +286,204 @@ export default function DashboardStudentsPage() {
             </div>
             
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar
-              </Button>
-              <Button size="sm">
-                <UserPlus className="h-4 w-4 mr-2" />
-                Novo Aluno
-              </Button>
+              {/* Dialog de Exportação */}
+              <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportar
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Exportar Dados de Alunos</DialogTitle>
+                    <DialogDescription>
+                      Selecione o formato e os dados que deseja exportar.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="exportFormat" className="text-right">
+                        Formato
+                      </Label>
+                      <Select
+                        value={exportFormat}
+                        onValueChange={setExportFormat}
+                      >
+                        <SelectTrigger id="exportFormat" className="col-span-3">
+                          <SelectValue placeholder="Selecione o formato" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="csv">CSV</SelectItem>
+                          <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
+                          <SelectItem value="pdf">PDF</SelectItem>
+                          <SelectItem value="json">JSON</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="exportSelection" className="text-right">
+                        Dados
+                      </Label>
+                      <Select
+                        value={exportSelection}
+                        onValueChange={setExportSelection}
+                      >
+                        <SelectTrigger id="exportSelection" className="col-span-3">
+                          <SelectValue placeholder="Selecione os dados" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos os alunos</SelectItem>
+                          <SelectItem value="filtered">Alunos filtrados</SelectItem>
+                          <SelectItem value="active">Somente ativos</SelectItem>
+                          <SelectItem value="inactive">Somente inativos/suspensos</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label className="text-right">Incluir</Label>
+                      <div className="col-span-3 space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="includeDetails" defaultChecked />
+                          <label
+                            htmlFor="includeDetails"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Detalhes de matrícula
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="includeCourses" defaultChecked />
+                          <label
+                            htmlFor="includeCourses"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Cursos matriculados
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="includePayments" />
+                          <label
+                            htmlFor="includePayments"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Histórico de pagamentos
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setShowExportDialog(false)}>
+                      Cancelar
+                    </Button>
+                    <Button type="button" onClick={handleExport}>
+                      Exportar Agora
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              
+              {/* Dialog de Novo Aluno */}
+              <Dialog open={showNewStudentDialog} onOpenChange={setShowNewStudentDialog}>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Novo Aluno
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[525px]">
+                  <DialogHeader>
+                    <DialogTitle>Adicionar Novo Aluno</DialogTitle>
+                    <DialogDescription>
+                      Preencha os dados básicos do novo aluno para registrá-lo no sistema.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="studentName" className="text-right">
+                        Nome Completo
+                      </Label>
+                      <Input
+                        id="studentName"
+                        className="col-span-3"
+                        placeholder="Nome completo do aluno"
+                        value={newStudent.name}
+                        onChange={(e) => updateNewStudent('name', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="studentEmail" className="text-right">
+                        Email
+                      </Label>
+                      <Input
+                        id="studentEmail"
+                        className="col-span-3"
+                        placeholder="email@exemplo.com"
+                        type="email"
+                        value={newStudent.email}
+                        onChange={(e) => updateNewStudent('email', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="studentPhone" className="text-right">
+                        Telefone
+                      </Label>
+                      <Input
+                        id="studentPhone"
+                        className="col-span-3"
+                        placeholder="(00) 00000-0000"
+                        value={newStudent.phone}
+                        onChange={(e) => updateNewStudent('phone', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="studentDocument" className="text-right">
+                        CPF
+                      </Label>
+                      <Input
+                        id="studentDocument"
+                        className="col-span-3"
+                        placeholder="000.000.000-00"
+                        value={newStudent.document}
+                        onChange={(e) => updateNewStudent('document', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="studentStatus" className="text-right">
+                        Status
+                      </Label>
+                      <Select
+                        value={newStudent.status}
+                        onValueChange={(value) => updateNewStudent('status', value)}
+                      >
+                        <SelectTrigger id="studentStatus" className="col-span-3">
+                          <SelectValue placeholder="Selecione o status inicial" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendente</SelectItem>
+                          <SelectItem value="active">Ativo</SelectItem>
+                          <SelectItem value="inactive">Inativo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setShowNewStudentDialog(false)}>
+                      Cancelar
+                    </Button>
+                    <Button type="button" onClick={handleCreateStudent}>
+                      Criar Aluno
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
