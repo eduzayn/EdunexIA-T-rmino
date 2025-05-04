@@ -165,8 +165,8 @@ function Router() {
       <ProtectedRoute path="/teacher/productivity/reports" component={dynamic(() => import('@/pages/admin/productivity/reports'))} />
       
       {/* Rota de Configurações do Sistema */}
-      <ProtectedRoute path="/admin/settings" component={dynamic(() => import('@/pages/admin/settings'))} />
-      <ProtectedRoute path="/teacher/settings" component={dynamic(() => import('@/pages/admin/settings'))} />
+      <ProtectedRoute path="/admin/settings" component={dynamic(() => import('@/pages/admin/settings/index'))} />
+      <ProtectedRoute path="/teacher/settings" component={dynamic(() => import('@/pages/admin/settings/index'))} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
