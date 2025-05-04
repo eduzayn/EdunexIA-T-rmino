@@ -37,6 +37,7 @@ import {
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import { aiStorageMethods } from "./database-storage-ai";
 
 // Interface for storage operations
 export interface IStorage {
@@ -243,6 +244,38 @@ export class DatabaseStorage implements IStorage {
       createTableIfMissing: true 
     });
   }
+  
+  // AI Knowledge Base operations
+  createAiKnowledgeBase = aiStorageMethods.createAiKnowledgeBase;
+  getAiKnowledgeBaseById = aiStorageMethods.getAiKnowledgeBaseById;
+  getAiKnowledgeBaseByTenant = aiStorageMethods.getAiKnowledgeBaseByTenant;
+  getAiKnowledgeBaseByCategory = aiStorageMethods.getAiKnowledgeBaseByCategory;
+  updateAiKnowledgeBase = aiStorageMethods.updateAiKnowledgeBase;
+  deleteAiKnowledgeBase = aiStorageMethods.deleteAiKnowledgeBase;
+  
+  // AI Settings operations
+  getAiSettingsByTenant = aiStorageMethods.getAiSettingsByTenant;
+  createOrUpdateAiSettings = aiStorageMethods.createOrUpdateAiSettings;
+  
+  // AI Conversation operations
+  createAiConversation = aiStorageMethods.createAiConversation;
+  getAiConversationById = aiStorageMethods.getAiConversationById;
+  getAiConversationsByUser = aiStorageMethods.getAiConversationsByUser;
+  getAiConversationsByTenant = aiStorageMethods.getAiConversationsByTenant;
+  updateAiConversationTitle = aiStorageMethods.updateAiConversationTitle;
+  deleteAiConversation = aiStorageMethods.deleteAiConversation;
+  
+  // AI Message operations
+  createAiMessage = aiStorageMethods.createAiMessage;
+  getAiMessagesByConversation = aiStorageMethods.getAiMessagesByConversation;
+  
+  // AI Generated Content operations
+  createAiGeneratedContent = aiStorageMethods.createAiGeneratedContent;
+  getAiGeneratedContentById = aiStorageMethods.getAiGeneratedContentById;
+  getAiGeneratedContentByUser = aiStorageMethods.getAiGeneratedContentByUser;
+  getAiGeneratedContentByTenant = aiStorageMethods.getAiGeneratedContentByTenant;
+  getAiGeneratedContentByType = aiStorageMethods.getAiGeneratedContentByType;
+  deleteAiGeneratedContent = aiStorageMethods.deleteAiGeneratedContent;
 
   async getUser(id: number): Promise<User | undefined> {
     try {

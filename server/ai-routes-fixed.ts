@@ -4,6 +4,9 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { storage } from './database-storage';
+import { authenticateToken } from './middleware/auth-middleware';
+import { InsertAiConversation, InsertAiMessage, InsertAiGeneratedContent } from '@shared/schema';
 
 // Configuração do multer para upload de arquivos temporários
 const upload = multer({ 
@@ -15,6 +18,9 @@ const readFileAsync = promisify(fs.readFile);
 const unlinkAsync = promisify(fs.unlink);
 
 export const aiRouter = Router();
+
+// Aplicar middleware de autenticação em todas as rotas da IA
+aiRouter.use(authenticateToken);
 
 /**
  * Rota para perguntas educacionais à IA
@@ -128,17 +134,30 @@ aiRouter.post('/analyze-image', upload.single('image'), async (req: Request, res
 /**
  * Rota para obter configurações atuais da IA
  */
-aiRouter.get('/settings', (req: Request, res: Response) => {
+aiRouter.get('/settings', async (req: Request, res: Response) => {
   try {
-    // Aqui implementaríamos a lógica para buscar as configurações do banco de dados
-    // Por enquanto, retornamos configurações padrão
-    res.json({
+    const user = req.user as any;
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+    
+    const tenantId = user.tenantId;
+    const settings = await storage.getAiSettingsByTenant(tenantId);
+    
+    if (settings) {
+      return res.json(settings);
+    }
+    
+    // Se não existirem configurações, criar com valores padrão
+    const defaultSettings = await storage.createOrUpdateAiSettings(tenantId, {
       assistantName: 'Prof. Ana',
       defaultModel: 'claude-3-7-sonnet-20250219',
       maxTokensPerRequest: 2048,
       enabledFeatures: ['chat', 'contentGeneration', 'textAnalysis', 'imageAnalysis'],
       customInstructions: 'Atue como uma assistente educacional focada no contexto brasileiro.'
     });
+    
+    res.json(defaultSettings);
   } catch (error: any) {
     console.error('Erro ao obter configurações:', error);
     res.status(500).json({ error: error.message || 'Erro ao obter configurações da IA' });
@@ -148,22 +167,29 @@ aiRouter.get('/settings', (req: Request, res: Response) => {
 /**
  * Rota para atualizar configurações da IA
  */
-aiRouter.post('/settings', (req: Request, res: Response) => {
+aiRouter.post('/settings', async (req: Request, res: Response) => {
   try {
-    const { assistantName, customInstructions, enabledFeatures } = req.body;
+    const user = req.user as any;
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
     
-    // Aqui implementaríamos a lógica para salvar as configurações no banco de dados
-    // Por enquanto, apenas simulamos uma atualização bem-sucedida
+    const tenantId = user.tenantId;
+    const { assistantName, customInstructions, enabledFeatures, defaultModel, maxTokensPerRequest } = req.body;
+    
+    // Atualizar configurações no banco de dados
+    const updatedSettings = await storage.createOrUpdateAiSettings(tenantId, {
+      assistantName, 
+      customInstructions,
+      enabledFeatures,
+      defaultModel,
+      maxTokensPerRequest
+    });
     
     res.json({
       success: true,
       message: 'Configurações atualizadas com sucesso',
-      settings: {
-        assistantName: assistantName || 'Prof. Ana',
-        defaultModel: 'claude-3-7-sonnet-20250219',
-        enabledFeatures: enabledFeatures || ['chat', 'contentGeneration', 'textAnalysis', 'imageAnalysis'],
-        customInstructions: customInstructions || 'Atue como uma assistente educacional focada no contexto brasileiro.'
-      }
+      settings: updatedSettings
     });
   } catch (error: any) {
     console.error('Erro ao atualizar configurações:', error);
@@ -176,6 +202,11 @@ aiRouter.post('/settings', (req: Request, res: Response) => {
  */
 aiRouter.post('/knowledge-base', upload.single('document'), async (req: Request, res: Response) => {
   try {
+    const user = req.user as any;
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+    
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhum documento fornecido' });
     }
@@ -191,32 +222,50 @@ aiRouter.post('/knowledge-base', upload.single('document'), async (req: Request,
     const fileSize = req.file.size;
     const fileType = req.file.mimetype;
 
-    // Aqui implementaríamos a lógica para processar o documento,
-    // extrair o texto, gerar embeddings e armazená-los no banco de dados
+    // Criar diretório para uploads se não existir
+    const uploadDir = path.join('uploads', 'knowledge-base');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
     
-    // Moveria o arquivo para um local permanente
-    const newPath = path.join('uploads', 'knowledge-base', `${Date.now()}-${fileName}`);
+    // Mover o arquivo para um local permanente
+    const uniqueFileName = `${Date.now()}-${fileName}`;
+    const newPath = path.join(uploadDir, uniqueFileName);
+    fs.renameSync(filePath, newPath);
     
-    // Simula processamento bem-sucedido
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Remove o arquivo temporário
-    await unlinkAsync(filePath);
+    // Ler o conteúdo do arquivo
+    let content = '';
+    try {
+      const buffer = await readFileAsync(newPath);
+      if (fileType.includes('text')) {
+        content = buffer.toString('utf-8');
+      } else {
+        // Para outros tipos de arquivo, poderíamos usar bibliotecas como pdf-parse, docx2html, etc.
+        content = `Arquivo binário ${fileName} adicionado à base de conhecimento.`;
+      }
+    } catch (err) {
+      console.error('Erro ao ler conteúdo do arquivo:', err);
+      content = 'Não foi possível extrair o conteúdo deste arquivo.';
+    }
+    
+    // Salvar no banco de dados
+    const knowledgeEntry = await storage.createAiKnowledgeBase({
+      tenantId: user.tenantId,
+      userId: user.id,
+      title,
+      description: description || '',
+      category: category || 'general',
+      content,
+      fileName,
+      fileSize,
+      fileType,
+      filePath: newPath
+    });
 
     res.json({
       success: true,
       message: 'Documento adicionado à base de conhecimento',
-      document: {
-        id: Date.now(),
-        title,
-        description: description || '',
-        category: category || 'general',
-        fileName,
-        fileSize,
-        fileType,
-        path: newPath,
-        addedAt: new Date().toISOString()
-      }
+      document: knowledgeEntry
     });
   } catch (error: any) {
     // Se houver um arquivo temporário, tenta removê-lo
@@ -236,12 +285,25 @@ aiRouter.post('/knowledge-base', upload.single('document'), async (req: Request,
 /**
  * Rota para obter documentos da base de conhecimento
  */
-aiRouter.get('/knowledge-base', (req: Request, res: Response) => {
+aiRouter.get('/knowledge-base', async (req: Request, res: Response) => {
   try {
-    // Aqui implementaríamos a lógica para buscar os documentos do banco de dados
-    // Por enquanto, retornamos uma lista vazia
+    const user = req.user as any;
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+    
+    const tenantId = user.tenantId;
+    const category = req.query.category as string;
+    
+    let documents;
+    if (category) {
+      documents = await storage.getAiKnowledgeBaseByCategory(tenantId, category);
+    } else {
+      documents = await storage.getAiKnowledgeBaseByTenant(tenantId);
+    }
+    
     res.json({
-      documents: []
+      documents
     });
   } catch (error: any) {
     console.error('Erro ao obter documentos:', error);
@@ -252,16 +314,48 @@ aiRouter.get('/knowledge-base', (req: Request, res: Response) => {
 /**
  * Rota para remover documento da base de conhecimento
  */
-aiRouter.delete('/knowledge-base/:id', (req: Request, res: Response) => {
+aiRouter.delete('/knowledge-base/:id', async (req: Request, res: Response) => {
   try {
-    const documentId = req.params.id;
+    const user = req.user as any;
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+    
+    const documentId = parseInt(req.params.id);
     
     if (!documentId) {
       return res.status(400).json({ error: 'ID do documento é obrigatório' });
     }
     
-    // Aqui implementaríamos a lógica para remover o documento do banco de dados
-    // e excluir o arquivo físico
+    // Verificar se o documento existe e pertence ao tenant do usuário
+    const document = await storage.getAiKnowledgeBaseById(documentId);
+    
+    if (!document) {
+      return res.status(404).json({ error: 'Documento não encontrado' });
+    }
+    
+    if (document.tenantId !== user.tenantId) {
+      return res.status(403).json({ 
+        error: 'Acesso negado', 
+        message: 'Você não tem permissão para acessar este documento' 
+      });
+    }
+    
+    // Excluir o arquivo físico
+    if (document.filePath && fs.existsSync(document.filePath)) {
+      try {
+        fs.unlinkSync(document.filePath);
+      } catch (unlinkError) {
+        console.error('Erro ao excluir arquivo físico:', unlinkError);
+      }
+    }
+    
+    // Excluir do banco de dados
+    const success = await storage.deleteAiKnowledgeBase(documentId);
+    
+    if (!success) {
+      return res.status(500).json({ error: 'Erro ao excluir documento do banco de dados' });
+    }
     
     res.json({
       success: true,
