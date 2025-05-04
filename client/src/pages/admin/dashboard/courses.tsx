@@ -44,7 +44,7 @@ export default function DashboardCoursesPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [minRating, setMinRating] = useState<string>("");
+  const [minRating, setMinRating] = useState<string>("0");
   const [instructorFilter, setInstructorFilter] = useState<string>("");
   const [, navigate] = useLocation();
 
@@ -164,7 +164,7 @@ export default function DashboardCoursesPage() {
     
     const matchesMinPrice = !minPrice || course.price >= parseFloat(minPrice) * 100;
     const matchesMaxPrice = !maxPrice || course.price <= parseFloat(maxPrice) * 100;
-    const matchesMinRating = !minRating || course.rating >= parseFloat(minRating);
+    const matchesMinRating = !minRating || minRating === "0" || course.rating >= parseFloat(minRating);
     
     return matchesSearch && matchesCategory && matchesTab && 
            matchesInstructor && matchesMinPrice && matchesMaxPrice && matchesMinRating;
@@ -497,7 +497,7 @@ export default function DashboardCoursesPage() {
                             <SelectValue placeholder="Qualquer avaliação" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Qualquer avaliação</SelectItem>
+                            <SelectItem value="0">Qualquer avaliação</SelectItem>
                             <SelectItem value="5">5 estrelas</SelectItem>
                             <SelectItem value="4">4+ estrelas</SelectItem>
                             <SelectItem value="3">3+ estrelas</SelectItem>
@@ -514,7 +514,7 @@ export default function DashboardCoursesPage() {
                         onClick={() => {
                           setMinPrice("");
                           setMaxPrice("");
-                          setMinRating("");
+                          setMinRating("0");
                           setInstructorFilter("");
                           setShowAdvancedFilters(false);
                         }}
