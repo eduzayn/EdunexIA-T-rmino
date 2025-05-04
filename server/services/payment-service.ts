@@ -382,9 +382,15 @@ class PaymentService {
     studentName: string,
     value: number,
     installments?: number,
-    paymentMethod?: 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX',
+    paymentMethod?: 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX' | string,
     dueDate?: string // formato YYYY-MM-DD
   }): Promise<{ paymentUrl: string, paymentId: string }> {
+    // Garantir que o método de pagamento seja válido
+    if (!data.paymentMethod || data.paymentMethod === 'UNDEFINED' || 
+        !['BOLETO', 'CREDIT_CARD', 'PIX'].includes(data.paymentMethod)) {
+      console.log(`Método de pagamento inválido ou indefinido: ${data.paymentMethod}, usando BOLETO como padrão`);
+      data.paymentMethod = 'BOLETO';
+    }
     try {
       // Gerar data de vencimento (30 dias a partir de hoje caso não seja fornecida)
       const dueDate = data.dueDate || this.generateDueDate(30);

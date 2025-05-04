@@ -204,6 +204,8 @@ export default function SimplifiedEnrollmentPage() {
         poloId: values.poloId ? parseInt(values.poloId) : undefined,
         // Garantir que o CPF não tenha formatação
         studentCpf: values.studentCpf.replace(/[^\d]/g, ''),
+        // Garantir que paymentMethod é um valor válido
+        paymentMethod: values.paymentMethod || "BOLETO",
       };
       
       // Log para debug
@@ -216,6 +218,24 @@ export default function SimplifiedEnrollmentPage() {
       if (!formattedData.amount || formattedData.amount <= 0) {
         throw new Error("O valor da matrícula deve ser maior que zero");
       }
+      
+      if (formattedData.studentCpf.length !== 11) {
+        throw new Error("CPF inválido. Deve conter 11 dígitos.");
+      }
+      
+      if (!formattedData.studentName || formattedData.studentName.length < 3) {
+        throw new Error("Nome do aluno deve ter pelo menos 3 caracteres");
+      }
+      
+      if (!formattedData.studentEmail || !formattedData.studentEmail.includes('@')) {
+        throw new Error("Email inválido");
+      }
+      
+      // Mostrar toast indicando processamento
+      toast({
+        title: "Processando matrícula",
+        description: "Aguarde enquanto processamos sua solicitação...",
+      });
       
       createEnrollmentMutation.mutate(formattedData);
     } catch (error: any) {
