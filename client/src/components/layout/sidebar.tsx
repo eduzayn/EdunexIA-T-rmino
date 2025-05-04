@@ -467,10 +467,17 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                 {openGroups.secretary && (
                   <div className="pl-12 space-y-2 mt-2">
                     {/* Itens da secretaria em desenvolvimento */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Matrícula</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link
+                      href={`${currentPortal.baseRoute}/simplified-enrollment`}
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/simplified-enrollment`) 
+                          ? "bg-sidebar-accent/50 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/30 hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Matrícula
+                    </Link>
                     
                     <Link
                       href={`${currentPortal.baseRoute}/secretary/academic-transcript`}
