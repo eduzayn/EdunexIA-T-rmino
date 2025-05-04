@@ -267,7 +267,13 @@ export default function DashboardCoursesPage() {
                   
                   // Nome do arquivo baseado na data atual
                   const today = new Date().toISOString().split('T')[0];
-                  exportToCSV(exportData, `cursos-${today}`);
+                  console.log('Dados para exportação:', exportData);
+                  try {
+                    exportToCSV(exportData, `cursos-${today}`);
+                    console.log('Exportação concluída com sucesso');
+                  } catch (error) {
+                    console.error('Erro ao exportar:', error);
+                  }
                 }}
               >
                 <Download className="h-4 w-4 mr-2" />
