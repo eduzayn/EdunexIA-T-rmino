@@ -6,6 +6,8 @@ import {
   Lesson, InsertLesson,
   Enrollment, InsertEnrollment,
   Lead, InsertLead,
+  Opportunity, InsertOpportunity,
+  Campaign, InsertCampaign,
   Subject, InsertSubject,
   Class, InsertClass,
   ClassEnrollment, InsertClassEnrollment,
@@ -15,20 +17,27 @@ import {
   EducationalContract, InsertEducationalContract,
   DocumentType, InsertDocumentType,
   StudentDocument, InsertStudentDocument,
-  DocumentRequest, InsertDocumentRequest
+  DocumentRequest, InsertDocumentRequest,
+  AiKnowledgeBase, InsertAiKnowledgeBase,
+  AiSettings, InsertAiSettings,
+  AiConversation, InsertAiConversation,
+  AiMessage, InsertAiMessage,
+  AiGeneratedContent, InsertAiGeneratedContent
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, inArray, like, or, isNull, isNotNull } from "drizzle-orm";
 import { 
-  users, tenants, courses, modules, lessons, enrollments, leads, subjects,
+  users, tenants, courses, modules, lessons, enrollments, leads, opportunities, campaigns, subjects,
   lessonProgress, payments, classes, classEnrollments,
-  aiKnowledgeBase, productivityLogs, assessments, assessmentResults,
+  aiKnowledgeBase, aiSettings, aiConversations, aiMessages, aiGeneratedContent,
+  productivityLogs, assessments, assessmentResults,
   simplifiedEnrollments, educationalContracts, documentTypes, studentDocuments,
   documentRequests
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import { aiStorageMethods } from "./database-storage-ai";
 
 // Interface for storage operations
 export interface IStorage {
@@ -122,6 +131,20 @@ export interface IStorage {
   getLeadsByTenant(tenantId: number): Promise<Lead[]>;
   createLead(lead: InsertLead): Promise<Lead>;
   
+  // Opportunity operations
+  getOpportunitiesByTenant(tenantId: number): Promise<Opportunity[]>;
+  getOpportunityById(id: number): Promise<Opportunity | undefined>;
+  createOpportunity(opportunity: InsertOpportunity): Promise<Opportunity>;
+  updateOpportunity(id: number, opportunityData: Partial<InsertOpportunity>): Promise<Opportunity>;
+  deleteOpportunity(id: number): Promise<boolean>;
+  
+  // Campaign operations
+  getCampaignsByTenant(tenantId: number): Promise<Campaign[]>;
+  getCampaignById(id: number): Promise<Campaign | undefined>;
+  createCampaign(campaign: InsertCampaign): Promise<Campaign>;
+  updateCampaign(id: number, campaignData: Partial<InsertCampaign>): Promise<Campaign>;
+  deleteCampaign(id: number): Promise<boolean>;
+  
   // Dashboard statistics
   getDashboardStats(tenantId: number): Promise<any>;
   
@@ -173,6 +196,38 @@ export interface IStorage {
   updateDocumentRequestStatus(id: number, status: string, reviewedBy: number, comments?: string): Promise<DocumentRequest>;
   linkGeneratedDocument(requestId: number, documentId: number): Promise<DocumentRequest>;
   
+  // AI Knowledge Base operations
+  createAiKnowledgeBase(data: InsertAiKnowledgeBase): Promise<AiKnowledgeBase>;
+  getAiKnowledgeBaseById(id: number): Promise<AiKnowledgeBase | undefined>;
+  getAiKnowledgeBaseByTenant(tenantId: number): Promise<AiKnowledgeBase[]>;
+  getAiKnowledgeBaseByCategory(tenantId: number, category: string): Promise<AiKnowledgeBase[]>;
+  updateAiKnowledgeBase(id: number, data: Partial<InsertAiKnowledgeBase>): Promise<AiKnowledgeBase>;
+  deleteAiKnowledgeBase(id: number): Promise<boolean>;
+  
+  // AI Settings operations
+  getAiSettingsByTenant(tenantId: number): Promise<AiSettings | undefined>;
+  createOrUpdateAiSettings(tenantId: number, data: Partial<InsertAiSettings>): Promise<AiSettings>;
+  
+  // AI Conversation operations
+  createAiConversation(data: InsertAiConversation): Promise<AiConversation>;
+  getAiConversationById(id: number): Promise<AiConversation | undefined>;
+  getAiConversationsByUser(userId: number): Promise<AiConversation[]>;
+  getAiConversationsByTenant(tenantId: number): Promise<AiConversation[]>;
+  updateAiConversationTitle(id: number, title: string): Promise<AiConversation>;
+  deleteAiConversation(id: number): Promise<boolean>;
+  
+  // AI Message operations
+  createAiMessage(data: InsertAiMessage): Promise<AiMessage>;
+  getAiMessagesByConversation(conversationId: number): Promise<AiMessage[]>;
+  
+  // AI Generated Content operations
+  createAiGeneratedContent(data: InsertAiGeneratedContent): Promise<AiGeneratedContent>;
+  getAiGeneratedContentById(id: number): Promise<AiGeneratedContent | undefined>;
+  getAiGeneratedContentByUser(userId: number): Promise<AiGeneratedContent[]>;
+  getAiGeneratedContentByTenant(tenantId: number): Promise<AiGeneratedContent[]>;
+  getAiGeneratedContentByType(tenantId: number, contentType: string): Promise<AiGeneratedContent[]>;
+  deleteAiGeneratedContent(id: number): Promise<boolean>;
+  
   // Session store
   sessionStore: session.Store;
 }
@@ -189,6 +244,38 @@ export class DatabaseStorage implements IStorage {
       createTableIfMissing: true 
     });
   }
+  
+  // AI Knowledge Base operations
+  createAiKnowledgeBase = aiStorageMethods.createAiKnowledgeBase;
+  getAiKnowledgeBaseById = aiStorageMethods.getAiKnowledgeBaseById;
+  getAiKnowledgeBaseByTenant = aiStorageMethods.getAiKnowledgeBaseByTenant;
+  getAiKnowledgeBaseByCategory = aiStorageMethods.getAiKnowledgeBaseByCategory;
+  updateAiKnowledgeBase = aiStorageMethods.updateAiKnowledgeBase;
+  deleteAiKnowledgeBase = aiStorageMethods.deleteAiKnowledgeBase;
+  
+  // AI Settings operations
+  getAiSettingsByTenant = aiStorageMethods.getAiSettingsByTenant;
+  createOrUpdateAiSettings = aiStorageMethods.createOrUpdateAiSettings;
+  
+  // AI Conversation operations
+  createAiConversation = aiStorageMethods.createAiConversation;
+  getAiConversationById = aiStorageMethods.getAiConversationById;
+  getAiConversationsByUser = aiStorageMethods.getAiConversationsByUser;
+  getAiConversationsByTenant = aiStorageMethods.getAiConversationsByTenant;
+  updateAiConversationTitle = aiStorageMethods.updateAiConversationTitle;
+  deleteAiConversation = aiStorageMethods.deleteAiConversation;
+  
+  // AI Message operations
+  createAiMessage = aiStorageMethods.createAiMessage;
+  getAiMessagesByConversation = aiStorageMethods.getAiMessagesByConversation;
+  
+  // AI Generated Content operations
+  createAiGeneratedContent = aiStorageMethods.createAiGeneratedContent;
+  getAiGeneratedContentById = aiStorageMethods.getAiGeneratedContentById;
+  getAiGeneratedContentByUser = aiStorageMethods.getAiGeneratedContentByUser;
+  getAiGeneratedContentByTenant = aiStorageMethods.getAiGeneratedContentByTenant;
+  getAiGeneratedContentByType = aiStorageMethods.getAiGeneratedContentByType;
+  deleteAiGeneratedContent = aiStorageMethods.deleteAiGeneratedContent;
 
   async getUser(id: number): Promise<User | undefined> {
     try {
@@ -954,6 +1041,178 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao criar lead:', error);
       throw error;
+    }
+  }
+  
+  // Métodos para Oportunidades (Opportunities)
+  async getOpportunitiesByTenant(tenantId: number): Promise<Opportunity[]> {
+    try {
+      return await db
+        .select()
+        .from(opportunities)
+        .where(eq(opportunities.tenantId, tenantId))
+        .orderBy(desc(opportunities.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar oportunidades por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getOpportunityById(id: number): Promise<Opportunity | undefined> {
+    try {
+      const [opportunity] = await db
+        .select()
+        .from(opportunities)
+        .where(eq(opportunities.id, id));
+      return opportunity;
+    } catch (error) {
+      console.error('Erro ao buscar oportunidade por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async createOpportunity(opportunityData: InsertOpportunity): Promise<Opportunity> {
+    try {
+      const [opportunity] = await db.insert(opportunities).values({
+        ...opportunityData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: opportunityData.status || "open",
+        value: opportunityData.value || null,
+        probability: opportunityData.probability || 50,
+        closedAt: null,
+        notes: opportunityData.notes || null,
+        assignedTo: opportunityData.assignedTo || null,
+        predictedClosingDate: opportunityData.predictedClosingDate || null
+      }).returning();
+      return opportunity;
+    } catch (error) {
+      console.error('Erro ao criar oportunidade:', error);
+      throw error;
+    }
+  }
+  
+  async updateOpportunity(id: number, opportunityData: Partial<InsertOpportunity>): Promise<Opportunity> {
+    try {
+      // Verificar se houve alteração de status para "won" ou "lost"
+      let closedAt = null;
+      if (opportunityData.status === "won" || opportunityData.status === "lost") {
+        closedAt = new Date();
+      }
+      
+      const [updatedOpportunity] = await db.update(opportunities)
+        .set({
+          ...opportunityData,
+          closedAt,
+          updatedAt: new Date()
+        })
+        .where(eq(opportunities.id, id))
+        .returning();
+      
+      if (!updatedOpportunity) {
+        throw new Error('Oportunidade não encontrada');
+      }
+      
+      return updatedOpportunity;
+    } catch (error) {
+      console.error('Erro ao atualizar oportunidade:', error);
+      throw error;
+    }
+  }
+  
+  async deleteOpportunity(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(opportunities).where(eq(opportunities.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir oportunidade:', error);
+      return false;
+    }
+  }
+  
+  // Métodos para Campanhas (Campaigns)
+  async getCampaignsByTenant(tenantId: number): Promise<Campaign[]> {
+    try {
+      return await db
+        .select()
+        .from(campaigns)
+        .where(eq(campaigns.tenantId, tenantId))
+        .orderBy(desc(campaigns.createdAt));
+    } catch (error) {
+      console.error('Erro ao buscar campanhas por tenant:', error);
+      return [];
+    }
+  }
+  
+  async getCampaignById(id: number): Promise<Campaign | undefined> {
+    try {
+      const [campaign] = await db
+        .select()
+        .from(campaigns)
+        .where(eq(campaigns.id, id));
+      return campaign;
+    } catch (error) {
+      console.error('Erro ao buscar campanha por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async createCampaign(campaignData: InsertCampaign): Promise<Campaign> {
+    try {
+      const [campaign] = await db.insert(campaigns).values({
+        ...campaignData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: campaignData.status || "draft",
+        description: campaignData.description || null,
+        budget: campaignData.budget || null,
+        audience: campaignData.audience || null,
+        completedAt: null,
+        startDate: campaignData.startDate || null,
+        endDate: campaignData.endDate || null
+      }).returning();
+      return campaign;
+    } catch (error) {
+      console.error('Erro ao criar campanha:', error);
+      throw error;
+    }
+  }
+  
+  async updateCampaign(id: number, campaignData: Partial<InsertCampaign>): Promise<Campaign> {
+    try {
+      // Verificar se houve alteração de status para "completed"
+      let completedAt = null;
+      if (campaignData.status === "completed") {
+        completedAt = new Date();
+      }
+      
+      const [updatedCampaign] = await db.update(campaigns)
+        .set({
+          ...campaignData,
+          completedAt,
+          updatedAt: new Date()
+        })
+        .where(eq(campaigns.id, id))
+        .returning();
+      
+      if (!updatedCampaign) {
+        throw new Error('Campanha não encontrada');
+      }
+      
+      return updatedCampaign;
+    } catch (error) {
+      console.error('Erro ao atualizar campanha:', error);
+      throw error;
+    }
+  }
+  
+  async deleteCampaign(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(campaigns).where(eq(campaigns.id, id)).returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir campanha:', error);
+      return false;
     }
   }
   

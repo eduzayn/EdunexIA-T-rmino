@@ -1,6 +1,7 @@
 import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import dynamic from "@/lib/dynamic.tsx";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import AuthPage from "@/pages/auth-page";
@@ -57,6 +58,13 @@ import AdminHubViewPage from "@/pages/admin-hub-view-page";
 import SimplifiedEnrollmentPage from "@/pages/admin/simplified-enrollment-page";
 import ContractsPage from "@/pages/admin/contracts-page";
 import StudentContractsPage from "@/pages/student/contracts-page";
+import LeadsPage from "@/pages/admin/leads-page";
+import OpportunitiesPage from "@/pages/admin/opportunities-page";
+import CampaignsPage from "@/pages/admin/campaigns-page";
+import AutomationsPage from "@/pages/admin/automations-page";
+import PaymentsPage from "@/pages/admin/payments-page";
+import SubscriptionsPage from "@/pages/admin/subscriptions-page";
+import BillingPage from "@/pages/admin/billing-page";
 
 function Router() {
   const { currentPortal } = usePortal();
@@ -126,6 +134,25 @@ function Router() {
       <ProtectedRoute path="/admin/contracts" component={ContractsPage} />
       <ProtectedRoute path="/admin/sms-test" component={SmsTestPage} />
       
+      {/* Rotas do Módulo Comercial */}
+      <ProtectedRoute path="/admin/leads" component={LeadsPage} />
+      <ProtectedRoute path="/admin/opportunities" component={OpportunitiesPage} />
+      <ProtectedRoute path="/admin/campaigns" component={CampaignsPage} />
+      <ProtectedRoute path="/admin/automations" component={AutomationsPage} />
+      
+      {/* Rotas do Módulo Financeiro */}
+      <ProtectedRoute path="/admin/payments" component={PaymentsPage} />
+      <ProtectedRoute path="/admin/subscriptions" component={SubscriptionsPage} />
+      <ProtectedRoute path="/admin/billing" component={BillingPage} />
+      
+      {/* Rotas do Módulo de IA - Prof. Ana */}
+      <ProtectedRoute path="/admin/ai" component={() => window.location.href = '/admin/ai/dashboard'} />
+      <ProtectedRoute path="/admin/ai/dashboard" component={dynamic(() => import('@/pages/admin/ai-dashboard'))} />
+      <ProtectedRoute path="/admin/ai/chat" component={dynamic(() => import('@/pages/admin/ai-chat'))} />
+      <ProtectedRoute path="/admin/ai/text-analyzer" component={dynamic(() => import('@/pages/admin/ai-text-analyzer'))} />
+      <ProtectedRoute path="/admin/ai/content-generator" component={dynamic(() => import('@/pages/admin/ai-content-generator'))} />
+      <ProtectedRoute path="/admin/ai/image-analyzer" component={dynamic(() => import('@/pages/admin/ai-image-analyzer'))} />
+      
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
       <ProtectedRoute path="/student/courses" component={StudentCoursesPage} />
@@ -153,6 +180,8 @@ function Router() {
       <ProtectedRoute path="/hub/students" component={StudentsPage} />
       <ProtectedRoute path="/hub/teachers" component={TeachersPage} />
       <ProtectedRoute path="/hub/simplified-enrollment" component={SimplifiedEnrollmentPage} />
+      <ProtectedRoute path="/hub/leads" component={LeadsPage} />
+      <ProtectedRoute path="/hub/opportunities" component={OpportunitiesPage} />
       
       {/* Rotas do Portal do Parceiro */}
       <ProtectedRoute path="/partner/dashboard" component={PartnerDashboard} />

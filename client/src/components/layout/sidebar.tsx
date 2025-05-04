@@ -40,6 +40,9 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
     secretary: false,
     partnerships: false,
     ai: false, // Adicionado para o menu de IA
+    financial: false,
+    commercial: false,
+    productivity: false
   });
 
   // Ícones para cada tipo de portal
@@ -534,16 +537,66 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                 
                 {openGroups.ai && (
                   <div className="pl-12 space-y-2 mt-2">
-                    {/* Adicionar em breve pois essa funcionalidade não está implementada */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Assistente EdunéxIA</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    {/* Links para a Prof. Ana IA */}
+                    <Link 
+                      href={`${currentPortal.baseRoute}/ai/dashboard`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/ai/dashboard`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Dashboard IA
+                    </Link>
                     
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Tutor Inteligente</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link 
+                      href={`${currentPortal.baseRoute}/ai/chat`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/ai/chat`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Prof. Ana Chat
+                    </Link>
+                    
+                    <Link 
+                      href={`${currentPortal.baseRoute}/ai/content-generator`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/ai/content-generator`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Gerador de Conteúdo
+                    </Link>
+                    
+                    <Link 
+                      href={`${currentPortal.baseRoute}/ai/text-analyzer`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/ai/text-analyzer`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Analisador de Textos
+                    </Link>
+                    
+                    <Link 
+                      href={`${currentPortal.baseRoute}/ai/image-analyzer`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/ai/image-analyzer`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Analisador de Imagens
+                    </Link>
                   </div>
                 )}
               </div>
@@ -659,25 +712,48 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                 {openGroups.commercial && (
                   <div className="pl-9 space-y-1 mt-1">
                     {/* Leads - visível para todos os portais comerciais */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Leads</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    {['admin', 'hub'].includes(currentPortal.id) && (
+                      <Link 
+                        href={`${currentPortal.baseRoute}/leads`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/leads`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Leads
+                      </Link>
+                    )}
                     
                     {/* Oportunidades - apenas admin e hub */}
                     {['admin', 'hub'].includes(currentPortal.id) && (
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Oportunidades</span>
-                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/opportunities`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/opportunities`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Oportunidades
+                      </Link>
                     )}
                     
                     {/* Campanhas - apenas admin */}
                     {currentPortal.id === 'admin' && (
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Campanhas</span>
-                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/campaigns`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/campaigns`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Campanhas
+                      </Link>
                     )}
                     
                     {/* Matrícula Simplificada - admin e hub */}
@@ -697,10 +773,17 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                     
                     {/* Automações - apenas admin */}
                     {currentPortal.id === 'admin' && (
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Automações</span>
-                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
+                      <Link 
+                        href={`${currentPortal.baseRoute}/automations`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/automations`) 
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Automações
+                      </Link>
                     )}
                   </div>
                 )}
@@ -728,23 +811,43 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
                 {openGroups.financial && (
                   <div className="pl-9 space-y-1 mt-1">
-                    {/* Módulo financeiro em desenvolvimento */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Pagamentos</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link 
+                      to="/admin/payments" 
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                        location === "/admin/payments"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-item-hover hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Pagamentos
+                    </Link>
                     
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Assinaturas</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link 
+                      to="/admin/subscriptions" 
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                        location === "/admin/subscriptions"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-item-hover hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Assinaturas
+                    </Link>
                     
                     {currentPortal.id === 'admin' && (
                       <>
-                        <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                          <span>Faturamento</span>
-                          <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                        </div>
+                        <Link 
+                          to="/admin/billing" 
+                          className={cn(
+                            "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                            location === "/admin/billing"
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground hover:bg-sidebar-item-hover hover:text-sidebar-foreground"
+                          )}
+                        >
+                          Faturamento
+                        </Link>
                         
                         <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
                           <span>Relatórios</span>
@@ -757,48 +860,7 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </div>
             )}
 
-            {/* AI Module - Disponível para admin, student e teacher */}
-            {['admin', 'student', 'teacher'].includes(currentPortal.id) && (
-              <div className="nav-group">
-                <button 
-                  className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-sidebar-foreground rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
-                  onClick={() => toggleGroup('ai')}
-                >
-                  <div className="flex items-center">
-                    <Bot className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
-                    Inteligência Artificial
-                  </div>
-                  <ChevronDown 
-                    className={cn(
-                      "h-5 w-5 text-sidebar-foreground/70 transition-transform",
-                      openGroups.ai ? "transform rotate-180" : ""
-                    )} 
-                  />
-                </button>
-
-                {openGroups.ai && (
-                  <div className="pl-9 space-y-1 mt-1">
-                    {/* Módulo IA em desenvolvimento */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Assistente IA</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Base de conhecimento</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
-                    
-                    {currentPortal.id === 'admin' && (
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                        <span>Configurações</span>
-                        <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Módulo de Produtividade - Em desenvolvimento */}
 
             {/* Productivity Module - Apenas admin e teacher */}
             {['admin', 'teacher'].includes(currentPortal.id) && (
