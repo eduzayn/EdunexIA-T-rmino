@@ -17,10 +17,9 @@ const unlinkAsync = promisify(fs.unlink);
 export const aiRouter = Router();
 
 /**
- * Middleware para verificar se o usuário está autenticado - não utilizado diretamente
- * pois já usamos o middleware de autenticação definido em routes.ts
+ * Middleware para verificar se o usuário está autenticado
  */
-function checkAuthenticated(req: Request, res: Response, next: Function) {
+function isAuthenticated(req: Request, res: Response, next: Function) {
   if (req.isAuthenticated && req.isAuthenticated()) {
     return next();
   }

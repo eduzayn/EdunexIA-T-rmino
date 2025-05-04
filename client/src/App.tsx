@@ -1,6 +1,7 @@
 import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import dynamic from "@/lib/dynamic.tsx";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import AuthPage from "@/pages/auth-page";
@@ -143,6 +144,14 @@ function Router() {
       <ProtectedRoute path="/admin/payments" component={PaymentsPage} />
       <ProtectedRoute path="/admin/subscriptions" component={SubscriptionsPage} />
       <ProtectedRoute path="/admin/billing" component={BillingPage} />
+      
+      {/* Rotas do Módulo de IA - Prof. Ana */}
+      <ProtectedRoute path="/admin/ai" component={() => window.location.href = '/admin/ai/dashboard'} />
+      <ProtectedRoute path="/admin/ai/dashboard" component={dynamic(() => import('@/pages/admin/ai-dashboard'))} />
+      <ProtectedRoute path="/admin/ai/chat" component={dynamic(() => import('@/pages/admin/ai-chat'))} />
+      <ProtectedRoute path="/admin/ai/text-analyzer" component={dynamic(() => import('@/pages/admin/ai-text-analyzer'))} />
+      <ProtectedRoute path="/admin/ai/content-generator" component={dynamic(() => import('@/pages/admin/ai-content-generator'))} />
+      <ProtectedRoute path="/admin/ai/image-analyzer" component={dynamic(() => import('@/pages/admin/ai-image-analyzer'))} />
       
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
