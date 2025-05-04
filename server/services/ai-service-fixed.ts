@@ -14,6 +14,44 @@ const MODEL = 'claude-3-7-sonnet-20250219';
 const MAX_TOKENS = 2048;
 
 /**
+ * Extrai o texto da resposta com tratamento seguro para diferentes tipos de conteúdo
+ * @param content Array de blocos de conteúdo da resposta do Anthropic
+ * @returns Texto extraído ou string vazia se não encontrado
+ */
+function extractResponseText(content: any[]): string {
+  if (!content || content.length === 0) return '';
+  
+  const contentBlock = content[0];
+  
+  // Se for um objeto com propriedade 'text'
+  if (typeof contentBlock === 'object' && 'text' in contentBlock) {
+    return contentBlock.text;
+  }
+  
+  // Se for um objeto com propriedade 'type' e 'text'
+  if (typeof contentBlock === 'object' && contentBlock.type === 'text' && 'text' in contentBlock) {
+    return contentBlock.text;
+  }
+  
+  // Se for um objeto com valor como string
+  if (typeof contentBlock === 'object' && contentBlock.value && typeof contentBlock.value === 'string') {
+    return contentBlock.value;
+  }
+  
+  // Se for uma string diretamente
+  if (typeof contentBlock === 'string') {
+    return contentBlock;
+  }
+  
+  // Fallback para casos não tratados - converte para string
+  if (contentBlock) {
+    return String(contentBlock);
+  }
+  
+  return '';
+}
+
+/**
  * Serviço de IA para o módulo educacional
  */
 export const aiService = {
@@ -59,7 +97,7 @@ export const aiService = {
         messages,
       });
 
-      return { content: response.content[0].text };
+      return { content: extractResponseText(response.content) };
     } catch (error) {
       console.error('Erro ao responder pergunta:', error);
       throw new Error('Erro ao processar sua pergunta com a IA');
@@ -91,7 +129,7 @@ export const aiService = {
         ],
       });
 
-      return { content: response.content[0].text };
+      return { content: extractResponseText(response.content) };
     } catch (error) {
       console.error('Erro ao analisar texto:', error);
       throw new Error('Erro ao processar análise do texto com a IA');
