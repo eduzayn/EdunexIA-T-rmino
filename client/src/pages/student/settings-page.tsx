@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
-import { SaveIcon, KeyIcon, UserIcon, BellIcon, MoonIcon, SunIcon, DesktopIcon, GlobeIcon, AlertTriangleIcon, SmartphoneIcon } from "lucide-react";
+import { SaveIcon, KeyIcon, UserIcon, BellIcon, MoonIcon, SunIcon, MonitorIcon, GlobeIcon, AlertTriangleIcon, SmartphoneIcon } from "lucide-react";
 
 export default function StudentSettingsPage() {
   const { toast } = useToast();
@@ -434,7 +434,7 @@ export default function StudentSettingsPage() {
                                 onClick={() => form.setValue('theme', 'system', { shouldDirty: true })}
                               >
                                 <div className="h-16 w-full bg-gradient-to-r from-background to-slate-800 border rounded-md flex items-center justify-center">
-                                  <DesktopIcon className="h-8 w-8 text-slate-600" />
+                                  <MonitorIcon className="h-8 w-8 text-slate-600" />
                                 </div>
                                 <div className="font-medium">Sistema</div>
                               </div>

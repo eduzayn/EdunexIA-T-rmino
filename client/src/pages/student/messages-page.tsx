@@ -278,7 +278,7 @@ export default function StudentMessagesPage() {
                         Erro ao carregar mensagens.
                       </p>
                       <Button variant="outline" size="sm" className="mt-2" onClick={() => refetch()}>
-                        <RefreshIcon className="h-4 w-4 mr-2" /> Tentar novamente
+                        <RefreshCwIcon className="h-4 w-4 mr-2" /> Tentar novamente
                       </Button>
                     </CardContent>
                   </Card>
@@ -349,7 +349,7 @@ export default function StudentMessagesPage() {
                         Erro ao carregar mensagens.
                       </p>
                       <Button variant="outline" size="sm" className="mt-2" onClick={() => refetch()}>
-                        <RefreshIcon className="h-4 w-4 mr-2" /> Tentar novamente
+                        <RefreshCwIcon className="h-4 w-4 mr-2" /> Tentar novamente
                       </Button>
                     </CardContent>
                   </Card>
