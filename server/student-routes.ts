@@ -10,19 +10,12 @@ import { eq, and, desc, or } from 'drizzle-orm';
 
 export const studentRouter = Router();
 
-// Middleware para verificar se o usuário é um aluno
+// Importando o middleware de verificação de papéis
+import { isStudent as isStudentMiddleware } from './middleware/role-access';
+
+// Utilizando o middleware importado
 function isStudent(req: Request, res: Response, next: NextFunction) {
-  const user = req.user;
-  
-  if (!user) {
-    return res.status(401).json({ error: 'Não autenticado' });
-  }
-  
-  if (user.role !== 'student' && user.role !== 'admin') { // permitindo admin para testes
-    return res.status(403).json({ error: 'Acesso negado. Apenas alunos podem acessar este recurso.' });
-  }
-  
-  next();
+  return isStudentMiddleware(req, res, next);
 }
 
 // Obter cursos do aluno

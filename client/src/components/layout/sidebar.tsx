@@ -156,8 +156,8 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
         </div>
 
         <div className={cn("pt-1 pb-4 flex-1 overflow-y-auto", collapsed ? "px-2" : "px-6")}>
-          {/* Portal Selector */}
-          {!collapsed && (
+          {/* Portal Selector - só mostrar para admins ou se tiver mais de um portal disponível */}
+          {!collapsed && user?.role === 'admin' && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Portal
@@ -181,10 +181,22 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             </div>
           )}
           
-          {/* Portal Selector para sidebar colapsado */}
+          {/* Portal Selector para sidebar colapsado - mostrando apenas o ícone do portal atual */}
           {collapsed && (
             <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center justify-center p-2 rounded-full bg-sidebar-accent">
+              <div 
+                className={cn(
+                  "flex items-center justify-center p-2 rounded-full bg-sidebar-accent cursor-pointer",
+                  user?.role === 'admin' ? "hover:bg-sidebar-primary hover:text-sidebar-primary-foreground transition-colors" : ""
+                )}
+                onClick={() => {
+                  // Se for admin e estiver colapsado, expandir para permitir trocar de portal
+                  if (user?.role === 'admin' && collapsed) {
+                    setCollapsed(false);
+                  }
+                }}
+                title={user?.role === 'admin' ? "Expandir para trocar de portal" : currentPortal.name}
+              >
                 {portalIcons[currentPortal.id]}
               </div>
             </div>
