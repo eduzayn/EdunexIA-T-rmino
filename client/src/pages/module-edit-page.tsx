@@ -8,7 +8,7 @@ import { Course, Module } from "@shared/schema";
 import { ModuleForm } from "@/components/modules/module-form";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { AlertTriangle, ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronRight, Loader2, Plus } from "lucide-react";
 
 export default function ModuleEditPage() {
   // Capturar IDs da URL
@@ -65,6 +65,18 @@ export default function ModuleEditPage() {
   }
 
   if (error || !course || !module) {
+    // Verificar se temos um curso mas o módulo não existe
+    const errorMessage = course && !module 
+      ? `O módulo com ID ${moduleId} não existe para o curso "${course.title}".` 
+      : "Não foi possível encontrar o curso ou módulo solicitado. Verifique se você tem acesso a este recurso.";
+    
+    // Se temos um curso válido mas não o módulo, redirecionamos para a página do curso
+    const backLink = course ? `/admin/courses/${courseId}` : "/admin/courses";
+    const backLinkText = course ? `Voltar para ${course.title}` : "Voltar para lista de cursos";
+    
+    // Se deu erro de módulo não encontrado, mostrar botão para criar novo módulo
+    const showCreateButton = course && !module;
+    
     return (
       <AppShell>
         <div className="container py-6">
@@ -72,14 +84,25 @@ export default function ModuleEditPage() {
             <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Erro ao carregar dados</h2>
             <p className="text-muted-foreground mb-4">
-              Não foi possível encontrar o curso ou módulo solicitado. Verifique se você tem acesso a este recurso.
+              {errorMessage}
             </p>
-            <Button asChild>
-              <Link href="/admin/courses">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar para lista de cursos
-              </Link>
-            </Button>
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+              <Button asChild>
+                <Link href={backLink}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {backLinkText}
+                </Link>
+              </Button>
+              
+              {showCreateButton && (
+                <Button asChild variant="outline">
+                  <Link href={`/admin/courses/${courseId}/modules/new`}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar novo módulo
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </AppShell>
