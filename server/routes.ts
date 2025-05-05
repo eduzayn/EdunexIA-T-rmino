@@ -863,12 +863,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats
+  // Cache para as estatísticas do dashboard para evitar consultas frequentes
+  const dashboardStatsCache = new Map();
+  const CACHE_TTL = 60 * 1000; // 1 minuto em milissegundos
+  
   app.get("/api/dashboard/stats", isAuthenticated, async (req, res, next) => {
     try {
       const tenantId = req.user?.tenantId || 1;
-      const stats = await storage.getDashboardStats(tenantId);
+      const cacheKey = `dashboard_stats_${tenantId}`;
+      
+      // Verificar se temos dados em cache válidos
+      const cachedData = dashboardStatsCache.get(cacheKey);
+      if (cachedData && (Date.now() - cachedData.timestamp < CACHE_TTL)) {
+        // Retornar dados do cache se estiverem dentro do TTL
+        log(`Usando dashboard stats do cache para tenant ${tenantId}`, "dashboard");
+        return res.json(cachedData.data);
+      }
+      
+      // Caso contrário, buscar dados do banco de dados
+      log(`Buscando dashboard stats para tenant ${tenantId}`, "dashboard");
+      const startTime = Date.now();
+      
+      // Definir um timeout para a requisição (5 segundos)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout ao buscar estatísticas do dashboard')), 5000);
+      });
+      
+      // Correr a consulta ao banco com limite de tempo
+      const dataPromise = storage.getDashboardStats(tenantId);
+      
+      // Usar Promise.race para aplicar o timeout
+      const stats = await Promise.race([dataPromise, timeoutPromise]) as any;
+      
+      // Calcular tempo de resposta
+      const responseTime = Date.now() - startTime;
+      log(`Dashboard stats obtidos em ${responseTime}ms`, "dashboard");
+      
+      // Atualizar o cache com os novos dados
+      dashboardStatsCache.set(cacheKey, {
+        data: stats,
+        timestamp: Date.now()
+      });
+      
+      // Retornar os dados
       res.json(stats);
     } catch (error) {
+      console.error("Erro ao buscar stats do dashboard:", error);
+      
+      // Tentar usar cache expirado em caso de erro
+      const tenantId = req.user?.tenantId || 1;
+      const cacheKey = `dashboard_stats_${tenantId}`;
+      const cachedData = dashboardStatsCache.get(cacheKey);
+      
+      if (cachedData) {
+        // Usar cache mesmo expirado em caso de erro
+        log(`Usando cache expirado para dashboard stats devido a erro`, "dashboard");
+        return res.json(cachedData.data);
+      }
+      
+      // Se não houver cache, passar o erro para o próximo middleware
       next(error);
     }
   });
