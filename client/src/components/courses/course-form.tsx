@@ -50,7 +50,11 @@ const courseFormSchema = insertCourseSchema.extend({
   courseCategory: z.string().min(1, "Selecione uma categoria"),
   price: z.coerce.number().optional().nullable().transform(val => val === 0 ? null : val), // Permitir curso gratuito
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  imageUrl: z.string().optional().nullable(),
 });
+
+// Debug para mostrar esquema
+console.log("Schema de formulário:", courseFormSchema.shape);
 
 // Tipo inferido do schema do formulário
 type CourseFormValues = z.infer<typeof courseFormSchema>;
@@ -81,7 +85,8 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     description: initialData?.description || "",
     area: initialData?.area || "",
     courseCategory: initialData?.courseCategory || "",
-    price: initialData?.price || null,
+    // Se tiver preço, converte de centavos para reais para exibição
+    price: initialData?.price ? initialData.price / 100 : null,
     status: initialData?.status || "draft",
     imageUrl: initialData?.imageUrl || "",
   };
@@ -92,12 +97,25 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     defaultValues,
     mode: "onChange",
   });
+  
+  // Debug log para o formulário
+  console.log("Form initialized:", { 
+    defaultValues, 
+    isEditMode,
+    formState: form.formState
+  });
 
   // Mutação para criar curso
   const createMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
       console.log("mutationFn - Iniciando criação do curso:", data);
       try {
+        // Convertendo preço para centavos, se houver um valor
+        if (data.price) {
+          data.price = Math.round(data.price * 100);
+          console.log("mutationFn - Preço convertido para centavos:", data.price);
+        }
+        
         const res = await apiRequest("POST", "/api/courses", data);
         console.log("mutationFn - Resposta recebida:", res.status);
         
@@ -136,6 +154,12 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Mutação para atualizar curso
   const updateMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
+      // Convertendo preço para centavos, se houver um valor
+      if (data.price) {
+        data.price = Math.round(data.price * 100);
+        console.log("updateMutation - Preço convertido para centavos:", data.price);
+      }
+      
       const res = await apiRequest("PUT", `/api/courses/${courseId}`, data);
       return await res.json();
     },
@@ -213,6 +237,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Função genérica para submissão
   const onSubmit = async (data: CourseFormValues) => {
     try {
+      console.log("===== FORMULÁRIO SUBMETIDO =====");
       console.log("Iniciando submissão de formulário de curso", data);
       
       // Se houver uma imagem para upload, fazer o upload primeiro
@@ -226,6 +251,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
           console.warn("Upload de imagem falhou ou retornou URL nula");
         }
       }
+      
+      // Log de validação de formulário
+      console.log("Estado do formulário:", form.formState);
+      console.log("Erros de validação:", form.formState.errors);
       
       // Mostrar dados que serão enviados
       console.log("Dados do curso a serem enviados:", data);
@@ -262,6 +291,23 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   };
 
   const isPending = createMutation.isPending || updateMutation.isPending || isUploading;
+
+  // Função para mostrar valores do form em debug
+  const debugFormValues = () => {
+    console.log("Valores atuais do form:", form.getValues());
+    console.log("Erros do form:", form.formState.errors);
+    console.log("Estado de validação:", form.formState.isValid);
+    // Forçar validação
+    form.trigger();
+  };
+
+  // Efeito para debugar quando o componente montar
+  React.useEffect(() => {
+    console.log("Form montado, verificando valores iniciais");
+    setTimeout(() => {
+      debugFormValues();
+    }, 500);
+  }, []);
 
   return (
     <Card className="w-full">
@@ -508,7 +554,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
               </div>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <Button
                 type="button"
                 variant="outline"
@@ -517,7 +563,33 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending}>
+              
+              <Button 
+                type="button" 
+                disabled={isPending}
+                onClick={() => {
+                  // Pegar os valores atuais do formulário
+                  const values = form.getValues();
+                  
+                  // Adicionar o tenantId que estava faltando (o erro que causava falha na validação)
+                  values.tenantId = user?.tenantId || 1;
+                  
+                  // Converter o preço para inteiros (centavos) como esperado pelo servidor
+                  if (values.price) {
+                    // Multiplicar por 100 para converter para centavos e arredondar para inteiro
+                    values.price = Math.round(values.price * 100);
+                  }
+                  
+                  console.log("Enviando dados do curso com tenantId:", values);
+                  
+                  // Enviar direto usando a mutation (bypass do form)
+                  if (isEditMode) {
+                    updateMutation.mutate(values);
+                  } else {
+                    createMutation.mutate(values);
+                  }
+                }}
+              >
                 {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {isEditMode ? "Atualizar Curso" : "Criar Curso"}
               </Button>

@@ -7,11 +7,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Função para formatar valores monetários
-export function formatCurrency(value: number): string {
+export function formatCurrency(value: number, inCents: boolean = true): string {
+  if (!value && value !== 0) return 'R$ 0,00';
+  
+  // Se o valor estiver em centavos, divide por 100
+  const valueInReais = inCents ? value / 100 : value;
+  
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format(value);
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(valueInReais);
 }
 
 // Função para formatar datas
