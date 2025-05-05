@@ -110,12 +110,14 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     mutationFn: async (data: CourseFormValues) => {
       console.log("mutationFn - Iniciando criação do curso:", data);
       try {
-        // Verificar se o preço já é um valor em centavos (se contém casas decimais)
-        // Se o número for inteiro e maior que 100, provavelmente já está em centavos
-        if (data.price && data.price % 1 !== 0) {
-          // Se tem casas decimais, converte para centavos
-          data.price = Math.round(data.price * 100);
-          console.log("mutationFn - Preço convertido para centavos:", data.price);
+        // Nova abordagem para preços: garantir que esteja em centavos
+        if (data.price !== null && data.price !== undefined) {
+          // Se o preço for fornecido com vírgula (BR format), converter para float
+          // Apenas converter para centavos se o valor parecer estar em reais (tem valor decimal ou é muito pequeno)
+          if (data.price < 1000 || data.price % 1 !== 0) {
+            data.price = Math.round(data.price * 100);
+          }
+          console.log("mutationFn - Preço final em centavos:", data.price);
         }
         
         const res = await apiRequest("POST", "/api/courses", data);
@@ -156,12 +158,14 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Mutação para atualizar curso
   const updateMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
-      // Verificar se o preço já é um valor em centavos (se contém casas decimais)
-      // Se o número for inteiro e maior que 100, provavelmente já está em centavos
-      if (data.price && data.price % 1 !== 0) {
-        // Se tem casas decimais, converte para centavos
-        data.price = Math.round(data.price * 100);
-        console.log("updateMutation - Preço convertido para centavos:", data.price);
+      // Nova abordagem para preços: garantir que esteja em centavos
+      if (data.price !== null && data.price !== undefined) {
+        // Se o preço for fornecido com vírgula (BR format), converter para float
+        // Apenas converter para centavos se o valor parecer estar em reais (tem valor decimal ou é muito pequeno)
+        if (data.price < 1000 || data.price % 1 !== 0) {
+          data.price = Math.round(data.price * 100);
+        }
+        console.log("updateMutation - Preço final em centavos:", data.price);
       }
       
       const res = await apiRequest("PUT", `/api/courses/${courseId}`, data);
