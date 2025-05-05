@@ -652,6 +652,8 @@ export class DatabaseStorage implements IStorage {
   
   async getModulesByCourse(courseId: number): Promise<Module[]> {
     try {
+      console.log(`[DEBUG-DB] Buscando módulos para o curso ID: ${courseId}`);
+      
       // Buscar módulos do curso
       const courseModules = await db
         .select({
@@ -666,6 +668,9 @@ export class DatabaseStorage implements IStorage {
         .from(modules)
         .where(eq(modules.courseId, courseId))
         .orderBy(modules.order);
+      
+      console.log(`[DEBUG-DB] Encontrados ${courseModules.length} módulos para o curso ID: ${courseId}`);
+      console.log('[DEBUG-DB] Módulos brutos do banco:', JSON.stringify(courseModules));
       
       // Para cada módulo, buscar suas aulas
       const modulesWithLessons = await Promise.all(
@@ -692,6 +697,8 @@ export class DatabaseStorage implements IStorage {
           };
         })
       );
+      
+      console.log(`[DEBUG-DB] Retornando ${modulesWithLessons.length} módulos com aulas`);
       
       return modulesWithLessons as Module[];
     } catch (error) {

@@ -146,6 +146,8 @@ courseRouter.get('/courses/:id/modules', async (req: Request, res: Response, nex
     const userId = req.user?.id;
     const tenantId = req.user?.tenantId;
     
+    console.log(`[DEBUG] Requisição de módulos para o curso ID: ${courseId}, por usuário: ${userId}, tenant: ${tenantId}`);
+    
     if (!userId || !tenantId) {
       return res.status(401).json({ error: 'Usuário não identificado' });
     }
@@ -158,16 +160,19 @@ courseRouter.get('/courses/:id/modules', async (req: Request, res: Response, nex
     const course = await storage.getCourseById(courseId);
     
     if (!course) {
+      console.log(`[DEBUG] Curso ID ${courseId} não encontrado`);
       return res.status(404).json({ error: 'Curso não encontrado' });
     }
     
     // Verificar se o curso pertence ao tenant do usuário
     if (course.tenantId !== tenantId) {
+      console.log(`[DEBUG] Acesso negado: Curso pertence ao tenant ${course.tenantId}, usuário é do tenant ${tenantId}`);
       return res.status(403).json({ error: 'Você não tem permissão para acessar os módulos deste curso' });
     }
     
     // Buscar módulos do curso
     const modules = await storage.getModulesByCourse(courseId);
+    console.log(`[DEBUG] Módulos encontrados para o curso ${courseId}:`, modules.length);
     
     res.json(modules);
   } catch (error) {
