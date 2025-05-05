@@ -78,7 +78,8 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
         title: "Módulo criado com sucesso",
         description: "O módulo foi criado e está disponível no curso.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] });
+      // Atualizar para usar a nova queryKey de módulos filtrada por curso
+      queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] });
       if (onCancel) {
         onCancel();
       } else {
@@ -105,8 +106,12 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
         title: "Módulo atualizado com sucesso",
         description: "As alterações foram salvas com sucesso.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/modules', moduleId] });
+      // Atualizar para usar a nova queryKey de módulos filtrada por curso
+      queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] });
+      // Invalida também a consulta específica do módulo se necessário
+      if (moduleId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/modules', moduleId] });
+      }
       if (onCancel) {
         onCancel();
       } else {
