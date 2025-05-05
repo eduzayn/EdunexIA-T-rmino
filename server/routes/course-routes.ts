@@ -139,6 +139,43 @@ courseRouter.put('/courses/:id', async (req: Request, res: Response, next: NextF
   }
 });
 
+// Buscar módulos de um curso específico
+courseRouter.get('/courses/:id/modules', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const courseId = parseInt(req.params.id);
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
+    
+    if (!userId || !tenantId) {
+      return res.status(401).json({ error: 'Usuário não identificado' });
+    }
+    
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'ID de curso inválido' });
+    }
+    
+    // Verificar se o curso existe
+    const course = await storage.getCourseById(courseId);
+    
+    if (!course) {
+      return res.status(404).json({ error: 'Curso não encontrado' });
+    }
+    
+    // Verificar se o curso pertence ao tenant do usuário
+    if (course.tenantId !== tenantId) {
+      return res.status(403).json({ error: 'Você não tem permissão para acessar os módulos deste curso' });
+    }
+    
+    // Buscar módulos do curso
+    const modules = await storage.getModulesByCourse(courseId);
+    
+    res.json(modules);
+  } catch (error) {
+    console.error('Erro ao buscar módulos do curso:', error);
+    next(error);
+  }
+});
+
 // Excluir um curso
 courseRouter.delete('/courses/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
