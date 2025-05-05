@@ -19,6 +19,15 @@ const storage = multer.diskStorage({
     // Criar a pasta se não existir
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
+      console.log(`[DEBUG] Pasta de uploads de cursos criada: ${uploadDir}`);
+    }
+    
+    // Verificar permissões da pasta
+    try {
+      fs.accessSync(uploadDir, fs.constants.W_OK);
+      console.log(`[DEBUG] Permissão de escrita confirmada para: ${uploadDir}`);
+    } catch (err) {
+      console.error(`[ERROR] Sem permissão de escrita para ${uploadDir}:`, err);
     }
     
     console.log(`[DEBUG] Salvando imagem no diretório: ${uploadDir}`);
@@ -55,9 +64,27 @@ const upload = multer({
 
 // Função para obter URL pública para um arquivo
 function getPublicUrl(filepath: string): string {
-  // Remove o caminho absoluto e mantém apenas o caminho relativo a uploads
-  const relativePath = filepath.split('uploads/')[1];
-  return `/uploads/${relativePath}`;
+  try {
+    // Remove o caminho absoluto e mantém apenas o caminho relativo a uploads
+    const pathParts = filepath.split('uploads/');
+    if (pathParts.length < 2) {
+      console.error(`[ERROR] Erro ao extrair caminho relativo de: ${filepath}`);
+      return '/uploads/error-invalid-path';
+    }
+    
+    const relativePath = pathParts[1];
+    const publicUrl = `/uploads/${relativePath}`;
+    
+    console.log(`[DEBUG] Caminho do arquivo: ${filepath}`);
+    console.log(`[DEBUG] Caminho relativo extraído: ${relativePath}`);
+    console.log(`[DEBUG] URL pública gerada: ${publicUrl}`);
+    
+    return publicUrl;
+  } catch (error) {
+    console.error(`[ERROR] Erro ao processar caminho do arquivo: ${filepath}`, error);
+    // Retorna um caminho de fallback para evitar erros
+    return '/uploads/error-processing-path';
+  }
 }
 
 // Rota para upload de imagem de curso

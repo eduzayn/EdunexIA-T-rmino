@@ -191,7 +191,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
 
   // Função para fazer upload da imagem
   const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return null;
+    if (!imageFile) {
+      console.log("Upload de imagem cancelado: nenhum arquivo selecionado");
+      return null;
+    }
     
     try {
       setIsUploading(true);
@@ -212,10 +215,19 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
         courseId: courseId 
       });
       
+      // Verifica se o componente de upload está funcionando
+      console.log("FormData criado para upload:", formData.has('image') ? "Imagem anexada" : "Imagem não anexada");
+      
       const response = await fetch('/api/course-images/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
+      });
+      
+      console.log("Resposta do servidor para upload:", {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
       });
       
       if (!response.ok) {
@@ -228,6 +240,15 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       console.log("Resposta do upload de imagem:", data);
       setIsUploading(false);
       setUploadProgress(100);
+      
+      if (!data.imageUrl) {
+        console.error("Upload de imagem retornou URL vazia ou nula");
+        toast({
+          title: "Aviso",
+          description: "O upload da imagem foi concluído, mas a URL da imagem não foi retornada corretamente.",
+          variant: "destructive",
+        });
+      }
       
       return data.imageUrl;
     } catch (error: any) {
