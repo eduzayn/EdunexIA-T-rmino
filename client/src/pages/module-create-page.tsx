@@ -53,9 +53,9 @@ export default function ModuleCreatePage() {
         <div className="container py-6">
           <div className="max-w-lg mx-auto border border-destructive/50 rounded-lg p-6 text-center">
             <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Erro ao carregar dados</h2>
+            <h2 className="text-xl font-bold mb-2">Curso não encontrado</h2>
             <p className="text-muted-foreground mb-4">
-              Não foi possível encontrar o curso solicitado. Verifique se você tem acesso a este recurso.
+              Não foi possível encontrar o curso com ID {courseIdParam}. Verifique se o curso existe ou se você tem acesso a este recurso.
             </p>
             <Button asChild>
               <Link href="/admin/courses">

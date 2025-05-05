@@ -8,7 +8,7 @@ import { Course, Module } from "@shared/schema";
 import { ModuleForm } from "@/components/modules/module-form";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { AlertTriangle, ArrowLeft, ChevronRight, Loader2, Plus } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronRight, Loader2, Plus as PlusIcon } from "lucide-react";
 
 export default function ModuleEditPage() {
   // Capturar IDs da URL
@@ -97,7 +97,7 @@ export default function ModuleEditPage() {
               {showCreateButton && (
                 <Button asChild variant="outline">
                   <Link href={`/admin/courses/${courseId}/modules/new`}>
-                    <Plus className="h-4 w-4 mr-2" />
+                    <PlusIcon className="h-4 w-4 mr-2" />
                     Criar novo módulo
                   </Link>
                 </Button>

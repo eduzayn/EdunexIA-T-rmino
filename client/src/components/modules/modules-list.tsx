@@ -90,9 +90,17 @@ export function ModulesList({ courseId }: ModulesListProps) {
   };
 
   const handleEditModule = (moduleId: number) => {
-    // Redirecionar para página de edição de módulo
-    console.log(`Navegando para: /admin/courses/${courseId}/modules/${moduleId}/edit`);
-    navigate(`/admin/courses/${courseId}/modules/${moduleId}/edit`);
+    // Verificar se o módulo realmente existe antes de navegar
+    if (modules && modules.some(mod => mod.id === moduleId)) {
+      console.log(`Navegando para: /admin/courses/${courseId}/modules/${moduleId}/edit`);
+      navigate(`/admin/courses/${courseId}/modules/${moduleId}/edit`);
+    } else {
+      toast({
+        title: "Erro ao editar módulo",
+        description: `O módulo com ID ${moduleId} não existe no banco de dados.`,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancelEdit = () => {
