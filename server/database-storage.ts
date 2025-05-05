@@ -87,6 +87,7 @@ export interface IStorage {
   // CourseSubject operations (associação entre cursos e disciplinas)
   getCourseSubjects(courseId: number): Promise<CourseSubject[]>;
   getSubjectCourses(subjectId: number): Promise<CourseSubject[]>;
+  getCourseSubjectById(id: number): Promise<CourseSubject | undefined>;
   addSubjectToCourse(courseSubject: InsertCourseSubject): Promise<CourseSubject>;
   removeSubjectFromCourse(courseId: number, subjectId: number): Promise<boolean>;
   updateCourseSubjectOrder(id: number, order: number): Promise<CourseSubject>;
@@ -634,6 +635,17 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao buscar cursos da disciplina:', error);
       return [];
+    }
+  }
+  
+  async getCourseSubjectById(id: number): Promise<CourseSubject | undefined> {
+    try {
+      const [courseSubject] = await db.select().from(courseSubjects)
+        .where(eq(courseSubjects.id, id));
+      return courseSubject;
+    } catch (error) {
+      console.error('Erro ao buscar relação curso-disciplina por ID:', error);
+      return undefined;
     }
   }
   
