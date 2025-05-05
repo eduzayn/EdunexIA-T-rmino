@@ -28,6 +28,7 @@ import { campaignRouter } from "./campaign-routes";
 import { aiRouter } from "./ai-routes-fixed";
 import { settingsRouter } from "./settings-routes";
 import { notificationService } from "./services/notification-service";
+import courseImageRouter from "./routes/course-image-upload";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
