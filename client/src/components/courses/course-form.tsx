@@ -110,8 +110,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     mutationFn: async (data: CourseFormValues) => {
       console.log("mutationFn - Iniciando criação do curso:", data);
       try {
-        // Convertendo preço para centavos, se houver um valor
-        if (data.price) {
+        // Verificar se o preço já é um valor em centavos (se contém casas decimais)
+        // Se o número for inteiro e maior que 100, provavelmente já está em centavos
+        if (data.price && data.price % 1 !== 0) {
+          // Se tem casas decimais, converte para centavos
           data.price = Math.round(data.price * 100);
           console.log("mutationFn - Preço convertido para centavos:", data.price);
         }
@@ -154,8 +156,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Mutação para atualizar curso
   const updateMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
-      // Convertendo preço para centavos, se houver um valor
-      if (data.price) {
+      // Verificar se o preço já é um valor em centavos (se contém casas decimais)
+      // Se o número for inteiro e maior que 100, provavelmente já está em centavos
+      if (data.price && data.price % 1 !== 0) {
+        // Se tem casas decimais, converte para centavos
         data.price = Math.round(data.price * 100);
         console.log("updateMutation - Preço convertido para centavos:", data.price);
       }
@@ -249,7 +253,13 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
           console.log("Upload de imagem concluído, URL:", imageUrl);
         } else {
           console.warn("Upload de imagem falhou ou retornou URL nula");
+          // Se o upload falhar, defina a URL da imagem para null em vez de string vazia
+          data.imageUrl = null;
         }
+      } else if (data.imageUrl === '') {
+        // Se não houver arquivo para upload e a URL está vazia, define como null
+        // para evitar problemas com strings vazias
+        data.imageUrl = null;
       }
       
       // Log de validação de formulário
