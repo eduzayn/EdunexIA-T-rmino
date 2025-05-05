@@ -81,14 +81,17 @@ export function ModulesList({ courseId }: ModulesListProps) {
     },
   });
 
+  const [, navigate] = useLocation();
+  
   const handleAddModule = () => {
     // Redirecionar para página de criação de módulo
-    window.location.href = `/admin/courses/${courseId}/modules/new`;
+    navigate(`/admin/courses/${courseId}/modules/new`);
   };
 
   const handleEditModule = (moduleId: number) => {
     // Redirecionar para página de edição de módulo
-    window.location.href = `/admin/courses/${courseId}/modules/${moduleId}/edit`;
+    console.log(`Navegando para: /admin/courses/${courseId}/modules/${moduleId}/edit`);
+    navigate(`/admin/courses/${courseId}/modules/${moduleId}/edit`);
   };
 
   const handleCancelEdit = () => {

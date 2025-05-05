@@ -12,9 +12,20 @@ import { AlertTriangle, ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
 
 export default function ModuleEditPage() {
   // Capturar IDs da URL
-  const { courseId, moduleId } = useParams<{ courseId: string; moduleId: string }>();
-  const parsedCourseId = parseInt(courseId);
-  const parsedModuleId = parseInt(moduleId);
+  // A rota no App.tsx é "/admin/courses/:courseId/modules/:moduleId/edit"
+  const params = useParams();
+  console.log("Parâmetros da URL:", params);
+  
+  // Extrair os IDs dos parâmetros
+  const courseId = params.courseId;
+  const moduleId = params.moduleId;
+  
+  if (!courseId || !moduleId) {
+    console.error("IDs de curso ou módulo ausentes na URL");
+  }
+  
+  const parsedCourseId = parseInt(courseId || "0");
+  const parsedModuleId = parseInt(moduleId || "0");
 
   // Buscar detalhes do curso
   const { 
