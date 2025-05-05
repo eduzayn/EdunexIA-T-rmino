@@ -1700,6 +1700,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/ai', isAuthenticated, aiRouter);
   app.use('/api/settings', isAuthenticated, settingsRouter);
   
+  // Rota de API para gerenciamento de cursos
+  app.use('/api', isAuthenticated, courseRouter);
+  
   // Adicionar rotas para upload de imagens de cursos
   app.use('/api/course-images', isAuthenticated, courseImageRouter);
   
