@@ -831,7 +831,7 @@ export class DatabaseStorage implements IStorage {
         title: modules.title,
         description: modules.description,
         order: modules.order,
-        subjectId: modules.subject_id, // Map da coluna subject_id para subjectId sem cast
+        subjectId: modules.subjectId, // Nome correto do campo
         createdAt: modules.createdAt,
         updatedAt: modules.updatedAt
       })
@@ -900,7 +900,7 @@ export class DatabaseStorage implements IStorage {
       if (moduleData.title !== undefined) updateValues.title = moduleData.title;
       if (moduleData.description !== undefined) updateValues.description = moduleData.description;
       if (moduleData.order !== undefined) updateValues.order = moduleData.order;
-      if (moduleData.subjectId !== undefined) updateValues.subject_id = moduleData.subjectId;
+      if (moduleData.subjectId !== undefined) updateValues.subjectId = moduleData.subjectId;
       
       const [updatedModule] = await db.update(modules)
         .set(updateValues)
@@ -910,7 +910,7 @@ export class DatabaseStorage implements IStorage {
           title: modules.title,
           description: modules.description,
           order: modules.order,
-          subjectId: modules.subject_id, // Sem cast
+          subjectId: modules.subjectId, // Nome correto do campo
           createdAt: modules.createdAt,
           updatedAt: modules.updatedAt
         });
