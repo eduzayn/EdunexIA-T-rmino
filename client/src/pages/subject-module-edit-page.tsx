@@ -3,6 +3,7 @@ import { useLocation, useParams } from 'wouter';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { SubjectModuleForm } from '@/components/modules/subject-module-form';
+import { LessonsList } from '@/components/lessons/lessons-list';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -127,13 +128,24 @@ export function SubjectModuleEditPage() {
             {subject && <span className="text-gray-500 ml-2">({subject.title})</span>}
           </h1>
           
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white p-6 rounded-lg shadow mb-6">
             <SubjectModuleForm 
               subjectId={parseInt(subjectId)}
               defaultValues={module}
               onSubmit={handleSubmit}
               isSubmitting={updateMutation.isPending}
             />
+          </div>
+          
+          {/* Lista de materiais educacionais */}
+          <div className="mt-8">
+            {/* Importando o componente de lista de lições dinamicamente */}
+            {moduleId && parseInt(subjectId) && (
+              <LessonsList 
+                moduleId={parseInt(moduleId)} 
+                subjectId={parseInt(subjectId)} 
+              />
+            )}
           </div>
         </div>
       </div>
