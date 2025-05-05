@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 import { db } from '../db';
 import { courses } from '@shared/schema';
 import { eq } from 'drizzle-orm';
@@ -22,10 +23,10 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // Criar um nome único para o arquivo usando timestamp + extensão original
+    // Criar um nome único para o arquivo usando UUID + extensão original
     const fileExt = path.extname(file.originalname);
     const timestamp = Date.now();
-    const uniqueId = Math.floor(Math.random() * 10000);
+    const uniqueId = uuidv4();
     cb(null, `course-${timestamp}-${uniqueId}${fileExt}`);
   }
 });
