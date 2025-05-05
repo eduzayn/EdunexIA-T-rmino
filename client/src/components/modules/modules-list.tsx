@@ -51,11 +51,11 @@ export function ModulesList({ courseId }: ModulesListProps) {
   const [isAddingModule, setIsAddingModule] = useState(false);
   const [editingModuleId, setEditingModuleId] = useState<number | null>(null);
 
-  // Buscar módulos do curso
+  // Buscar módulos do curso usando a nova API que filtra por courseId
   const { data: modules, isLoading, error } = useQuery<ModuleWithLessons[]>({
-    queryKey: ['/api/courses', courseId, 'modules'],
+    queryKey: ['/api/modules', { courseId }],
     queryFn: async () => {
-      const res = await fetch(`/api/courses/${courseId}/modules`);
+      const res = await fetch(`/api/modules?courseId=${courseId}`);
       if (!res.ok) throw new Error('Falha ao carregar módulos');
       return res.json();
     }
@@ -71,7 +71,8 @@ export function ModulesList({ courseId }: ModulesListProps) {
       toast({
         title: "Módulo excluído com sucesso",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] });
+      // Atualizar para a nova queryKey
+      queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] });
     },
     onError: (error: Error) => {
       toast({
@@ -143,7 +144,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] })}>
+          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] })}>
             Tentar novamente
           </Button>
         </CardFooter>

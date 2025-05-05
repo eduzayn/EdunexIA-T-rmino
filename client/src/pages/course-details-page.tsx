@@ -35,13 +35,17 @@ export default function CourseDetailsPage() {
     queryFn: getQueryFn({ on401: 'throw' })
   });
 
-  // Buscar módulos do curso
+  // Buscar módulos do curso usando a nova API
   const {
     data: modules,
     isLoading: isLoadingModules
   } = useQuery<any[]>({
-    queryKey: ['/api/courses', courseId, 'modules'],
-    queryFn: getQueryFn({ on401: 'throw' }),
+    queryKey: ['/api/modules', { courseId }],
+    queryFn: async () => {
+      const response = await fetch(`/api/modules?courseId=${courseId}`);
+      if (!response.ok) throw new Error('Falha ao carregar módulos');
+      return response.json();
+    },
     // Não buscar se não tivermos o curso ainda
     enabled: !!course
   });
