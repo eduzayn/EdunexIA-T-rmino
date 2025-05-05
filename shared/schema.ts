@@ -141,14 +141,55 @@ export const modules = pgTable('modules', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Lessons
+// Tipo de conteúdo para materiais
+export const materialTypeEnum = pgEnum('material_type', [
+  'video', // Vídeo aula
+  'ebook', // E-book ou material de leitura
+  'pdf', // Documento PDF
+  'link', // Link externo
+  'scorm', // Pacote SCORM
+  'quiz', // Questionário/simulado
+  'assessment' // Avaliação
+]);
+
+// Removido pois estava duplicado com videoProviderEnum
+
+// Tipo de questão
+export const questionTypeEnum = pgEnum('question_type', [
+  'multiple_choice', // Múltipla escolha
+  'true_false', // Verdadeiro ou falso
+  'short_answer', // Resposta curta
+  'essay', // Dissertativa
+  'matching' // Correspondência
+]);
+
+// Tipo de provedor de vídeo
+export const videoProviderEnum = pgEnum('video_provider', [
+  'youtube',
+  'vimeo',
+  'google_drive',
+  'other'
+]);
+
+// Lessons (Video Aulas e outros materiais didáticos)
 export const lessons = pgTable('lessons', {
   id: serial('id').primaryKey(),
   moduleId: integer('module_id').references(() => modules.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
   description: text('description'),
   content: text('content'),
+  materialType: materialTypeEnum('material_type').default('video').notNull(),
+  // Campos para vídeos
   videoUrl: text('video_url'),
+  videoProvider: videoProviderEnum('video_provider'),
+  videoId: text('video_id'), // ID do vídeo no provedor (ex: ID do YouTube)
+  // Campos para materiais de leitura
+  fileUrl: text('file_url'), // URL para e-books, PDFs ou SCORMs
+  fileType: text('file_type'), // Tipo de arquivo (PDF, DOCX, etc.)
+  fileSize: integer('file_size'), // Tamanho do arquivo em bytes
+  // Campos comuns
+  isRequired: boolean('is_required').default(true).notNull(), // Se o material é obrigatório para conclusão
+  duration: integer('duration'), // Duração em minutos (para vídeos) ou tempo estimado de leitura
   order: integer('order').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -312,6 +353,65 @@ export const aiGeneratedContent = pgTable('ai_generated_content', {
   parameters: json('parameters'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Simulados (Quizzes)
+export const quizzes = pgTable('quizzes', {
+  id: serial('id').primaryKey(),
+  moduleId: integer('module_id').references(() => modules.id, { onDelete: 'cascade' }).notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  instructions: text('instructions'),
+  timeLimit: integer('time_limit'), // Tempo limite em minutos
+  passingScore: integer('passing_score').default(70), // Pontuação mínima para aprovação (%)
+  isRequired: boolean('is_required').default(true).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  allowRetake: boolean('allow_retake').default(true), // Permite refazer o simulado
+  maxAttempts: integer('max_attempts'), // Número máximo de tentativas permitidas
+  shuffleQuestions: boolean('shuffle_questions').default(false), // Embaralhar a ordem das questões
+  showAnswers: boolean('show_answers').default(true), // Mostrar respostas corretas após a conclusão
+  quizType: text('quiz_type').default('practice').notNull(), // "practice" (simulado) ou "final" (avaliação final)
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Questões para simulados e avaliações
+export const questions = pgTable('questions', {
+  id: serial('id').primaryKey(),
+  quizId: integer('quiz_id').references(() => quizzes.id, { onDelete: 'cascade' }).notNull(),
+  questionText: text('question_text').notNull(),
+  questionType: questionTypeEnum('question_type').default('multiple_choice').notNull(),
+  options: json('options'), // Para questões de múltipla escolha: [{text: "Opção 1", correct: true}, ...]
+  correctAnswer: text('correct_answer'), // Para questões de resposta curta, verdadeiro/falso
+  explanation: text('explanation'), // Explicação da resposta correta
+  points: integer('points').default(10).notNull(), // Pontos para esta questão
+  difficultyLevel: integer('difficulty_level').default(2), // 1-5, onde 5 é o mais difícil
+  tags: text('tags').array(), // Tags para categorizar questões
+  order: integer('order').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tentativas de simulados e avaliações pelos alunos
+export const quizAttempts = pgTable('quiz_attempts', {
+  id: serial('id').primaryKey(),
+  quizId: integer('quiz_id').references(() => quizzes.id, { onDelete: 'cascade' }).notNull(),
+  studentId: integer('student_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  enrollmentId: integer('enrollment_id').references(() => enrollments.id, { onDelete: 'cascade' }).notNull(),
+  startedAt: timestamp('started_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
+  score: integer('score'), // Pontuação obtida
+  percentageScore: integer('percentage_score'), // Pontuação em percentual
+  timeSpent: integer('time_spent'), // Tempo gasto em segundos
+  isPassed: boolean('is_passed'), // Se o aluno atingiu a pontuação mínima
+  status: text('status').default('in_progress').notNull(), // 'in_progress', 'completed', 'abandoned'
+  answers: json('answers'), // Respostas dadas pelo aluno: [{questionId: 1, answer: "A", correct: true}, ...]
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    uniqueAttempt: unique().on(table.quizId, table.studentId, table.startedAt),
+  };
 });
 
 // Productivity tracking
@@ -623,6 +723,37 @@ export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
 
 export type AssessmentResult = typeof assessmentResults.$inferSelect;
 export type InsertAssessmentResult = z.infer<typeof insertAssessmentResultSchema>;
+
+// Schemas para simulados e avaliações
+export const insertQuizSchema = createInsertSchema(quizzes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+export const insertQuestionSchema = createInsertSchema(questions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+export const insertQuizAttemptSchema = createInsertSchema(quizAttempts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  startedAt: true,
+  completedAt: true
+});
+
+// Types para simulados e avaliações
+export type Quiz = typeof quizzes.$inferSelect;
+export type InsertQuiz = z.infer<typeof insertQuizSchema>;
+
+export type Question = typeof questions.$inferSelect;
+export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
+
+export type QuizAttempt = typeof quizAttempts.$inferSelect;
+export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
 
 // Schema para Matrícula Simplificada
 export const insertSimplifiedEnrollmentSchema = createInsertSchema(simplifiedEnrollments).omit({
