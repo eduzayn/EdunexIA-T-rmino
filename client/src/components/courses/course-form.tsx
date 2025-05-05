@@ -50,7 +50,11 @@ const courseFormSchema = insertCourseSchema.extend({
   courseCategory: z.string().min(1, "Selecione uma categoria"),
   price: z.coerce.number().optional().nullable().transform(val => val === 0 ? null : val), // Permitir curso gratuito
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  imageUrl: z.string().optional().nullable(),
 });
+
+// Debug para mostrar esquema
+console.log("Schema de formulário:", courseFormSchema.shape);
 
 // Tipo inferido do schema do formulário
 type CourseFormValues = z.infer<typeof courseFormSchema>;
@@ -91,6 +95,13 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     resolver: zodResolver(courseFormSchema),
     defaultValues,
     mode: "onChange",
+  });
+  
+  // Debug log para o formulário
+  console.log("Form initialized:", { 
+    defaultValues, 
+    isEditMode,
+    formState: form.formState
   });
 
   // Mutação para criar curso
@@ -213,6 +224,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Função genérica para submissão
   const onSubmit = async (data: CourseFormValues) => {
     try {
+      console.log("===== FORMULÁRIO SUBMETIDO =====");
       console.log("Iniciando submissão de formulário de curso", data);
       
       // Se houver uma imagem para upload, fazer o upload primeiro
@@ -226,6 +238,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
           console.warn("Upload de imagem falhou ou retornou URL nula");
         }
       }
+      
+      // Log de validação de formulário
+      console.log("Estado do formulário:", form.formState);
+      console.log("Erros de validação:", form.formState.errors);
       
       // Mostrar dados que serão enviados
       console.log("Dados do curso a serem enviados:", data);
@@ -262,6 +278,23 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   };
 
   const isPending = createMutation.isPending || updateMutation.isPending || isUploading;
+
+  // Função para mostrar valores do form em debug
+  const debugFormValues = () => {
+    console.log("Valores atuais do form:", form.getValues());
+    console.log("Erros do form:", form.formState.errors);
+    console.log("Estado de validação:", form.formState.isValid);
+    // Forçar validação
+    form.trigger();
+  };
+
+  // Efeito para debugar quando o componente montar
+  React.useEffect(() => {
+    console.log("Form montado, verificando valores iniciais");
+    setTimeout(() => {
+      debugFormValues();
+    }, 500);
+  }, []);
 
   return (
     <Card className="w-full">
@@ -508,16 +541,46 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
               </div>
             </div>
 
-            <div className="flex justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(courseId ? `/admin/courses/${courseId}` : "/admin/courses")}
+            <div className="flex justify-between items-center">
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate(courseId ? `/admin/courses/${courseId}` : "/admin/courses")}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    console.log("DEBUG - Forçando validação do form");
+                    debugFormValues();
+                    // Tenta submeter o formulário manualmente
+                    form.handleSubmit((data) => {
+                      console.log("Manual submit com dados:", data);
+                      onSubmit(data);
+                    })();
+                  }}
+                >
+                  Debug
+                </Button>
+              </div>
+              <Button 
+                type="submit" 
+                disabled={isPending}
+                onClick={(e) => {
+                  console.log("Botão de submit clicado", e);
+                  if (!form.formState.isValid) {
+                    console.log("Formulário inválido, verificando erros:", form.formState.errors);
+                    e.preventDefault();
+                    // Forçar validação para mostrar erros
+                    form.trigger();
+                  }
+                }}
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {isEditMode ? "Atualizar Curso" : "Criar Curso"}
               </Button>
