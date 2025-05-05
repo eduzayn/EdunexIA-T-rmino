@@ -9,6 +9,7 @@ import {
   Opportunity, InsertOpportunity,
   Campaign, InsertCampaign,
   Subject, InsertSubject,
+  CourseSubject, InsertCourseSubject,
   Class, InsertClass,
   ClassEnrollment, InsertClassEnrollment,
   Assessment, InsertAssessment,
@@ -28,7 +29,7 @@ import { db } from "./db";
 import { eq, and, desc, sql, inArray, like, or, isNull, isNotNull } from "drizzle-orm";
 import { 
   users, tenants, courses, modules, lessons, enrollments, leads, opportunities, campaigns, subjects,
-  lessonProgress, payments, classes, classEnrollments,
+  courseSubjects, lessonProgress, payments, classes, classEnrollments,
   aiKnowledgeBase, aiSettings, aiConversations, aiMessages, aiGeneratedContent,
   productivityLogs, assessments, assessmentResults,
   simplifiedEnrollments, educationalContracts, documentTypes, studentDocuments,
@@ -83,8 +84,15 @@ export interface IStorage {
   updateSubject(id: number, subjectData: Partial<InsertSubject>): Promise<Subject>;
   deleteSubject(id: number): Promise<boolean>;
   
+  // CourseSubject operations (associação entre cursos e disciplinas)
+  getCourseSubjects(courseId: number): Promise<CourseSubject[]>;
+  getSubjectCourses(subjectId: number): Promise<CourseSubject[]>;
+  addSubjectToCourse(courseSubject: InsertCourseSubject): Promise<CourseSubject>;
+  removeSubjectFromCourse(courseId: number, subjectId: number): Promise<boolean>;
+  updateCourseSubjectOrder(id: number, order: number): Promise<CourseSubject>;
+  
   // Module operations
-  getModulesByCourse(courseId: number): Promise<Module[]>;
+  getModulesBySubject(subjectId: number): Promise<Module[]>;
   getModuleById(id: number): Promise<Module | undefined>;
   createModule(module: InsertModule): Promise<Module>;
   updateModule(id: number, moduleData: Partial<InsertModule>): Promise<Module>;

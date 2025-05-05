@@ -1,4 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, uuid, json, unique } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -515,6 +516,8 @@ export const insertModuleSchema = createInsertSchema(modules).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  title: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
 });
 
 export const insertLessonSchema = createInsertSchema(lessons).omit({
@@ -522,6 +525,34 @@ export const insertLessonSchema = createInsertSchema(lessons).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+// Definir relações entre tabelas
+export const subjectsRelations = relations(subjects, ({ many }) => ({
+  modules: many(modules),
+  courseSubjects: many(courseSubjects),
+}));
+
+export const coursesRelations = relations(courses, ({ many }) => ({
+  courseSubjects: many(courseSubjects),
+}));
+
+export const modulesRelations = relations(modules, ({ one }) => ({
+  subject: one(subjects, {
+    fields: [modules.subjectId],
+    references: [subjects.id],
+  }),
+}));
+
+export const courseSubjectsRelations = relations(courseSubjects, ({ one }) => ({
+  course: one(courses, {
+    fields: [courseSubjects.courseId],
+    references: [courses.id],
+  }),
+  subject: one(subjects, {
+    fields: [courseSubjects.subjectId],
+    references: [subjects.id],
+  }),
+}));
 
 export type Module = typeof modules.$inferSelect;
 export type InsertModule = z.infer<typeof insertModuleSchema>;
@@ -534,10 +565,23 @@ export const insertSubjectSchema = createInsertSchema(subjects).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  title: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
+  code: z.string().min(2, "O código deve ter pelo menos 2 caracteres"),
 });
 
 export type Subject = typeof subjects.$inferSelect;
 export type InsertSubject = z.infer<typeof insertSubjectSchema>;
+
+// Schema para Course-Subjects (Relacionamento Curso-Disciplina)
+export const insertCourseSubjectSchema = createInsertSchema(courseSubjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type CourseSubject = typeof courseSubjects.$inferSelect;
+export type InsertCourseSubject = z.infer<typeof insertCourseSubjectSchema>;
 
 // Schemas para Classes (Turmas)
 export const insertClassSchema = createInsertSchema(classes).omit({
