@@ -110,6 +110,12 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     mutationFn: async (data: CourseFormValues) => {
       console.log("mutationFn - Iniciando criação do curso:", data);
       try {
+        // Convertendo preço para centavos, se houver um valor
+        if (data.price) {
+          data.price = Math.round(data.price * 100);
+          console.log("mutationFn - Preço convertido para centavos:", data.price);
+        }
+        
         const res = await apiRequest("POST", "/api/courses", data);
         console.log("mutationFn - Resposta recebida:", res.status);
         
@@ -148,6 +154,12 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Mutação para atualizar curso
   const updateMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
+      // Convertendo preço para centavos, se houver um valor
+      if (data.price) {
+        data.price = Math.round(data.price * 100);
+        console.log("updateMutation - Preço convertido para centavos:", data.price);
+      }
+      
       const res = await apiRequest("PUT", `/api/courses/${courseId}`, data);
       return await res.json();
     },
