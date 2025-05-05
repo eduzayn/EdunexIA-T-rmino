@@ -21,7 +21,10 @@ import {
   FileText,
   ChevronsLeft,
   ChevronsRight,
-  Menu
+  Menu,
+  Library,
+  MessageSquare,
+  UserCog
 } from "lucide-react";
 
 interface SidebarProps {
@@ -153,8 +156,8 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
         </div>
 
         <div className={cn("pt-1 pb-4 flex-1 overflow-y-auto", collapsed ? "px-2" : "px-6")}>
-          {/* Portal Selector */}
-          {!collapsed && (
+          {/* Portal Selector - só mostrar para admins ou se tiver mais de um portal disponível */}
+          {!collapsed && user?.role === 'admin' && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Portal
@@ -178,10 +181,22 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             </div>
           )}
           
-          {/* Portal Selector para sidebar colapsado */}
+          {/* Portal Selector para sidebar colapsado - mostrando apenas o ícone do portal atual */}
           {collapsed && (
             <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center justify-center p-2 rounded-full bg-sidebar-accent">
+              <div 
+                className={cn(
+                  "flex items-center justify-center p-2 rounded-full bg-sidebar-accent cursor-pointer",
+                  user?.role === 'admin' ? "hover:bg-sidebar-primary hover:text-sidebar-primary-foreground transition-colors" : ""
+                )}
+                onClick={() => {
+                  // Se for admin e estiver colapsado, expandir para permitir trocar de portal
+                  if (user?.role === 'admin' && collapsed) {
+                    setCollapsed(false);
+                  }
+                }}
+                title={user?.role === 'admin' ? "Expandir para trocar de portal" : currentPortal.name}
+              >
                 {portalIcons[currentPortal.id]}
               </div>
             </div>
@@ -207,22 +222,54 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
               </Link>
             )}
             
-            {/* Link específico para o dashboard do aluno */}
+            {/* Links específicos para o portal do aluno */}
             {currentPortal.id === 'student' && (
-              <Link 
-                href="/student/dashboard" 
-                className={cn(
-                  "flex items-center text-base font-medium rounded-md transition-colors",
-                  collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
-                  isActive("/student/dashboard") 
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground" 
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                )}
-                title="Meu Dashboard"
-              >
-                <LayoutDashboard className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
-                {!collapsed && "Meu Dashboard"}
-              </Link>
+              <>
+                <Link 
+                  href="/student/dashboard" 
+                  className={cn(
+                    "flex items-center text-base font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
+                    isActive("/student/dashboard") 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                  title="Meu Dashboard"
+                >
+                  <LayoutDashboard className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                  {!collapsed && "Meu Dashboard"}
+                </Link>
+
+                <Link 
+                  href="/student/messages" 
+                  className={cn(
+                    "flex items-center text-base font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
+                    isActive("/student/messages") 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                  title="Mensagens"
+                >
+                  <MessageSquare className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                  {!collapsed && "Mensagens"}
+                </Link>
+
+                <Link 
+                  href="/student/settings" 
+                  className={cn(
+                    "flex items-center text-base font-medium rounded-md transition-colors",
+                    collapsed ? "justify-center py-3 px-2" : "px-4 py-3",
+                    isActive("/student/settings") 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                  title="Configurações"
+                >
+                  <UserCog className={cn("h-5 w-5", collapsed ? "" : "mr-4")} />
+                  {!collapsed && "Configurações"}
+                </Link>
+              </>
             )}
 
             {/* Academic Module */}
@@ -296,6 +343,18 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                         )}
                       >
                         Contratos
+                      </Link>
+
+                      <Link 
+                        href={`${currentPortal.baseRoute}/library`}
+                        className={cn(
+                          "flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors",
+                          isActive(`${currentPortal.baseRoute}/library`) || location.startsWith(`${currentPortal.baseRoute}/library/`)
+                            ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        Biblioteca
                       </Link>
                     </>
                   )}
@@ -467,15 +526,29 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
                 {openGroups.secretary && (
                   <div className="pl-12 space-y-2 mt-2">
                     {/* Itens da secretaria em desenvolvimento */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Matrícula</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link
+                      href={`${currentPortal.baseRoute}/simplified-enrollment`}
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/simplified-enrollment`) 
+                          ? "bg-sidebar-accent/50 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/30 hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Matrícula
+                    </Link>
                     
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Histórico Escolar</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link
+                      href={`${currentPortal.baseRoute}/secretary/academic-transcript`}
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/secretary/academic-transcript`) 
+                          ? "bg-sidebar-accent/50 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/30 hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Histórico Escolar
+                    </Link>
                     
                     <Link 
                       href={`${currentPortal.baseRoute}/student-documents`}
@@ -883,21 +956,42 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
 
                 {openGroups.productivity && (
                   <div className="pl-9 space-y-1 mt-1">
-                    {/* Módulo produtividade em desenvolvimento */}
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Análise de tempo</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    {/* Links para o módulo de produtividade */}
+                    <Link 
+                      href={`${currentPortal.baseRoute}/productivity/time-analysis`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/productivity/time-analysis`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Análise de tempo
+                    </Link>
                     
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Metas</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link 
+                      href={`${currentPortal.baseRoute}/productivity/goals`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/productivity/goals`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Metas
+                    </Link>
                     
-                    <div className="flex items-center justify-between px-2 py-2 text-sm font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                      <span>Relatórios</span>
-                      <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-                    </div>
+                    <Link 
+                      href={`${currentPortal.baseRoute}/productivity/reports`}
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors",
+                        isActive(`${currentPortal.baseRoute}/productivity/reports`) 
+                          ? "bg-sidebar-accent/70 text-sidebar-foreground" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      Relatórios
+                    </Link>
                   </div>
                 )}
               </div>
@@ -931,13 +1025,18 @@ export function Sidebar({ className, isMobileOpen, onCloseMobile }: SidebarProps
             
             {/* Configurações - Para admin e teacher */}
             {['admin', 'teacher'].includes(currentPortal.id) && (
-              <div className="flex items-center justify-between px-4 py-3 text-base font-medium text-sidebar-foreground/40 rounded-md cursor-not-allowed">
-                <div className="flex items-center">
-                  <Settings className="mr-4 h-5 w-5 text-sidebar-foreground/40" />
-                  <span>Configurações</span>
-                </div>
-                <span className="text-xs bg-secondary/20 px-1.5 py-0.5 rounded text-muted-foreground">Em breve</span>
-              </div>
+              <Link
+                href={`${currentPortal.baseRoute}/settings`}
+                className={cn(
+                  "flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors",
+                  isActive(`${currentPortal.baseRoute}/settings`)
+                    ? "bg-sidebar-accent/70 text-sidebar-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                )}
+              >
+                <Settings className="mr-4 h-5 w-5 text-sidebar-foreground/70" />
+                Configurações
+              </Link>
             )}
           </nav>
         </div>

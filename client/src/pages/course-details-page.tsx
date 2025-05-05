@@ -13,6 +13,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModulesList } from "@/components/modules/modules-list";
+import { useToast } from "@/hooks/use-toast";
 import { 
   AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
   FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, Users 
@@ -22,6 +23,7 @@ export default function CourseDetailsPage() {
   // Capturar o ID do curso da URL
   const { id } = useParams<{ id: string }>();
   const courseId = parseInt(id);
+  const { toast } = useToast();
 
   // Buscar detalhes do curso
   const {
@@ -329,7 +331,16 @@ export default function CourseDetailsPage() {
                   <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
                   <h3 className="font-medium mb-1">Nenhum material disponível</h3>
                   <p className="text-muted-foreground mb-4">Adicione materiais complementares para este curso.</p>
-                  <Button size="sm">
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      toast({
+                        title: "Função em desenvolvimento",
+                        description: "A funcionalidade de adicionar materiais será disponibilizada em breve.",
+                        variant: "default"
+                      });
+                    }}
+                  >
                     <ExternalLink className="h-4 w-4 mr-1.5" />
                     Adicionar Material
                   </Button>

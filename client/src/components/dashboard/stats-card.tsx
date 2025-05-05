@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+import { Link } from "wouter";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -64,10 +65,21 @@ export function StatsCard({ title, value, icon, trend, onClick }: StatsCardProps
     ? formatCurrency(value) 
     : value;
 
+  // Mapear o tipo de estatística para a rota correspondente
+  const getDetailRoute = (): string => {
+    const routeMap = {
+      students: "/admin/dashboard/students",
+      courses: "/admin/dashboard/courses",
+      revenue: "/admin/dashboard/revenue",
+      completion: "/admin/dashboard/completion"
+    };
+    return routeMap[icon];
+  };
+
   return (
-    <Card className="overflow-hidden cursor-pointer transition-all hover:shadow-md" onClick={handleClick}>
+    <Card className="overflow-hidden transition-all hover:shadow-md">
       <CardContent className="p-0">
-        <div className="p-5">
+        <div className="p-5 cursor-pointer" onClick={handleClick}>
           <div className="flex items-center">
             {getIcon()}
             <div className="ml-5 w-0 flex-1">
@@ -91,9 +103,9 @@ export function StatsCard({ title, value, icon, trend, onClick }: StatsCardProps
               <span>{trend.value}%</span>
               <span className="text-muted-foreground ml-1">{trend.label}</span>
             </div>
-            <button className="text-sm font-medium text-primary hover:text-primary/80">
+            <Link href={getDetailRoute()} className="text-sm font-medium text-primary hover:text-primary/80">
               Ver detalhes
-            </button>
+            </Link>
           </div>
         )}
       </CardContent>

@@ -4,22 +4,18 @@ import { z } from 'zod';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { db } from './db';
+import { libraryMaterials, insertMessageSchema, userMessages, userSettings } from '../shared/schema';
+import { eq, and, desc, or } from 'drizzle-orm';
 
 export const studentRouter = Router();
 
-// Middleware para verificar se o usuário é um aluno
+// Importando o middleware de verificação de papéis
+import { isStudent as isStudentMiddleware } from './middleware/role-access';
+
+// Utilizando o middleware importado
 function isStudent(req: Request, res: Response, next: NextFunction) {
-  const user = req.user;
-  
-  if (!user) {
-    return res.status(401).json({ error: 'Não autenticado' });
-  }
-  
-  if (user.role !== 'student' && user.role !== 'admin') { // permitindo admin para testes
-    return res.status(403).json({ error: 'Acesso negado. Apenas alunos podem acessar este recurso.' });
-  }
-  
-  next();
+  return isStudentMiddleware(req, res, next);
 }
 
 // Obter cursos do aluno
@@ -271,6 +267,115 @@ studentRouter.get('/financial', async (req: Request, res: Response) => {
   }
 });
 
+// Endpoint para obter configurações do usuário
+studentRouter.get('/settings', isStudent, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    // Buscar as configurações do usuário no banco de dados
+    const [settings] = await db
+      .select()
+      .from(userSettings)
+      .where(eq(userSettings.userId, req.user.id));
+
+    // Se não encontrar configurações, criar configurações padrão
+    if (!settings) {
+      const defaultSettings = {
+        userId: req.user.id,
+        theme: 'system',
+        language: 'pt-BR',
+        emailNotifications: true,
+        smsNotifications: true,
+        pushNotifications: true,
+        twoFactorEnabled: false,
+        timezone: 'America/Sao_Paulo',
+        dateFormat: 'DD/MM/YYYY',
+        timeFormat: 'HH:mm'
+      };
+
+      const [newSettings] = await db
+        .insert(userSettings)
+        .values(defaultSettings)
+        .returning();
+
+      return res.json(newSettings);
+    }
+
+    return res.json(settings);
+  } catch (error) {
+    console.error('Erro ao buscar configurações do usuário:', error);
+    res.status(500).json({ error: 'Erro ao buscar configurações do usuário' });
+  }
+});
+
+// Endpoint para atualizar configurações do usuário
+studentRouter.put('/settings', isStudent, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const updateSchema = z.object({
+      theme: z.enum(['light', 'dark', 'system']),
+      language: z.string().min(1),
+      emailNotifications: z.boolean(),
+      smsNotifications: z.boolean(),
+      pushNotifications: z.boolean(),
+      twoFactorEnabled: z.boolean().default(false),
+      timezone: z.string().min(1),
+      dateFormat: z.string().optional(),
+      timeFormat: z.string().optional()
+    });
+
+    // Validar os dados recebidos
+    const validatedData = updateSchema.parse(req.body);
+
+    // Verificar se o usuário já tem configurações
+    const [existingSettings] = await db
+      .select()
+      .from(userSettings)
+      .where(eq(userSettings.userId, req.user.id));
+
+    let updatedSettings;
+
+    if (existingSettings) {
+      // Atualizar configurações existentes
+      [updatedSettings] = await db
+        .update(userSettings)
+        .set({
+          ...validatedData,
+          updatedAt: new Date()
+        })
+        .where(eq(userSettings.userId, req.user.id))
+        .returning();
+    } else {
+      // Criar novas configurações
+      [updatedSettings] = await db
+        .insert(userSettings)
+        .values({
+          userId: req.user.id,
+          ...validatedData
+        })
+        .returning();
+    }
+
+    return res.json(updatedSettings);
+  } catch (error) {
+    console.error('Erro ao atualizar configurações do usuário:', error);
+    
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        error: 'Dados inválidos',
+        details: error.errors 
+      });
+    }
+    
+    res.status(500).json({ error: 'Erro ao atualizar configurações do usuário' });
+  }
+});
+
 // Endpoint para solicitações de documentos do aluno
 studentRouter.get('/document-requests', async (req: Request, res: Response) => {
   try {
@@ -319,6 +424,235 @@ studentRouter.get('/document-requests', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erro ao buscar solicitações de documentos:', error);
     res.status(500).json({ error: 'Erro ao buscar solicitações de documentos' });
+  }
+});
+
+// Endpoint para biblioteca de materiais
+studentRouter.get('/library', async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const tenantId = req.user.tenantId;
+    
+    // Buscar materiais públicos ou associados aos cursos do aluno
+    const materials = await db.select()
+      .from(libraryMaterials)
+      .where(
+        and(
+          eq(libraryMaterials.tenantId, tenantId),
+          eq(libraryMaterials.isPublic, true)
+        )
+      )
+      .orderBy(desc(libraryMaterials.createdAt));
+    
+    res.json(materials);
+  } catch (error) {
+    console.error('Erro ao buscar materiais da biblioteca:', error);
+    res.status(500).json({ error: 'Erro ao buscar materiais da biblioteca' });
+  }
+});
+
+// Endpoint para detalhar material da biblioteca
+studentRouter.get('/library/:id', async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const tenantId = req.user.tenantId;
+    const materialId = parseInt(req.params.id);
+    
+    if (isNaN(materialId)) {
+      return res.status(400).json({ error: 'ID do material inválido' });
+    }
+    
+    // Buscar material específico
+    const [material] = await db.select()
+      .from(libraryMaterials)
+      .where(
+        and(
+          eq(libraryMaterials.tenantId, tenantId),
+          eq(libraryMaterials.id, materialId),
+          eq(libraryMaterials.isPublic, true)
+        )
+      );
+    
+    if (!material) {
+      return res.status(404).json({ error: 'Material não encontrado' });
+    }
+    
+    res.json(material);
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do material:', error);
+    res.status(500).json({ error: 'Erro ao buscar detalhes do material' });
+  }
+});
+
+// Endpoint para mensagens do aluno
+studentRouter.get('/messages', async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const tenantId = req.user.tenantId;
+    const userId = req.user.id;
+    
+    // Buscar mensagens onde o aluno é o destinatário
+    const receivedMessages = await db.select()
+      .from(userMessages)
+      .where(
+        and(
+          eq(userMessages.tenantId, tenantId),
+          eq(userMessages.recipientId, userId)
+        )
+      )
+      .orderBy(desc(userMessages.sentAt));
+    
+    // Buscar mensagens enviadas pelo aluno
+    const sentMessages = await db.select()
+      .from(userMessages)
+      .where(
+        and(
+          eq(userMessages.tenantId, tenantId),
+          eq(userMessages.senderId, userId)
+        )
+      )
+      .orderBy(desc(userMessages.sentAt));
+    
+    // Separar mensagens em recebidas e enviadas
+    res.json({
+      received: receivedMessages,
+      sent: sentMessages
+    });
+  } catch (error) {
+    console.error('Erro ao buscar mensagens:', error);
+    res.status(500).json({ error: 'Erro ao buscar mensagens' });
+  }
+});
+
+// Endpoint para enviar uma mensagem
+studentRouter.post('/messages', async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const tenantId = req.user.tenantId;
+    const senderId = req.user.id;
+    
+    // Validar dados da mensagem
+    const messageSchema = z.object({
+      recipientId: z.number(),
+      subject: z.string().min(1),
+      content: z.string().min(1),
+      threadId: z.number().optional()
+    });
+    
+    const validationResult = messageSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      return res.status(400).json({ error: 'Dados inválidos', details: validationResult.error.format() });
+    }
+    
+    const messageData = validationResult.data;
+    
+    // Salvar a mensagem
+    const [newMessage] = await db.insert(userMessages)
+      .values({
+        tenantId,
+        senderId,
+        recipientId: messageData.recipientId,
+        subject: messageData.subject,
+        content: messageData.content,
+        threadId: messageData.threadId,
+        status: 'unread',
+        sentAt: new Date()
+      })
+      .returning();
+    
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error('Erro ao enviar mensagem:', error);
+    res.status(500).json({ error: 'Erro ao enviar mensagem' });
+  }
+});
+
+// Endpoint para marcar mensagem como lida
+studentRouter.put('/messages/:id/read', async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const tenantId = req.user.tenantId;
+    const userId = req.user.id;
+    const messageId = parseInt(req.params.id);
+    
+    if (isNaN(messageId)) {
+      return res.status(400).json({ error: 'ID da mensagem inválido' });
+    }
+    
+    // Verificar se a mensagem existe e pertence ao usuário
+    const [message] = await db.select()
+      .from(userMessages)
+      .where(
+        and(
+          eq(userMessages.tenantId, tenantId),
+          eq(userMessages.id, messageId),
+          eq(userMessages.recipientId, userId)
+        )
+      );
+    
+    if (!message) {
+      return res.status(404).json({ error: 'Mensagem não encontrada' });
+    }
+    
+    // Atualizar status da mensagem
+    await db.update(userMessages)
+      .set({
+        status: 'read',
+        readAt: new Date()
+      })
+      .where(eq(userMessages.id, messageId));
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erro ao marcar mensagem como lida:', error);
+    res.status(500).json({ error: 'Erro ao marcar mensagem como lida' });
+  }
+});
+
+// Endpoint para exportar dados do usuário (LGPD)
+studentRouter.get('/export-data', async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    const userId = req.user.id;
+    const tenantId = req.user.tenantId;
+
+    // Buscar dados do usuário
+    const userData = {
+      user: req.user,
+      // Aqui poderíamos adicionar mais dados do usuário como matrículas, mensagens, etc.
+    };
+    
+    // Gerar arquivo JSON com os dados
+    const dataStr = JSON.stringify(userData, null, 2);
+    
+    // Configurar cabeçalhos para download
+    res.setHeader('Content-Disposition', 'attachment; filename=dados_pessoais.json');
+    res.setHeader('Content-Type', 'application/json');
+    
+    // Enviar dados
+    res.send(dataStr);
+  } catch (error) {
+    console.error('Erro ao exportar dados do usuário:', error);
+    res.status(500).json({ error: 'Erro ao exportar dados do usuário' });
   }
 });
 

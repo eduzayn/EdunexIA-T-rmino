@@ -5,6 +5,7 @@ import dynamic from "@/lib/dynamic.tsx";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import AuthPage from "@/pages/auth-page";
+import { AutoLogin } from "@/components/auto-login";
 import CoursesPage from "@/pages/courses-page";
 import CourseDetailsPage from "@/pages/course-details-page";
 import CourseCreatePage from "@/pages/course-create-page";
@@ -134,6 +135,15 @@ function Router() {
       <ProtectedRoute path="/admin/contracts" component={ContractsPage} />
       <ProtectedRoute path="/admin/sms-test" component={SmsTestPage} />
       
+      {/* Rotas do Módulo de Secretaria */}
+      <ProtectedRoute path="/admin/secretary/academic-transcript" component={dynamic(() => import('@/pages/admin/secretary/academic-transcript'))} />
+      
+      {/* Rotas do Dashboard */}
+      <ProtectedRoute path="/admin/dashboard/students" component={dynamic(() => import('@/pages/admin/dashboard/students'))} />
+      <ProtectedRoute path="/admin/dashboard/courses" component={dynamic(() => import('@/pages/admin/dashboard/courses'))} />
+      <ProtectedRoute path="/admin/dashboard/revenue" component={dynamic(() => import('@/pages/admin/dashboard/revenue'))} />
+      <ProtectedRoute path="/admin/dashboard/completion" component={dynamic(() => import('@/pages/admin/dashboard/completion'))} />
+      
       {/* Rotas do Módulo Comercial */}
       <ProtectedRoute path="/admin/leads" component={LeadsPage} />
       <ProtectedRoute path="/admin/opportunities" component={OpportunitiesPage} />
@@ -153,12 +163,28 @@ function Router() {
       <ProtectedRoute path="/admin/ai/content-generator" component={dynamic(() => import('@/pages/admin/ai-content-generator'))} />
       <ProtectedRoute path="/admin/ai/image-analyzer" component={dynamic(() => import('@/pages/admin/ai-image-analyzer'))} />
       
+      {/* Rotas do Módulo de Produtividade */}
+      <ProtectedRoute path="/admin/productivity/time-analysis" component={dynamic(() => import('@/pages/admin/productivity/time-analysis'))} />
+      <ProtectedRoute path="/admin/productivity/goals" component={dynamic(() => import('@/pages/admin/productivity/goals'))} />
+      <ProtectedRoute path="/admin/productivity/reports" component={dynamic(() => import('@/pages/admin/productivity/reports'))} />
+      <ProtectedRoute path="/teacher/productivity/time-analysis" component={dynamic(() => import('@/pages/admin/productivity/time-analysis'))} />
+      <ProtectedRoute path="/teacher/productivity/goals" component={dynamic(() => import('@/pages/admin/productivity/goals'))} />
+      <ProtectedRoute path="/teacher/productivity/reports" component={dynamic(() => import('@/pages/admin/productivity/reports'))} />
+      
+      {/* Rota de Configurações do Sistema */}
+      <ProtectedRoute path="/admin/settings" component={dynamic(() => import('@/pages/admin/settings/index'))} />
+      <ProtectedRoute path="/teacher/settings" component={dynamic(() => import('@/pages/admin/settings/index'))} />
+      
       {/* Rotas do Portal do Aluno */}
       <ProtectedRoute path="/student/dashboard" component={StudentDashboard} />
       <ProtectedRoute path="/student/courses" component={StudentCoursesPage} />
       <ProtectedRoute path="/student/courses/:id" component={StudentCourseDetailsPage} />
       <ProtectedRoute path="/student/documents" component={StudentDocumentsPage} />
       <ProtectedRoute path="/student/contracts" component={StudentContractsPage} />
+      <ProtectedRoute path="/student/library" component={dynamic(() => import('@/pages/student/library-page'))} />
+      <ProtectedRoute path="/student/library/:id" component={dynamic(() => import('@/pages/student/library-detail-page'))} />
+      <ProtectedRoute path="/student/messages" component={dynamic(() => import('@/pages/student/messages-page'))} />
+      <ProtectedRoute path="/student/settings" component={dynamic(() => import('@/pages/student/settings-page'))} />
       
       {/* Rotas do Portal do Professor */}
       <ProtectedRoute path="/teacher/dashboard" component={TeacherDashboard} />
@@ -236,6 +262,7 @@ function App() {
       <Toaster />
       <AppWithProviders />
       <PortalViewButtons />
+      <AutoLogin />
     </TooltipProvider>
   );
 }

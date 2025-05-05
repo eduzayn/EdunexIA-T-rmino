@@ -192,21 +192,59 @@ export default function SimplifiedEnrollmentPage() {
   
   // Manipulador de envio do formulário
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // Converter strings para números onde necessário
-    const formattedData = {
-      ...values,
-      courseId: parseInt(values.courseId),
-      amount: parseFloat(values.amount), // Usar parseFloat para preservar decimais
-      installments: parseInt(values.installments),
-      consultantId: parseInt(values.consultantId),
-      tenantId: parseInt(values.tenantId),
-      poloId: values.poloId ? parseInt(values.poloId) : undefined,
-    };
-    
-    // Log para debug
-    console.log("Enviando matrícula com dados:", formattedData);
-    
-    createEnrollmentMutation.mutate(formattedData);
+    try {
+      // Converter strings para números onde necessário e garantir valores válidos
+      const formattedData = {
+        ...values,
+        courseId: parseInt(values.courseId) || 0,
+        amount: parseFloat(values.amount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0, 
+        installments: parseInt(values.installments) || 1,
+        consultantId: parseInt(values.consultantId) || user?.id || 1,
+        tenantId: parseInt(values.tenantId) || user?.tenantId || 1,
+        poloId: values.poloId ? parseInt(values.poloId) : undefined,
+        // Garantir que o CPF não tenha formatação
+        studentCpf: values.studentCpf.replace(/[^\d]/g, ''),
+        // Garantir que paymentMethod é um valor válido
+        paymentMethod: values.paymentMethod || "BOLETO",
+      };
+      
+      // Log para debug
+      console.log("Enviando matrícula com dados:", formattedData);
+      
+      if (!formattedData.courseId) {
+        throw new Error("Selecione um curso válido");
+      }
+      
+      if (!formattedData.amount || formattedData.amount <= 0) {
+        throw new Error("O valor da matrícula deve ser maior que zero");
+      }
+      
+      if (formattedData.studentCpf.length !== 11) {
+        throw new Error("CPF inválido. Deve conter 11 dígitos.");
+      }
+      
+      if (!formattedData.studentName || formattedData.studentName.length < 3) {
+        throw new Error("Nome do aluno deve ter pelo menos 3 caracteres");
+      }
+      
+      if (!formattedData.studentEmail || !formattedData.studentEmail.includes('@')) {
+        throw new Error("Email inválido");
+      }
+      
+      // Mostrar toast indicando processamento
+      toast({
+        title: "Processando matrícula",
+        description: "Aguarde enquanto processamos sua solicitação...",
+      });
+      
+      createEnrollmentMutation.mutate(formattedData);
+    } catch (error: any) {
+      toast({
+        title: "Erro na validação do formulário",
+        description: error.message || "Verifique os campos e tente novamente",
+        variant: "destructive",
+      });
+    }
   };
   
   // Função para mapear status para badge
@@ -570,9 +608,30 @@ export default function SimplifiedEnrollmentPage() {
                           )}
                         />
                         
-                        {/* Campos ocultos */}
-                        <input type="hidden" {...form.register("consultantId")} />
-                        <input type="hidden" {...form.register("tenantId")} />
+                        {/* Campos ocultos como FormFields para melhor integração */}
+                        <FormField
+                          control={form.control}
+                          name="consultantId"
+                          render={({ field }) => (
+                            <FormItem className="hidden">
+                              <FormControl>
+                                <Input type="hidden" {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="tenantId"
+                          render={({ field }) => (
+                            <FormItem className="hidden">
+                              <FormControl>
+                                <Input type="hidden" {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     </div>
                     

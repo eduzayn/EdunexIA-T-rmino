@@ -924,7 +924,7 @@ export default function OpportunitiesPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Nenhum</SelectItem>
+                              <SelectItem value="0">Nenhum</SelectItem>
                               {leads.map((lead) => (
                                 <SelectItem key={lead.id} value={lead.id.toString()}>
                                   {lead.name}
@@ -953,7 +953,7 @@ export default function OpportunitiesPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Nenhum</SelectItem>
+                              <SelectItem value="0">Nenhum</SelectItem>
                               {courses.map((course) => (
                                 <SelectItem key={course.id} value={course.id.toString()}>
                                   {course.name}
@@ -1050,7 +1050,7 @@ export default function OpportunitiesPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Nenhum</SelectItem>
+                              <SelectItem value="0">Nenhum</SelectItem>
                               {consultants.map((consultant) => (
                                 <SelectItem key={consultant.id} value={consultant.id.toString()}>
                                   {consultant.fullName}
@@ -1156,7 +1156,7 @@ export default function OpportunitiesPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Nenhum</SelectItem>
+                              <SelectItem value="0">Nenhum</SelectItem>
                               {leads.map((lead) => (
                                 <SelectItem key={lead.id} value={lead.id.toString()}>
                                   {lead.name}
@@ -1185,7 +1185,7 @@ export default function OpportunitiesPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Nenhum</SelectItem>
+                              <SelectItem value="0">Nenhum</SelectItem>
                               {courses.map((course) => (
                                 <SelectItem key={course.id} value={course.id.toString()}>
                                   {course.name}
@@ -1282,7 +1282,7 @@ export default function OpportunitiesPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Nenhum</SelectItem>
+                              <SelectItem value="0">Nenhum</SelectItem>
                               {consultants.map((consultant) => (
                                 <SelectItem key={consultant.id} value={consultant.id.toString()}>
                                   {consultant.fullName}

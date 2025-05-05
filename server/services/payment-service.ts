@@ -382,9 +382,15 @@ class PaymentService {
     studentName: string,
     value: number,
     installments?: number,
-    paymentMethod?: 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX',
+    paymentMethod?: 'UNDEFINED' | 'BOLETO' | 'CREDIT_CARD' | 'PIX' | string,
     dueDate?: string // formato YYYY-MM-DD
   }): Promise<{ paymentUrl: string, paymentId: string }> {
+    // Garantir que o método de pagamento seja válido
+    if (!data.paymentMethod || data.paymentMethod === 'UNDEFINED' || 
+        !['BOLETO', 'CREDIT_CARD', 'PIX'].includes(data.paymentMethod)) {
+      console.log(`Método de pagamento inválido ou indefinido: ${data.paymentMethod}, usando BOLETO como padrão`);
+      data.paymentMethod = 'BOLETO';
+    }
     try {
       // Gerar data de vencimento (30 dias a partir de hoje caso não seja fornecida)
       const dueDate = data.dueDate || this.generateDueDate(30);
@@ -408,14 +414,22 @@ class PaymentService {
       console.log('Criando link de pagamento no Asaas via endpoint de paymentLinks...');
       
       try {
-        // Configuração base do link de pagamento
-        const paymentLinkData: any = {
+        // Configuração base do link de pagamento com os tipos explícitos
+        const paymentLinkData = {
           name: `Matrícula ${data.enrollmentId} - ${data.studentName}`,
           description: description,
           endDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0],
           value: data.value,
           dueDateLimitDays: 5,
           maxInstallmentCount: data.installments && data.installments > 1 ? data.installments : 1,
+          billingType: data.paymentMethod || 'BOLETO', // Garantir que sempre temos um billingType
+          // Configurando métodos de pagamento explicitamente
+          charge: {
+            // Adicionando tipo explícito para o charge para resolver erro "initialize: The type of 'request' must be provided"
+            type: 'PAYMENT_REQUEST', 
+            description: description,
+            dueDate: dueDate
+          },
           // Por padrão, desabilita todos os métodos
           acceptCreditCard: false,
           acceptDebitCard: false,
@@ -426,11 +440,12 @@ class PaymentService {
         // Habilita apenas o método específico selecionado
         paymentLinkData.acceptCreditCard = data.paymentMethod === 'CREDIT_CARD';
         paymentLinkData.acceptPix = data.paymentMethod === 'PIX';
-        paymentLinkData.acceptBoleto = data.paymentMethod === 'BOLETO';
+        paymentLinkData.acceptBoleto = data.paymentMethod === 'BOLETO' || !data.paymentMethod;
         
-        // Se não for especificado, usa boleto como padrão (fallback)
-        if (!data.paymentMethod) {
+        // Se não for especificado, habilita boleto como padrão
+        if (!data.paymentMethod || data.paymentMethod === 'UNDEFINED') {
           paymentLinkData.acceptBoleto = true;
+          paymentLinkData.billingType = 'BOLETO';
         }
         
         console.log(`Dados do payment link: ${JSON.stringify(paymentLinkData)}`);

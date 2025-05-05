@@ -35,16 +35,49 @@ const createEnrollmentSchema = insertSimplifiedEnrollmentSchema.extend({
   tenantId: z.number(),
   // Opcional
   installments: z.number().min(1).max(12).default(1),
-  paymentMethod: z.enum(["UNDEFINED", "BOLETO", "CREDIT_CARD", "PIX"]).default("UNDEFINED"),
+  paymentMethod: z.enum(["UNDEFINED", "BOLETO", "CREDIT_CARD", "PIX"]).default("BOLETO"), // Alterado para BOLETO como padrão
   studentPhone: z.string().optional(),
-  poloId: z.number().optional()
+  poloId: z.union([z.number(), z.string()]).optional().transform(val => 
+    typeof val === 'string' ? parseInt(val) : val
+  )
 });
 
 // Rota para criar matrícula simplificada (com checkout Asaas)
-router.post('/simplified-enrollments', isAuthenticated, async (req, res) => {
+router.post('/simplified-enrollments', isAuthenticated, async (req: any, res) => {
   try {
+    const user = req.user as AuthUser;
+    console.log('Usuário autenticado:', { id: user.id, tenantId: user.tenantId, role: user.role });
+    
+    // Pré-processar dados de entrada para garantir valores válidos
+    console.log('Dados brutos recebidos:', req.body);
+    
+    const enrollmentInput = {
+      ...req.body,
+      // Garantir que temos valores válidos para consultantId e tenantId
+      consultantId: typeof req.body.consultantId === 'string' ? 
+                    parseInt(req.body.consultantId) : 
+                    (req.body.consultantId || user.id),
+      tenantId: typeof req.body.tenantId === 'string' ? 
+                parseInt(req.body.tenantId) : 
+                (req.body.tenantId || user.tenantId),
+      // Garantir que o CPF está no formato correto (apenas números) 
+      studentCpf: req.body.studentCpf ? req.body.studentCpf.replace(/[^0-9]/g, '') : '',
+      // Valores numéricos
+      amount: typeof req.body.amount === 'string' ? 
+              parseFloat(req.body.amount.replace(/[^\d.,]/g, '').replace(',', '.')) : 
+              (req.body.amount || 0),
+      installments: typeof req.body.installments === 'string' ? 
+                    parseInt(req.body.installments) : 
+                    (req.body.installments || 1),
+      courseId: typeof req.body.courseId === 'string' ? 
+                parseInt(req.body.courseId) : 
+                (req.body.courseId || 0)
+    };
+    
+    console.log('Dados recebidos da matrícula (pré-processados):', enrollmentInput);
+    
     // Validar dados de entrada
-    const enrollmentData = createEnrollmentSchema.parse(req.body);
+    const enrollmentData = createEnrollmentSchema.parse(enrollmentInput);
     
     // Buscar curso para obter título
     const course = await storage.getCourseById(enrollmentData.courseId);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { insertCourseSchema } from "@shared/schema";
 import { Course } from "@shared/schema";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 import {
   Form,
@@ -48,6 +49,7 @@ const courseFormSchema = insertCourseSchema.extend({
   area: z.string().min(1, "Selecione uma área"),
   courseCategory: z.string().min(1, "Selecione uma categoria"),
   price: z.coerce.number().optional().nullable().transform(val => val === 0 ? null : val), // Permitir curso gratuito
+  status: z.enum(['draft', 'published', 'archived']).default('draft'),
 });
 
 // Tipo inferido do schema do formulário
@@ -65,6 +67,11 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   const { user } = useAuth();
   const isEditMode = Boolean(initialData && courseId);
   const isAdmin = user?.role === "admin";
+  
+  // Estado para controlar o upload de imagem
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Valores iniciais
   const defaultValues: Partial<CourseFormValues> = {
@@ -89,8 +96,24 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Mutação para criar curso
   const createMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
-      const res = await apiRequest("POST", "/api/courses", data);
-      return await res.json();
+      console.log("mutationFn - Iniciando criação do curso:", data);
+      try {
+        const res = await apiRequest("POST", "/api/courses", data);
+        console.log("mutationFn - Resposta recebida:", res.status);
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error("mutationFn - Erro retornado pelo servidor:", errorData);
+          throw new Error(errorData.error || "Erro desconhecido ao criar curso");
+        }
+        
+        const jsonResponse = await res.json();
+        console.log("mutationFn - Curso criado com sucesso:", jsonResponse);
+        return jsonResponse;
+      } catch (error) {
+        console.error("mutationFn - Exceção ao criar curso:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -101,6 +124,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       navigate("/admin/courses");
     },
     onError: (error: Error) => {
+      console.error("onError - Erro capturado na mutação:", error);
       toast({
         title: "Erro ao criar curso",
         description: error.message,
@@ -133,16 +157,111 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     },
   });
 
-  // Função genérica para submissão
-  const onSubmit = (data: CourseFormValues) => {
-    if (isEditMode) {
-      updateMutation.mutate(data);
-    } else {
-      createMutation.mutate(data);
+  // Função para fazer upload da imagem
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+    
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      
+      // Se estiver editando um curso, incluir o ID do curso
+      if (courseId) {
+        formData.append('courseId', courseId.toString());
+      }
+      
+      console.log("Enviando upload de imagem:", { 
+        fileSize: imageFile.size,
+        fileType: imageFile.type,
+        fileName: imageFile.name,
+        courseId: courseId 
+      });
+      
+      const response = await fetch('/api/course-images/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Erro no upload de imagem:", errorData);
+        throw new Error(errorData.error || 'Erro ao fazer upload da imagem');
+      }
+      
+      const data = await response.json();
+      console.log("Resposta do upload de imagem:", data);
+      setIsUploading(false);
+      setUploadProgress(100);
+      
+      return data.imageUrl;
+    } catch (error: any) {
+      console.error("Exceção no upload de imagem:", error);
+      setIsUploading(false);
+      toast({
+        title: "Erro no upload da imagem",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
     }
   };
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  // Função genérica para submissão
+  const onSubmit = async (data: CourseFormValues) => {
+    try {
+      console.log("Iniciando submissão de formulário de curso", data);
+      
+      // Se houver uma imagem para upload, fazer o upload primeiro
+      if (imageFile) {
+        console.log("Executando upload de imagem antes de salvar o curso");
+        const imageUrl = await uploadImage();
+        if (imageUrl) {
+          data.imageUrl = imageUrl;
+          console.log("Upload de imagem concluído, URL:", imageUrl);
+        } else {
+          console.warn("Upload de imagem falhou ou retornou URL nula");
+        }
+      }
+      
+      // Mostrar dados que serão enviados
+      console.log("Dados do curso a serem enviados:", data);
+      
+      if (isEditMode) {
+        console.log("Modo de edição: Atualizando curso existente");
+        updateMutation.mutate(data);
+      } else {
+        console.log("Modo de criação: Criando novo curso");
+        createMutation.mutate(data, {
+          onError: (error: any) => {
+            console.error("Erro na criação do curso:", error);
+            // Mostrar mensagem de erro detalhada
+            let errorMessage = error.message;
+            if (error.response?.data?.details) {
+              errorMessage += ": " + JSON.stringify(error.response.data.details);
+            }
+            toast({
+              title: "Erro ao criar curso",
+              description: errorMessage,
+              variant: "destructive",
+            });
+          }
+        });
+      }
+    } catch (error: any) {
+      console.error("Exceção ao salvar o curso:", error);
+      toast({
+        title: "Erro ao salvar o curso",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isPending = createMutation.isPending || updateMutation.isPending || isUploading;
 
   return (
     <Card className="w-full">
@@ -353,26 +472,41 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL da Imagem</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="URL da imagem de capa (opcional)"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Recomendado: imagem 16:9 com pelo menos 1280x720 pixels
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL da Imagem</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="URL da imagem de capa (opcional)"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Ou utilize o upload de imagem abaixo
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Upload de Imagem</p>
+                <ImageUpload
+                  previewUrl={initialData?.imageUrl || ""}
+                  onImageUpload={(file) => setImageFile(file)}
+                  onImageRemove={() => setImageFile(null)}
+                  helperText="Arraste uma imagem ou clique para fazer upload"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Recomendado: imagem 16:9 com pelo menos 1280x720 pixels
+                </p>
+              </div>
+            </div>
 
             <div className="flex justify-between">
               <Button
