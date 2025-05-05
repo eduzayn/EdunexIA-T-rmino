@@ -239,6 +239,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/modules", isAuthenticated, async (req, res, next) => {
     try {
       const courseId = req.query.courseId ? parseInt(req.query.courseId as string) : undefined;
+      const tenantId = req.user?.tenantId;
+      
+      if (!tenantId) {
+        return res.status(401).json({ message: "Usuário não autenticado" });
+      }
       
       if (courseId) {
         // Verificar se o curso existe e se o usuário tem acesso a ele
@@ -247,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "Curso não encontrado" });
         }
         
-        if (course.tenantId !== req.user?.tenantId) {
+        if (course.tenantId !== tenantId) {
           return res.status(403).json({ message: "Acesso negado ao curso especificado" });
         }
         
@@ -255,8 +260,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const courseModules = await storage.getModulesByCourse(courseId);
         return res.json(courseModules);
       } else {
-        // Se não for especificado um courseId, retornar erro
-        return res.status(400).json({ message: "Parâmetro courseId é obrigatório" });
+        // Se não for especificado um courseId, retornar todos os módulos do tenant do usuário
+        // Esta é uma solução temporária até que possamos atualizar todos os componentes
+        const courses = await storage.getCoursesByTenant(tenantId);
+        const courseIds = courses.map(course => course.id);
+        
+        // Se não houver cursos, retornar lista vazia
+        if (courseIds.length === 0) {
+          return res.json([]);
+        }
+        
+        // Buscar e combinar módulos de todos os cursos do tenant
+        const allModules = [];
+        for (const id of courseIds) {
+          const modules = await storage.getModulesByCourse(id);
+          allModules.push(...modules);
+        }
+        
+        return res.json(allModules);
       }
     } catch (error) {
       next(error);
