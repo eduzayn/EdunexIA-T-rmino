@@ -96,8 +96,24 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Mutação para criar curso
   const createMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
-      const res = await apiRequest("POST", "/api/courses", data);
-      return await res.json();
+      console.log("mutationFn - Iniciando criação do curso:", data);
+      try {
+        const res = await apiRequest("POST", "/api/courses", data);
+        console.log("mutationFn - Resposta recebida:", res.status);
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error("mutationFn - Erro retornado pelo servidor:", errorData);
+          throw new Error(errorData.error || "Erro desconhecido ao criar curso");
+        }
+        
+        const jsonResponse = await res.json();
+        console.log("mutationFn - Curso criado com sucesso:", jsonResponse);
+        return jsonResponse;
+      } catch (error) {
+        console.error("mutationFn - Exceção ao criar curso:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -108,6 +124,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       navigate("/admin/courses");
     },
     onError: (error: Error) => {
+      console.error("onError - Erro capturado na mutação:", error);
       toast({
         title: "Erro ao criar curso",
         description: error.message,
@@ -156,6 +173,13 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
         formData.append('courseId', courseId.toString());
       }
       
+      console.log("Enviando upload de imagem:", { 
+        fileSize: imageFile.size,
+        fileType: imageFile.type,
+        fileName: imageFile.name,
+        courseId: courseId 
+      });
+      
       const response = await fetch('/api/course-images/upload', {
         method: 'POST',
         body: formData,
@@ -164,15 +188,18 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Erro no upload de imagem:", errorData);
         throw new Error(errorData.error || 'Erro ao fazer upload da imagem');
       }
       
       const data = await response.json();
+      console.log("Resposta do upload de imagem:", data);
       setIsUploading(false);
       setUploadProgress(100);
       
       return data.imageUrl;
     } catch (error: any) {
+      console.error("Exceção no upload de imagem:", error);
       setIsUploading(false);
       toast({
         title: "Erro no upload da imagem",
@@ -186,20 +213,46 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Função genérica para submissão
   const onSubmit = async (data: CourseFormValues) => {
     try {
+      console.log("Iniciando submissão de formulário de curso", data);
+      
       // Se houver uma imagem para upload, fazer o upload primeiro
       if (imageFile) {
+        console.log("Executando upload de imagem antes de salvar o curso");
         const imageUrl = await uploadImage();
         if (imageUrl) {
           data.imageUrl = imageUrl;
+          console.log("Upload de imagem concluído, URL:", imageUrl);
+        } else {
+          console.warn("Upload de imagem falhou ou retornou URL nula");
         }
       }
       
+      // Mostrar dados que serão enviados
+      console.log("Dados do curso a serem enviados:", data);
+      
       if (isEditMode) {
+        console.log("Modo de edição: Atualizando curso existente");
         updateMutation.mutate(data);
       } else {
-        createMutation.mutate(data);
+        console.log("Modo de criação: Criando novo curso");
+        createMutation.mutate(data, {
+          onError: (error: any) => {
+            console.error("Erro na criação do curso:", error);
+            // Mostrar mensagem de erro detalhada
+            let errorMessage = error.message;
+            if (error.response?.data?.details) {
+              errorMessage += ": " + JSON.stringify(error.response.data.details);
+            }
+            toast({
+              title: "Erro ao criar curso",
+              description: errorMessage,
+              variant: "destructive",
+            });
+          }
+        });
       }
     } catch (error: any) {
+      console.error("Exceção ao salvar o curso:", error);
       toast({
         title: "Erro ao salvar o curso",
         description: error.message,

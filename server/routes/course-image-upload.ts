@@ -61,24 +61,37 @@ function getPublicUrl(filepath: string): string {
 // Rota para upload de imagem de curso
 courseImageRouter.post('/upload', upload.single('image'), async (req: Request, res: Response) => {
   try {
+    console.log('[DEBUG] Iniciando upload de imagem, body:', req.body);
+    console.log('[DEBUG] Arquivo recebido:', req.file ? 'Sim' : 'Não');
+    
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhuma imagem foi enviada' });
     }
 
+    console.log('[DEBUG] Detalhes do arquivo:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    });
+
     const courseId = req.body.courseId ? parseInt(req.body.courseId) : null;
+    console.log('[DEBUG] Course ID extraído:', courseId);
     
     // Obter a URL pública do arquivo
     const publicUrl = getPublicUrl(req.file.path);
+    console.log('[DEBUG] URL pública gerada:', publicUrl);
 
     // Se houver um ID de curso, atualizar a URL da imagem no banco de dados
     if (courseId) {
+      console.log('[DEBUG] Atualizando imageUrl no banco de dados para o curso:', courseId);
       await db.update(courses)
         .set({ imageUrl: publicUrl })
         .where(eq(courses.id, courseId));
     }
 
     // Retornar a URL da imagem
-    res.status(200).json({ 
+    const responseData = { 
       message: 'Imagem enviada com sucesso',
       imageUrl: publicUrl,
       file: {
@@ -86,7 +99,9 @@ courseImageRouter.post('/upload', upload.single('image'), async (req: Request, r
         size: req.file.size,
         mimetype: req.file.mimetype
       }
-    });
+    };
+    console.log('[DEBUG] Resposta de sucesso:', responseData);
+    res.status(200).json(responseData);
   } catch (error: any) {
     console.error('Erro no upload de imagem:', error);
     res.status(500).json({ 

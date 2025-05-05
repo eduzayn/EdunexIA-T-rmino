@@ -63,6 +63,12 @@ courseRouter.post('/courses', async (req: Request, res: Response, next: NextFunc
     const userId = req.user?.id;
     const tenantId = req.user?.tenantId;
     
+    console.log('[DEBUG] Iniciando criação de curso:', { 
+      userId, 
+      tenantId, 
+      body: req.body 
+    });
+    
     if (!userId || !tenantId) {
       return res.status(401).json({ error: 'Usuário não identificado' });
     }
@@ -71,6 +77,8 @@ courseRouter.post('/courses', async (req: Request, res: Response, next: NextFunc
     if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
       return res.status(403).json({ error: 'Você não tem permissão para criar cursos' });
     }
+    
+    console.log('[DEBUG] Validando dados do curso com schema');
     
     // Validar dados do curso
     const courseData = insertCourseSchema.parse({
@@ -81,13 +89,18 @@ courseRouter.post('/courses', async (req: Request, res: Response, next: NextFunc
       updatedAt: new Date()
     });
     
+    console.log('[DEBUG] Dados validados com sucesso:', courseData);
+    
     // Criar o curso
+    console.log('[DEBUG] Chamando storage.createCourse');
     const course = await storage.createCourse(courseData);
     
+    console.log('[DEBUG] Curso criado com sucesso:', course);
     res.status(201).json(course);
   } catch (error: any) {
     console.error('Erro ao criar curso:', error);
     if (error.name === 'ZodError') {
+      console.error('Erros de validação:', JSON.stringify(error.errors, null, 2));
       return res.status(400).json({ error: 'Dados inválidos', details: error.errors });
     }
     next(error);
