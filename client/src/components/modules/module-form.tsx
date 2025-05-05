@@ -42,11 +42,12 @@ type ModuleFormValues = z.infer<typeof moduleFormSchema>;
 interface ModuleFormProps {
   initialData?: Module;
   moduleId?: number;
-  courseId: number;
+  subjectId: number;
+  courseId?: number; // Usado apenas para navegação
   onCancel?: () => void;
 }
 
-export function ModuleForm({ initialData, moduleId, courseId, onCancel }: ModuleFormProps) {
+export function ModuleForm({ initialData, moduleId, subjectId, courseId, onCancel }: ModuleFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
@@ -56,7 +57,7 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
   const defaultValues: Partial<ModuleFormValues> = {
     title: initialData?.title || "",
     description: initialData?.description || "",
-    courseId: initialData?.courseId || courseId,
+    subjectId: initialData?.subjectId || subjectId,
     order: initialData?.order || undefined,
   };
 
@@ -210,7 +211,7 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
               )}
             />
 
-            <input type="hidden" {...form.register("courseId")} />
+            <input type="hidden" {...form.register("subjectId")} />
 
             <div className="flex justify-between">
               <Button

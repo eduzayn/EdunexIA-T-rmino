@@ -656,9 +656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const courseSubject = await storage.addSubjectToCourse({
         courseId,
         subjectId,
-        order: order || existingSubjects.length + 1,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        order: order || existingSubjects.length + 1
       });
       
       res.status(201).json(courseSubject);
