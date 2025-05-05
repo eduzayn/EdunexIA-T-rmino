@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./database-storage";
@@ -1698,6 +1698,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', campaignRouter);
   app.use('/api/ai', isAuthenticated, aiRouter);
   app.use('/api/settings', isAuthenticated, settingsRouter);
+  
+  // Adicionar rotas para upload de imagens de cursos
+  app.use('/api/course-images', isAuthenticated, courseImageRouter);
+  
+  // Configurar pasta de uploads como estática
+  app.use('/uploads', express.static('uploads'));
   
   // Rota de teste para envio de SMS (apenas para ambiente de desenvolvimento e admins)
   app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {

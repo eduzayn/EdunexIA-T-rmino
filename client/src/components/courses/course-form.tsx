@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { insertCourseSchema } from "@shared/schema";
 import { Course } from "@shared/schema";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 import {
   Form,
@@ -65,6 +66,11 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   const { user } = useAuth();
   const isEditMode = Boolean(initialData && courseId);
   const isAdmin = user?.role === "admin";
+  
+  // Estado para controlar o upload de imagem
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Valores iniciais
   const defaultValues: Partial<CourseFormValues> = {
@@ -133,16 +139,75 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     },
   });
 
-  // Função genérica para submissão
-  const onSubmit = (data: CourseFormValues) => {
-    if (isEditMode) {
-      updateMutation.mutate(data);
-    } else {
-      createMutation.mutate(data);
+  // Função para fazer upload da imagem
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+    
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      
+      // Se estiver editando um curso, incluir o ID do curso
+      if (courseId) {
+        formData.append('courseId', courseId.toString());
+      }
+      
+      const response = await fetch('/api/course-images/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao fazer upload da imagem');
+      }
+      
+      const data = await response.json();
+      setIsUploading(false);
+      setUploadProgress(100);
+      
+      return data.imageUrl;
+    } catch (error: any) {
+      setIsUploading(false);
+      toast({
+        title: "Erro no upload da imagem",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
     }
   };
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  // Função genérica para submissão
+  const onSubmit = async (data: CourseFormValues) => {
+    try {
+      // Se houver uma imagem para upload, fazer o upload primeiro
+      if (imageFile) {
+        const imageUrl = await uploadImage();
+        if (imageUrl) {
+          data.imageUrl = imageUrl;
+        }
+      }
+      
+      if (isEditMode) {
+        updateMutation.mutate(data);
+      } else {
+        createMutation.mutate(data);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao salvar o curso",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isPending = createMutation.isPending || updateMutation.isPending || isUploading;
 
   return (
     <Card className="w-full">
@@ -353,26 +418,41 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL da Imagem</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="URL da imagem de capa (opcional)"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Recomendado: imagem 16:9 com pelo menos 1280x720 pixels
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL da Imagem</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="URL da imagem de capa (opcional)"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Ou utilize o upload de imagem abaixo
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Upload de Imagem</p>
+                <ImageUpload
+                  previewUrl={initialData?.imageUrl || ""}
+                  onImageUpload={(file) => setImageFile(file)}
+                  onImageRemove={() => setImageFile(null)}
+                  helperText="Arraste uma imagem ou clique para fazer upload"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Recomendado: imagem 16:9 com pelo menos 1280x720 pixels
+                </p>
+              </div>
+            </div>
 
             <div className="flex justify-between">
               <Button
