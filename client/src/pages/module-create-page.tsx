@@ -12,17 +12,17 @@ import { AlertTriangle, ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
 
 export default function ModuleCreatePage() {
   // Capturar ID do curso da URL
-  // A rota definida no App.tsx é "/admin/courses/:id/modules/new"
+  // A rota definida no App.tsx é "/admin/courses/:courseId/modules/new"
   const params = useParams();
   console.log("Parâmetros da URL (ModuleCreatePage):", params);
   
-  const id = params.id;
+  const courseIdParam = params.courseId;
   
-  if (!id) {
+  if (!courseIdParam) {
     console.error("ID do curso ausente na URL");
   }
   
-  const courseId = parseInt(id || "0");
+  const courseId = parseInt(courseIdParam || "0");
 
   // Buscar detalhes do curso
   const { 

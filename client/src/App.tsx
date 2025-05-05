@@ -91,7 +91,7 @@ function Router() {
       <ProtectedRoute path="/admin/courses" component={CoursesPage} />
       <ProtectedRoute path="/admin/courses/new" component={CourseCreatePage} />
       <ProtectedRoute path="/admin/courses/:id/edit" component={CourseEditPage} />
-      <ProtectedRoute path="/admin/courses/:id/modules/new" component={ModuleCreatePage} />
+      <ProtectedRoute path="/admin/courses/:courseId/modules/new" component={ModuleCreatePage} />
       <ProtectedRoute path="/admin/courses/:courseId/modules/:moduleId/edit" component={ModuleEditPage} />
       <ProtectedRoute path="/admin/courses/:id" component={CourseDetailsPage} />
       
