@@ -860,19 +860,46 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`[DEBUG] Módulo encontrado:`, module);
       
-      // Buscar aulas do módulo
+      // Buscar aulas do módulo - selecionando campos específicos para evitar erro de coluna
       const moduleLessons = await db
-        .select()
+        .select({
+          id: lessons.id,
+          moduleId: lessons.moduleId,
+          title: lessons.title,
+          description: lessons.description,
+          content: lessons.content,
+          materialType: lessons.materialType,
+          videoUrl: lessons.videoUrl,
+          videoProvider: lessons.videoProvider,
+          videoId: lessons.videoId,
+          fileUrl: lessons.fileUrl,
+          fileType: lessons.fileType,
+          fileSize: lessons.fileSize,
+          isRequired: lessons.isRequired,
+          duration: lessons.duration,
+          order: lessons.order,
+          createdAt: lessons.createdAt,
+          updatedAt: lessons.updatedAt
+        })
         .from(lessons)
         .where(eq(lessons.moduleId, id))
         .orderBy(lessons.order);
       
       console.log(`[DEBUG] Encontradas ${moduleLessons.length} aulas para o módulo ${id}`);
       
-      // Retornar o módulo com suas aulas
+      // Buscar quizzes do módulo
+      const moduleQuizzes = await db
+        .select()
+        .from(quizzes)
+        .where(eq(quizzes.moduleId, id));
+        
+      console.log(`[DEBUG] Encontrados ${moduleQuizzes.length} simulados/avaliações para o módulo ${id}`);
+      
+      // Retornar o módulo com suas aulas e quizzes
       return {
         ...module,
-        lessons: moduleLessons
+        lessons: moduleLessons,
+        quizzes: moduleQuizzes
       };
     } catch (error) {
       console.error('Erro ao buscar módulo por ID:', error);
