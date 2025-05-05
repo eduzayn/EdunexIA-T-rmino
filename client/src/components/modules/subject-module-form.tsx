@@ -139,7 +139,7 @@ export function SubjectModuleForm({
         {/* Botões de ação */}
         <div className="flex justify-end gap-2">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Salvando...' : defaultValues?.id ? 'Atualizar Módulo' : 'Criar Módulo'}
+            {isSubmitting ? 'Salvando...' : defaultValues && 'id' in defaultValues ? 'Atualizar Módulo' : 'Criar Módulo'}
           </Button>
         </div>
       </form>

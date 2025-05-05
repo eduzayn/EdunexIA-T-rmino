@@ -778,12 +778,12 @@ export class DatabaseStorage implements IStorage {
           title: modules.title,
           description: modules.description,
           order: modules.order,
-          subjectId: modules.subjectId,
+          subjectId: sql`${modules.subject_id}::int`, // Use sql template para a coluna subject_id
           createdAt: modules.createdAt,
           updatedAt: modules.updatedAt
         })
         .from(modules)
-        .where(eq(modules.subjectId, subjectId))
+        .where(sql`${modules.subject_id}::int = ${subjectId}`) // Use sql template com cast para garantir compatibilidade
         .orderBy(modules.order);
       
       console.log(`[DEBUG-DB] Encontrados ${subjectModules.length} módulos para a disciplina ID: ${subjectId}`);
@@ -825,7 +825,18 @@ export class DatabaseStorage implements IStorage {
   
   async getModuleById(id: number): Promise<Module | undefined> {
     try {
-      const [module] = await db.select().from(modules).where(eq(modules.id, id));
+      // Usar select explícito com mapeamento para os nomes de colunas TypeScript
+      const [module] = await db.select({
+        id: modules.id,
+        title: modules.title,
+        description: modules.description,
+        order: modules.order,
+        subjectId: sql`${modules.subject_id}::int`, // Map da coluna subject_id para subjectId
+        createdAt: modules.createdAt,
+        updatedAt: modules.updatedAt
+      })
+      .from(modules)
+      .where(eq(modules.id, id));
       
       if (module) {
         // Buscar aulas do módulo
@@ -854,7 +865,7 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .select({ maxOrder: sql`MAX(${modules.order})` })
         .from(modules)
-        .where(eq(modules.subjectId, moduleData.subjectId));
+        .where(sql`${modules.subject_id}::int = ${moduleData.subjectId}`);
       
       // Definir a ordem como a próxima disponível
       let nextOrder = 1;
@@ -863,11 +874,12 @@ export class DatabaseStorage implements IStorage {
       }
       
       const [newModule] = await db.insert(modules).values({
-        ...moduleData,
+        title: moduleData.title,
+        description: moduleData.description || null,
         order: moduleData.order || nextOrder,
+        subject_id: moduleData.subjectId, // Usar nome da coluna correto
         createdAt: new Date(),
-        updatedAt: new Date(),
-        description: moduleData.description || null
+        updatedAt: new Date()
       }).returning();
       
       return newModule;
@@ -879,13 +891,29 @@ export class DatabaseStorage implements IStorage {
   
   async updateModule(id: number, moduleData: Partial<InsertModule>): Promise<Module> {
     try {
+      // Construir objeto de atualização mapeando para nomes de colunas no banco
+      const updateValues: any = {
+        updatedAt: new Date()
+      };
+      
+      // Adicionar campos que existem nos dados recebidos
+      if (moduleData.title !== undefined) updateValues.title = moduleData.title;
+      if (moduleData.description !== undefined) updateValues.description = moduleData.description;
+      if (moduleData.order !== undefined) updateValues.order = moduleData.order;
+      if (moduleData.subjectId !== undefined) updateValues.subject_id = moduleData.subjectId;
+      
       const [updatedModule] = await db.update(modules)
-        .set({
-          ...moduleData,
-          updatedAt: new Date()
-        })
+        .set(updateValues)
         .where(eq(modules.id, id))
-        .returning();
+        .returning({
+          id: modules.id,
+          title: modules.title,
+          description: modules.description,
+          order: modules.order,
+          subjectId: sql`${modules.subject_id}::int`, // Map da coluna subject_id para subjectId
+          createdAt: modules.createdAt,
+          updatedAt: modules.updatedAt
+        });
       
       if (!updatedModule) {
         throw new Error('Módulo não encontrado');
