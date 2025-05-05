@@ -27,6 +27,7 @@ import { opportunityRouter } from "./opportunity-routes";
 import { campaignRouter } from "./campaign-routes";
 import { aiRouter } from "./ai-routes-fixed";
 import { settingsRouter } from "./settings-routes";
+import { courseRouter } from "./routes/course-routes";
 import { notificationService } from "./services/notification-service";
 import courseImageRouter from "./routes/course-image-upload";
 

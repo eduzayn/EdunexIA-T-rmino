@@ -627,6 +627,29 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
+  async deleteCourse(id: number): Promise<boolean> {
+    try {
+      // Verificar se existem matrículas para este curso
+      const courseEnrollments = await db.select().from(enrollments).where(eq(enrollments.courseId, id));
+      
+      if (courseEnrollments.length > 0) {
+        console.error('Não é possível excluir um curso que possui matrículas');
+        return false;
+      }
+      
+      // Remover módulos associados ao curso
+      await db.delete(modules).where(eq(modules.courseId, id));
+      
+      // Remover o curso
+      const result = await db.delete(courses).where(eq(courses.id, id));
+      
+      return true;
+    } catch (error) {
+      console.error('Erro ao excluir curso:', error);
+      return false;
+    }
+  }
+  
   async getModulesByCourse(courseId: number): Promise<Module[]> {
     try {
       // Buscar módulos do curso
