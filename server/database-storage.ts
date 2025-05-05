@@ -898,12 +898,14 @@ export class DatabaseStorage implements IStorage {
         
       console.log(`[DEBUG] Encontrados ${moduleQuizzes.length} simulados/avaliações para o módulo ${id}`);
       
-      // Retornar o módulo com suas aulas e quizzes
-      return {
+      // Retornar o módulo com suas aulas e quizzes como Module type
+      const completeModule: Module = {
         ...module,
         lessons: moduleLessons,
         quizzes: moduleQuizzes
       };
+      
+      return completeModule;
     } catch (error) {
       console.error('Erro ao buscar módulo por ID:', error);
       return undefined;
@@ -982,7 +984,20 @@ export class DatabaseStorage implements IStorage {
       // Primeiro exclui aulas relacionadas ao módulo
       await db.delete(lessons).where(eq(lessons.moduleId, id));
       
-      // Depois exclui o módulo
+      // Exclui quizzes e perguntas relacionados ao módulo
+      // Buscar todos os quizzes deste módulo
+      const moduleQuizzes = await db.select({ id: quizzes.id }).from(quizzes).where(eq(quizzes.moduleId, id));
+      const quizIds = moduleQuizzes.map(q => q.id);
+      
+      // Excluir perguntas associadas a esses quizzes
+      if (quizIds.length > 0) {
+        await db.delete(questions).where(sql`${questions.quizId} IN (${sql.join(quizIds, sql`, `)})`);
+        
+        // Excluir quizzes
+        await db.delete(quizzes).where(eq(quizzes.moduleId, id));
+      }
+      
+      // Por fim, exclui o módulo
       const result = await db.delete(modules).where(eq(modules.id, id)).returning();
       
       return result.length > 0;
