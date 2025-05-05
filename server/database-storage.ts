@@ -556,9 +556,18 @@ export class DatabaseStorage implements IStorage {
 
   async createSubject(subjectData: InsertSubject): Promise<Subject> {
     try {
+      // Gerar um código único para a disciplina (formato: D + número sequencial)
+      // Primeiro, vamos buscar o maior ID existente de disciplinas deste tenant
+      const maxIdResult = await db.select({ maxId: sql`MAX(id)` }).from(subjects)
+        .where(eq(subjects.tenantId, subjectData.tenantId));
+      
+      const nextId = maxIdResult[0]?.maxId ? Number(maxIdResult[0].maxId) + 1 : 1;
+      const subjectCode = `D${String(nextId).padStart(4, '0')}`;
+      
       // Vamos verificar o schema atual da tabela subjects para usar somente os campos existentes
       const [subject] = await db.insert(subjects).values({
         tenantId: subjectData.tenantId,
+        code: subjectCode, // Adiciona o código gerado automaticamente
         title: subjectData.title,
         description: subjectData.description || null,
         workload: subjectData.workload || null,
