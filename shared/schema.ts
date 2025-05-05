@@ -565,9 +565,10 @@ export const insertSubjectSchema = createInsertSchema(subjects).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  code: true, // Removemos code para que seja gerado automaticamente no servidor
 }).extend({
   title: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
-  code: z.string().min(2, "O código deve ter pelo menos 2 caracteres"),
+  code: z.string().min(2, "O código deve ter pelo menos 2 caracteres").optional(),
 });
 
 export type Subject = typeof subjects.$inferSelect;
