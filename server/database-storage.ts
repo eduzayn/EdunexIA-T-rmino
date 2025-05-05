@@ -23,7 +23,10 @@ import {
   AiSettings, InsertAiSettings,
   AiConversation, InsertAiConversation,
   AiMessage, InsertAiMessage,
-  AiGeneratedContent, InsertAiGeneratedContent
+  AiGeneratedContent, InsertAiGeneratedContent,
+  Quiz, InsertQuiz,
+  Question, InsertQuestion,
+  QuizAttempt, InsertQuizAttempt
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, inArray, like, or, isNull, isNotNull } from "drizzle-orm";
@@ -33,7 +36,7 @@ import {
   aiKnowledgeBase, aiSettings, aiConversations, aiMessages, aiGeneratedContent,
   productivityLogs, assessments, assessmentResults,
   simplifiedEnrollments, educationalContracts, documentTypes, studentDocuments,
-  documentRequests
+  documentRequests, quizzes, questions, quizAttempts
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";

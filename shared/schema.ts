@@ -636,10 +636,34 @@ export const coursesRelations = relations(courses, ({ many }) => ({
   courseSubjects: many(courseSubjects),
 }));
 
-export const modulesRelations = relations(modules, ({ one }) => ({
+export const modulesRelations = relations(modules, ({ one, many }) => ({
   subject: one(subjects, {
     fields: [modules.subjectId],
     references: [subjects.id],
+  }),
+  lessons: many(lessons),
+  quizzes: many(quizzes),
+}));
+
+export const lessonsRelations = relations(lessons, ({ one }) => ({
+  module: one(modules, {
+    fields: [lessons.moduleId],
+    references: [modules.id],
+  }),
+}));
+
+export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
+  module: one(modules, {
+    fields: [quizzes.moduleId],
+    references: [modules.id],
+  }),
+  questions: many(questions),
+}));
+
+export const questionsRelations = relations(questions, ({ one }) => ({
+  quiz: one(quizzes, {
+    fields: [questions.quizId],
+    references: [quizzes.id],
   }),
 }));
 
@@ -654,7 +678,17 @@ export const courseSubjectsRelations = relations(courseSubjects, ({ one }) => ({
   }),
 }));
 
-export type Module = typeof modules.$inferSelect;
+// Tipos base inferidos das tabelas
+export type ModuleBase = typeof modules.$inferSelect;
+export type LessonBase = typeof lessons.$inferSelect;
+export type QuizBase = typeof quizzes.$inferSelect;
+
+// Tipos estendidos para incluir relações
+export type Module = ModuleBase & {
+  lessons?: LessonBase[];
+  quizzes?: QuizBase[];
+};
+
 export type InsertModule = z.infer<typeof insertModuleSchema>;
 
 export type Lesson = typeof lessons.$inferSelect;
