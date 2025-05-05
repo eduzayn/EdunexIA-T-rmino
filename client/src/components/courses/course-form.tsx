@@ -49,6 +49,7 @@ const courseFormSchema = insertCourseSchema.extend({
   area: z.string().min(1, "Selecione uma área"),
   courseCategory: z.string().min(1, "Selecione uma categoria"),
   price: z.coerce.number().optional().nullable().transform(val => val === 0 ? null : val), // Permitir curso gratuito
+  status: z.enum(['draft', 'published', 'archived']).default('draft'),
 });
 
 // Tipo inferido do schema do formulário
