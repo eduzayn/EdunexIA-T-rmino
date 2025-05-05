@@ -74,6 +74,7 @@ export interface IStorage {
   getCoursesByTenant(tenantId: number): Promise<Course[]>;
   createCourse(course: InsertCourse): Promise<Course>;
   updateCourse(id: number, courseData: Partial<InsertCourse>): Promise<Course>;
+  deleteCourse(id: number): Promise<boolean>;
   
   // Subject operations
   getSubjectById(id: number): Promise<Subject | undefined>;
