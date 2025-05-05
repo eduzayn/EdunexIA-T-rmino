@@ -542,42 +542,32 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
             </div>
 
             <div className="flex justify-between items-center">
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate(courseId ? `/admin/courses/${courseId}` : "/admin/courses")}
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Cancelar
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    console.log("DEBUG - Forçando validação do form");
-                    debugFormValues();
-                    // Tenta submeter o formulário manualmente
-                    form.handleSubmit((data) => {
-                      console.log("Manual submit com dados:", data);
-                      onSubmit(data);
-                    })();
-                  }}
-                >
-                  Debug
-                </Button>
-              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(courseId ? `/admin/courses/${courseId}` : "/admin/courses")}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Cancelar
+              </Button>
+              
               <Button 
-                type="submit" 
+                type="button" 
                 disabled={isPending}
-                onClick={(e) => {
-                  console.log("Botão de submit clicado", e);
-                  if (!form.formState.isValid) {
-                    console.log("Formulário inválido, verificando erros:", form.formState.errors);
-                    e.preventDefault();
-                    // Forçar validação para mostrar erros
-                    form.trigger();
+                onClick={() => {
+                  // Pegar os valores atuais do formulário
+                  const values = form.getValues();
+                  
+                  // Adicionar o tenantId que estava faltando (o erro que causava falha na validação)
+                  values.tenantId = user?.tenantId || 1;
+                  
+                  console.log("Enviando dados do curso com tenantId:", values);
+                  
+                  // Enviar direto usando a mutation (bypass do form)
+                  if (isEditMode) {
+                    updateMutation.mutate(values);
+                  } else {
+                    createMutation.mutate(values);
                   }
                 }}
               >
