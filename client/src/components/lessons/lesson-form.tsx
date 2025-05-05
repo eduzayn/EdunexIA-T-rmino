@@ -76,7 +76,8 @@ interface LessonFormProps {
   onCancel?: () => void;
 }
 
-export function LessonForm({ moduleId, lessonId, initialData, materialType, onCancel }: LessonFormProps) {
+// Exportando como default para poder usar importação dinâmica
+function LessonFormComponent({ moduleId, lessonId, initialData, materialType, onCancel }: LessonFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isEditMode = Boolean(initialData && lessonId);
@@ -572,3 +573,7 @@ export function LessonForm({ moduleId, lessonId, initialData, materialType, onCa
     </Card>
   );
 }
+
+// Exportações para uso em outros componentes
+export { LessonFormComponent as LessonForm };
+export default LessonFormComponent;

@@ -26,7 +26,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Edit, File, Trash2, Video, BookOpen, Plus } from 'lucide-react';
-import { LessonForm } from './lesson-form';
+// Vamos importar dinamicamente para evitar problemas de referência circular
+// Componente importado dinamicamente
+const LessonFormComponent = React.lazy(() => import('./lesson-form'));
 
 interface LessonsListProps {
   moduleId: number;
@@ -134,11 +136,13 @@ export function LessonsList({ moduleId, subjectId }: LessonsListProps) {
             Adicionar Material ({activeTab === 'video' ? 'Vídeo' : 'E-book/PDF'})
           </h3>
         </div>
-        <LessonForm 
-          moduleId={moduleId} 
-          materialType={activeTab as 'video' | 'ebook'}
-          onCancel={handleCancelEdit} 
-        />
+        <React.Suspense fallback={<div>Carregando formulário...</div>}>
+          <LessonFormComponent 
+            moduleId={moduleId} 
+            materialType={activeTab as 'video' | 'ebook'}
+            onCancel={handleCancelEdit} 
+          />
+        </React.Suspense>
       </div>
     );
   }
@@ -151,13 +155,15 @@ export function LessonsList({ moduleId, subjectId }: LessonsListProps) {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Editar Material</h3>
           </div>
-          <LessonForm
-            moduleId={moduleId}
-            lessonId={editingLessonId}
-            initialData={lessonToEdit}
-            materialType={lessonToEdit.materialType as 'video' | 'ebook'}
-            onCancel={handleCancelEdit}
-          />
+          <React.Suspense fallback={<div>Carregando formulário...</div>}>
+            <LessonFormComponent
+              moduleId={moduleId}
+              lessonId={editingLessonId}
+              initialData={lessonToEdit}
+              materialType={lessonToEdit.materialType as 'video' | 'ebook'}
+              onCancel={handleCancelEdit}
+            />
+          </React.Suspense>
         </div>
       );
     }
