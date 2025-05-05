@@ -101,6 +101,7 @@ export const courses = pgTable('courses', {
 export const subjects = pgTable('subjects', {
   id: serial('id').primaryKey(),
   tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  code: text('code').notNull(), // Código único da disciplina
   title: text('title').notNull(),
   description: text('description'),
   workload: integer('workload'), // Carga horária em horas
@@ -108,12 +109,30 @@ export const subjects = pgTable('subjects', {
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    codeUnique: unique().on(table.code, table.tenantId), // Garantir que o código é único por tenant
+  };
 });
 
-// Modules (Sections of a course)
-export const modules = pgTable('modules', {
+// Relação entre cursos e disciplinas (many-to-many)
+export const courseSubjects = pgTable('course_subjects', {
   id: serial('id').primaryKey(),
   courseId: integer('course_id').references(() => courses.id, { onDelete: 'cascade' }).notNull(),
+  subjectId: integer('subject_id').references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
+  order: integer('order').notNull(), // Ordem da disciplina no curso
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    uniqueCourseSubject: unique().on(table.courseId, table.subjectId), // Cada disciplina só pode estar uma vez em um curso
+  };
+});
+
+// Modules (Sections of a subject)
+export const modules = pgTable('modules', {
+  id: serial('id').primaryKey(),
+  subjectId: integer('subject_id').references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
   description: text('description'),
   order: integer('order').notNull(),
