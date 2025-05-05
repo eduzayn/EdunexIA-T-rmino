@@ -76,6 +76,7 @@ courseRouter.post('/courses', async (req: Request, res: Response, next: NextFunc
     const courseData = insertCourseSchema.parse({
       ...req.body,
       tenantId: tenantId,
+      teacherId: userId,
       createdAt: new Date(),
       updatedAt: new Date()
     });
