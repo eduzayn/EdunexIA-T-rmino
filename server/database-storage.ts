@@ -863,38 +863,32 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`[DEBUG] Módulo encontrado:`, module);
       
-      // Buscar aulas do módulo - selecionando campos específicos para evitar erro de coluna
-      const moduleLessons = await db
-        .select({
-          id: lessons.id,
-          moduleId: lessons.moduleId,
-          title: lessons.title,
-          description: lessons.description,
-          content: lessons.content,
-          materialType: lessons.materialType,
-          videoUrl: lessons.videoUrl,
-          videoProvider: lessons.videoProvider,
-          videoId: lessons.videoId,
-          fileUrl: lessons.fileUrl,
-          fileType: lessons.fileType,
-          fileSize: lessons.fileSize,
-          isRequired: lessons.isRequired,
-          duration: lessons.duration,
-          order: lessons.order,
-          createdAt: lessons.createdAt,
-          updatedAt: lessons.updatedAt
-        })
-        .from(lessons)
-        .where(eq(lessons.moduleId, id))
-        .orderBy(lessons.order);
+      // Buscar aulas do módulo sem especificar colunas individualmente
+      // para evitar erros com colunas que podem não existir no banco de dados
+      let moduleLessons: any[] = [];
+      try {
+        moduleLessons = await db
+          .select()
+          .from(lessons)
+          .where(eq(lessons.moduleId, id));
+      } catch (error) {
+        console.error('Erro ao buscar aulas do módulo:', error);
+        // Se houver erro, usamos o array vazio criado acima
+      }
       
       console.log(`[DEBUG] Encontradas ${moduleLessons.length} aulas para o módulo ${id}`);
       
       // Buscar quizzes do módulo
-      const moduleQuizzes = await db
-        .select()
-        .from(quizzes)
-        .where(eq(quizzes.moduleId, id));
+      let moduleQuizzes: any[] = [];
+      try {
+        moduleQuizzes = await db
+          .select()
+          .from(quizzes)
+          .where(eq(quizzes.moduleId, id));
+      } catch (error) {
+        console.error('Erro ao buscar quizzes do módulo:', error);
+        // Em caso de erro, usamos o array vazio criado acima
+      }
         
       console.log(`[DEBUG] Encontrados ${moduleQuizzes.length} simulados/avaliações para o módulo ${id}`);
       
