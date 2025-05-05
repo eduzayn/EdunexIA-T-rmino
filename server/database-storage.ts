@@ -241,6 +241,13 @@ export interface IStorage {
   getAiGeneratedContentByType(tenantId: number, contentType: string): Promise<AiGeneratedContent[]>;
   deleteAiGeneratedContent(id: number): Promise<boolean>;
   
+  // Lesson operations
+  createLesson(data: InsertLesson): Promise<Lesson>;
+  getLessonById(id: number): Promise<Lesson | undefined>;
+  getLessonsByModule(moduleId: number): Promise<Lesson[]>;
+  updateLesson(id: number, data: Partial<InsertLesson>): Promise<Lesson>;
+  deleteLesson(id: number): Promise<boolean>;
+  
   // Session store
   sessionStore: session.Store;
 }
@@ -2728,6 +2735,151 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Erro ao vincular documento gerado à solicitação:', error);
       throw error;
+    }
+  }
+
+  // Operações de Lições (Lessons)
+  
+  async createLesson(data: InsertLesson): Promise<Lesson> {
+    try {
+      console.log(`[DEBUG] Criando lição para o módulo ${data.moduleId}`);
+      
+      // Verificar se o módulo existe
+      const moduleExists = await db
+        .select({ id: modules.id })
+        .from(modules)
+        .where(eq(modules.id, data.moduleId))
+        .limit(1);
+        
+      if (!moduleExists || moduleExists.length === 0) {
+        throw new Error(`Módulo com ID ${data.moduleId} não encontrado`);
+      }
+      
+      // Determinar a ordem da nova lição (última posição + 1)
+      const lastOrderResult = await db
+        .select({ maxOrder: sql`MAX(${lessons.order})` })
+        .from(lessons)
+        .where(eq(lessons.moduleId, data.moduleId));
+        
+      const nextOrder = lastOrderResult[0]?.maxOrder ? Number(lastOrderResult[0].maxOrder) + 1 : 1;
+      
+      // Criar a lição
+      const [lesson] = await db.insert(lessons).values({
+        ...data,
+        order: data.order || nextOrder,
+        isRequired: data.isRequired === undefined ? true : data.isRequired,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+      
+      console.log(`[DEBUG] Lição criada com sucesso, ID: ${lesson.id}`);
+      return lesson;
+    } catch (error) {
+      console.error('Erro ao criar lição:', error);
+      throw error;
+    }
+  }
+  
+  async getLessonById(id: number): Promise<Lesson | undefined> {
+    try {
+      const [lesson] = await db
+        .select()
+        .from(lessons)
+        .where(eq(lessons.id, id));
+        
+      return lesson;
+    } catch (error) {
+      console.error('Erro ao buscar lição por ID:', error);
+      return undefined;
+    }
+  }
+  
+  async getLessonsByModule(moduleId: number): Promise<Lesson[]> {
+    try {
+      // Verificar se o módulo existe
+      const moduleExists = await db
+        .select({ id: modules.id })
+        .from(modules)
+        .where(eq(modules.id, moduleId))
+        .limit(1);
+        
+      if (!moduleExists || moduleExists.length === 0) {
+        console.log(`[DEBUG] Módulo com ID ${moduleId} não encontrado`);
+        return [];
+      }
+      
+      // Buscar lições do módulo
+      const moduleLessons = await db
+        .select()
+        .from(lessons)
+        .where(eq(lessons.moduleId, moduleId))
+        .orderBy(lessons.order);
+        
+      return moduleLessons;
+    } catch (error) {
+      console.error('Erro ao buscar lições do módulo:', error);
+      return [];
+    }
+  }
+  
+  async updateLesson(id: number, data: Partial<InsertLesson>): Promise<Lesson> {
+    try {
+      // Verificar se a lição existe
+      const lessonExists = await db
+        .select({ id: lessons.id })
+        .from(lessons)
+        .where(eq(lessons.id, id))
+        .limit(1);
+        
+      if (!lessonExists || lessonExists.length === 0) {
+        throw new Error(`Lição com ID ${id} não encontrada`);
+      }
+      
+      // Atualizar a lição
+      const [updatedLesson] = await db
+        .update(lessons)
+        .set({
+          ...data,
+          updatedAt: new Date()
+        })
+        .where(eq(lessons.id, id))
+        .returning();
+        
+      if (!updatedLesson) {
+        throw new Error(`Não foi possível atualizar a lição com ID ${id}`);
+      }
+      
+      return updatedLesson;
+    } catch (error) {
+      console.error('Erro ao atualizar lição:', error);
+      throw error;
+    }
+  }
+  
+  async deleteLesson(id: number): Promise<boolean> {
+    try {
+      // Verificar se a lição existe
+      const lessonExists = await db
+        .select({ id: lessons.id })
+        .from(lessons)
+        .where(eq(lessons.id, id))
+        .limit(1);
+        
+      if (!lessonExists || lessonExists.length === 0) {
+        console.log(`[DEBUG] Lição com ID ${id} não encontrada`);
+        return false;
+      }
+      
+      // Excluir a lição
+      const result = await db
+        .delete(lessons)
+        .where(eq(lessons.id, id))
+        .returning();
+        
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao excluir lição:', error);
+      return false;
     }
   }
 }

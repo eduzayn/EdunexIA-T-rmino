@@ -1979,6 +1979,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Adicionar rotas para upload de imagens de cursos
   app.use('/api/course-images', isAuthenticated, courseImageRouter);
   
+  // Endpoints para gerenciamento de lições (lessons)
+  
+  // Obter todas as lições de um módulo
+  app.get("/api/modules/:moduleId/lessons", isAuthenticated, async (req, res, next) => {
+    try {
+      const moduleId = parseInt(req.params.moduleId);
+      
+      // Verificar se o módulo existe
+      const module = await storage.getModuleById(moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      // Verificar se o usuário tem acesso à disciplina do módulo
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Buscar lições do módulo
+      const moduleLessons = await storage.getLessonsByModule(moduleId);
+      res.json(moduleLessons);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Obter uma lição específica
+  app.get("/api/lessons/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const lesson = await storage.getLessonById(lessonId);
+      
+      if (!lesson) {
+        return res.status(404).json({ message: "Lição não encontrada" });
+      }
+      
+      // Verificar permissão de acesso
+      const module = await storage.getModuleById(lesson.moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      res.json(lesson);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Criar uma nova lição
+  app.post("/api/modules/:moduleId/lessons", isAuthenticated, async (req, res, next) => {
+    try {
+      const moduleId = parseInt(req.params.moduleId);
+      
+      // Verificar se o módulo existe
+      const module = await storage.getModuleById(moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      // Verificar permissão de acesso
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário tem permissão para criar lições (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem criar lições" });
+      }
+      
+      // Validar dados da lição
+      const lessonData = insertLessonSchema.parse({
+        ...req.body,
+        moduleId
+      });
+      
+      // Criar a lição
+      const lesson = await storage.createLesson(lessonData);
+      res.status(201).json(lesson);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Atualizar uma lição existente
+  app.put("/api/lessons/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      
+      // Verificar se a lição existe
+      const lesson = await storage.getLessonById(lessonId);
+      if (!lesson) {
+        return res.status(404).json({ message: "Lição não encontrada" });
+      }
+      
+      // Verificar permissão de acesso
+      const module = await storage.getModuleById(lesson.moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário tem permissão para atualizar lições (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem atualizar lições" });
+      }
+      
+      // Permitir atualização parcial
+      const lessonData = insertLessonSchema.partial().parse(req.body);
+      
+      // Atualizar a lição
+      const updatedLesson = await storage.updateLesson(lessonId, lessonData);
+      res.json(updatedLesson);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Excluir uma lição
+  app.delete("/api/lessons/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      
+      // Verificar se a lição existe
+      const lesson = await storage.getLessonById(lessonId);
+      if (!lesson) {
+        return res.status(404).json({ message: "Lição não encontrada" });
+      }
+      
+      // Verificar permissão de acesso
+      const module = await storage.getModuleById(lesson.moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário tem permissão para excluir lições (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem excluir lições" });
+      }
+      
+      // Excluir a lição
+      const success = await storage.deleteLesson(lessonId);
+      
+      if (success) {
+        res.status(200).json({ message: "Lição excluída com sucesso" });
+      } else {
+        res.status(500).json({ message: "Não foi possível excluir a lição" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+  
   // Configurar pasta de uploads como estática
   // Usamos o path relativo para garantir que o Express encontrará os arquivos
   // Como estamos usando ES modules, não podemos usar __dirname
