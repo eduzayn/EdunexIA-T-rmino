@@ -239,13 +239,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/modules", isAuthenticated, async (req, res, next) => {
     try {
       const courseId = req.query.courseId ? parseInt(req.query.courseId as string) : undefined;
+      const subjectId = req.query.subjectId ? parseInt(req.query.subjectId as string) : undefined;
       const tenantId = req.user?.tenantId;
       
       if (!tenantId) {
         return res.status(401).json({ message: "Usuário não autenticado" });
       }
       
-      if (courseId) {
+      // Caso de uso 1: filtrar por disciplina específica
+      if (subjectId) {
+        // Verificar se a disciplina existe e se o usuário tem acesso a ela
+        const subject = await storage.getSubjectById(subjectId);
+        if (!subject) {
+          return res.status(404).json({ message: "Disciplina não encontrada" });
+        }
+        
+        if (subject.tenantId !== tenantId) {
+          return res.status(403).json({ message: "Acesso negado à disciplina especificada" });
+        }
+        
+        // Retornar apenas os módulos desta disciplina
+        const subjectModules = await storage.getModulesBySubject(subjectId);
+        return res.json(subjectModules);
+      } 
+      // Caso de uso 2: compatibilidade com frontend - filtrar por curso
+      else if (courseId) {
         // Verificar se o curso existe e se o usuário tem acesso a ele
         const course = await storage.getCourseById(courseId);
         if (!course) {
@@ -256,24 +274,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "Acesso negado ao curso especificado" });
         }
         
-        // Retornar apenas os módulos deste curso
-        const courseModules = await storage.getModulesByCourse(courseId);
-        return res.json(courseModules);
-      } else {
-        // Se não for especificado um courseId, retornar todos os módulos do tenant do usuário
-        // Esta é uma solução temporária até que possamos atualizar todos os componentes
-        const courses = await storage.getCoursesByTenant(tenantId);
-        const courseIds = courses.map(course => course.id);
+        // Buscar todas as disciplinas associadas ao curso
+        const courseSubjects = await storage.getCourseSubjects(courseId);
         
-        // Se não houver cursos, retornar lista vazia
-        if (courseIds.length === 0) {
+        // Se não houver disciplinas, retornar lista vazia
+        if (courseSubjects.length === 0) {
           return res.json([]);
         }
         
-        // Buscar e combinar módulos de todos os cursos do tenant
+        // Buscar e combinar módulos de todas as disciplinas do curso
         const allModules = [];
-        for (const id of courseIds) {
-          const modules = await storage.getModulesByCourse(id);
+        for (const courseSubject of courseSubjects) {
+          const modules = await storage.getModulesBySubject(courseSubject.subjectId);
+          allModules.push(...modules);
+        }
+        
+        return res.json(allModules);
+      } 
+      // Caso de uso 3: listar todos os módulos do tenant
+      else {
+        // Se não for especificado um courseId ou subjectId, retornar todos os módulos do tenant
+        const subjects = await storage.getSubjectsByTenant(tenantId);
+        
+        // Se não houver disciplinas, retornar lista vazia
+        if (subjects.length === 0) {
+          return res.json([]);
+        }
+        
+        // Buscar e combinar módulos de todas as disciplinas do tenant
+        const allModules = [];
+        for (const subject of subjects) {
+          const modules = await storage.getModulesBySubject(subject.id);
           allModules.push(...modules);
         }
         
@@ -294,9 +325,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Módulo não encontrado" });
       }
       
-      // Verificar se o usuário tem acesso ao curso deste módulo
-      const course = await storage.getCourseById(module.courseId);
-      if (!course || course.tenantId !== req.user?.tenantId) {
+      // Verificar se o usuário tem acesso à disciplina deste módulo
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
         return res.status(403).json({ message: "Acesso negado" });
       }
       
@@ -315,19 +346,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const moduleData = insertModuleSchema.parse(req.body);
       
-      // Verificar se o curso existe e pertence ao tenant do usuário
-      const course = await storage.getCourseById(moduleData.courseId);
-      if (!course) {
-        return res.status(404).json({ message: "Curso não encontrado" });
+      // Verificar se a disciplina existe e pertence ao tenant do usuário
+      const subject = await storage.getSubjectById(moduleData.subjectId);
+      if (!subject) {
+        return res.status(404).json({ message: "Disciplina não encontrada" });
       }
       
-      if (course.tenantId !== req.user.tenantId) {
-        return res.status(403).json({ message: "Você não tem permissão para adicionar módulos a este curso" });
+      if (subject.tenantId !== req.user.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para adicionar módulos a esta disciplina" });
       }
       
-      // Verificar se o usuário é o criador do curso ou admin
-      if (req.user?.role !== 'admin' && course.teacherId !== req.user?.id) {
-        return res.status(403).json({ message: "Apenas o criador do curso ou administradores podem adicionar módulos" });
+      // Verificar permissões do usuário (admin ou professor responsável)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas professores e administradores podem adicionar módulos" });
       }
       
       const module = await storage.createModule(moduleData);

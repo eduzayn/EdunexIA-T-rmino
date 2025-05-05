@@ -614,6 +614,94 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
+  // CourseSubject operations
+  async getCourseSubjects(courseId: number): Promise<CourseSubject[]> {
+    try {
+      return await db.select().from(courseSubjects)
+        .where(eq(courseSubjects.courseId, courseId))
+        .orderBy(courseSubjects.order);
+    } catch (error) {
+      console.error('Erro ao buscar disciplinas do curso:', error);
+      return [];
+    }
+  }
+  
+  async getSubjectCourses(subjectId: number): Promise<CourseSubject[]> {
+    try {
+      return await db.select().from(courseSubjects)
+        .where(eq(courseSubjects.subjectId, subjectId))
+        .orderBy(courseSubjects.courseId);
+    } catch (error) {
+      console.error('Erro ao buscar cursos da disciplina:', error);
+      return [];
+    }
+  }
+  
+  async addSubjectToCourse(courseSubjectData: InsertCourseSubject): Promise<CourseSubject> {
+    try {
+      // Verificar se já existe uma ordem definida, caso contrário, definir a ordem como a próxima disponível
+      if (!courseSubjectData.order) {
+        const existingSubjects = await this.getCourseSubjects(courseSubjectData.courseId);
+        courseSubjectData.order = existingSubjects.length + 1;
+      }
+      
+      const [courseSubject] = await db.insert(courseSubjects).values(courseSubjectData).returning();
+      return courseSubject;
+    } catch (error) {
+      console.error('Erro ao adicionar disciplina ao curso:', error);
+      throw error;
+    }
+  }
+  
+  async removeSubjectFromCourse(courseId: number, subjectId: number): Promise<boolean> {
+    try {
+      const result = await db.delete(courseSubjects)
+        .where(
+          and(
+            eq(courseSubjects.courseId, courseId),
+            eq(courseSubjects.subjectId, subjectId)
+          )
+        )
+        .returning();
+      
+      // Reordenar as disciplinas restantes
+      if (result.length > 0) {
+        const remainingSubjects = await this.getCourseSubjects(courseId);
+        for (let i = 0; i < remainingSubjects.length; i++) {
+          await db.update(courseSubjects)
+            .set({ order: i + 1 })
+            .where(eq(courseSubjects.id, remainingSubjects[i].id));
+        }
+      }
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error('Erro ao remover disciplina do curso:', error);
+      return false;
+    }
+  }
+  
+  async updateCourseSubjectOrder(id: number, order: number): Promise<CourseSubject> {
+    try {
+      const [courseSubject] = await db.update(courseSubjects)
+        .set({
+          order,
+          updatedAt: new Date()
+        })
+        .where(eq(courseSubjects.id, id))
+        .returning();
+      
+      if (!courseSubject) {
+        throw new Error('Relação curso-disciplina não encontrada');
+      }
+      
+      return courseSubject;
+    } catch (error) {
+      console.error('Erro ao atualizar ordem da disciplina no curso:', error);
+      throw error;
+    }
+  }
+  
   async updateCourse(id: number, courseData: Partial<InsertCourse>): Promise<Course> {
     try {
       const [updatedCourse] = await db.update(courses)
@@ -645,8 +733,8 @@ export class DatabaseStorage implements IStorage {
         return false;
       }
       
-      // Remover módulos associados ao curso
-      await db.delete(modules).where(eq(modules.courseId, id));
+      // Remover associações com disciplinas (course_subjects)
+      await db.delete(courseSubjects).where(eq(courseSubjects.courseId, id));
       
       // Remover o curso
       const result = await db.delete(courses).where(eq(courses.id, id));
@@ -658,31 +746,30 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async getModulesByCourse(courseId: number): Promise<Module[]> {
+  async getModulesBySubject(subjectId: number): Promise<Module[]> {
     try {
-      console.log(`[DEBUG-DB] Buscando módulos para o curso ID: ${courseId}`);
+      console.log(`[DEBUG-DB] Buscando módulos para a disciplina ID: ${subjectId}`);
       
-      // Buscar módulos do curso
-      const courseModules = await db
+      // Buscar módulos da disciplina
+      const subjectModules = await db
         .select({
           id: modules.id,
           title: modules.title,
           description: modules.description,
           order: modules.order,
-          courseId: modules.courseId,
+          subjectId: modules.subjectId,
           createdAt: modules.createdAt,
           updatedAt: modules.updatedAt
         })
         .from(modules)
-        .where(eq(modules.courseId, courseId))
+        .where(eq(modules.subjectId, subjectId))
         .orderBy(modules.order);
       
-      console.log(`[DEBUG-DB] Encontrados ${courseModules.length} módulos para o curso ID: ${courseId}`);
-      console.log('[DEBUG-DB] Módulos brutos do banco:', JSON.stringify(courseModules));
+      console.log(`[DEBUG-DB] Encontrados ${subjectModules.length} módulos para a disciplina ID: ${subjectId}`);
       
       // Para cada módulo, buscar suas aulas
       const modulesWithLessons = await Promise.all(
-        courseModules.map(async (module) => {
+        subjectModules.map(async (module) => {
           const moduleLessons = await db
             .select({
               id: lessons.id,
@@ -710,7 +797,7 @@ export class DatabaseStorage implements IStorage {
       
       return modulesWithLessons as Module[];
     } catch (error) {
-      console.error('Erro ao buscar módulos por curso:', error);
+      console.error('Erro ao buscar módulos por disciplina:', error);
       return [];
     }
   }
@@ -742,11 +829,11 @@ export class DatabaseStorage implements IStorage {
 
   async createModule(moduleData: InsertModule): Promise<Module> {
     try {
-      // Verificar a ordem mais alta atual para os módulos deste curso
+      // Verificar a ordem mais alta atual para os módulos desta disciplina
       const result = await db
         .select({ maxOrder: sql`MAX(${modules.order})` })
         .from(modules)
-        .where(eq(modules.courseId, moduleData.courseId));
+        .where(eq(modules.subjectId, moduleData.subjectId));
       
       // Definir a ordem como a próxima disponível
       let nextOrder = 1;
