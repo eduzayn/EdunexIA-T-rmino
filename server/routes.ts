@@ -235,6 +235,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Módulos
+  // Obter todos os módulos (filtrados por courseId se fornecido)
+  app.get("/api/modules", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseId = req.query.courseId ? parseInt(req.query.courseId as string) : undefined;
+      
+      if (courseId) {
+        // Verificar se o curso existe e se o usuário tem acesso a ele
+        const course = await storage.getCourseById(courseId);
+        if (!course) {
+          return res.status(404).json({ message: "Curso não encontrado" });
+        }
+        
+        if (course.tenantId !== req.user?.tenantId) {
+          return res.status(403).json({ message: "Acesso negado ao curso especificado" });
+        }
+        
+        // Retornar apenas os módulos deste curso
+        const courseModules = await storage.getModulesByCourse(courseId);
+        return res.json(courseModules);
+      } else {
+        // Se não for especificado um courseId, retornar erro
+        return res.status(400).json({ message: "Parâmetro courseId é obrigatório" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Obter um módulo específico pelo ID
   app.get("/api/modules/:id", isAuthenticated, async (req, res, next) => {
     try {
       const moduleId = parseInt(req.params.id);
