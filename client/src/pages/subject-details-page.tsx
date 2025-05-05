@@ -3,12 +3,15 @@ import { useLocation, useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Pencil, Clock, BookOpen, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Pencil, Clock, BookOpen, CheckCircle, XCircle, Layers } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { usePortal } from '@/hooks/use-portal';
 import { Helmet } from 'react-helmet';
 import { AppShell } from '@/components/layout/app-shell';
+import { SubjectModulesList } from '@/components/subjects/subject-modules-list';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Subject } from '@shared/schema';
 
 export function SubjectDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +19,7 @@ export function SubjectDetailsPage() {
   const { currentPortal } = usePortal();
 
   // Buscar detalhes da disciplina
-  const { data: subject, isLoading, error } = useQuery({
+  const { data: subject, isLoading, error } = useQuery<Subject>({
     queryKey: [`/api/subjects/${id}`],
     enabled: !!id,
   });
@@ -126,60 +129,86 @@ export function SubjectDetailsPage() {
           </div>
 
           <Separator />
+          
+          <Tabs defaultValue="info" className="w-full">
+            <TabsList>
+              <TabsTrigger value="info">Informações</TabsTrigger>
+              <TabsTrigger value="modules">Módulos</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="info" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Detalhes da Disciplina</CardTitle>
+                  <CardDescription>
+                    Informações completas sobre a disciplina.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">Descrição</h3>
+                    <p className="text-gray-700">
+                      {subject.description || "Nenhuma descrição disponível."}
+                    </p>
+                  </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Detalhes da Disciplina</CardTitle>
-              <CardDescription>
-                Informações completas sobre a disciplina.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-medium text-gray-900 mb-1">Descrição</h3>
-                <p className="text-gray-700">
-                  {subject.description || "Nenhuma descrição disponível."}
-                </p>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">Área do Conhecimento</h3>
+                      <p className="text-gray-700">
+                        {subject.area || "Não especificada"}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">Carga Horária</h3>
+                      <p className="text-gray-700">
+                        {subject.workload ? `${subject.workload} horas` : "Não especificada"}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Área do Conhecimento</h3>
-                  <p className="text-gray-700">
-                    {subject.area || "Não especificada"}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Carga Horária</h3>
-                  <p className="text-gray-700">
-                    {subject.workload ? `${subject.workload} horas` : "Não especificada"}
-                  </p>
-                </div>
-              </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">Status</h3>
+                    <Badge variant={subject.isActive ? "default" : "secondary"}>
+                      {subject.isActive ? "Ativa" : "Inativa"}
+                    </Badge>
+                  </div>
 
-              <div>
-                <h3 className="font-medium text-gray-900 mb-1">Status</h3>
-                <Badge variant={subject.isActive ? "default" : "secondary"}>
-                  {subject.isActive ? "Ativa" : "Inativa"}
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Data de Criação</h3>
-                  <p className="text-gray-700">
-                    {new Date(subject.createdAt).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Última Atualização</h3>
-                  <p className="text-gray-700">
-                    {new Date(subject.updatedAt).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">Data de Criação</h3>
+                      <p className="text-gray-700">
+                        {new Date(subject.createdAt).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">Última Atualização</h3>
+                      <p className="text-gray-700">
+                        {new Date(subject.updatedAt).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="modules" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Layers className="w-5 h-5 mr-2" />
+                    Módulos da Disciplina
+                  </CardTitle>
+                  <CardDescription>
+                    Gerenciamento de módulos e conteúdo pedagógico da disciplina.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SubjectModulesList subjectId={parseInt(id)} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </AppShell>
