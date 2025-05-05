@@ -778,12 +778,12 @@ export class DatabaseStorage implements IStorage {
           title: modules.title,
           description: modules.description,
           order: modules.order,
-          subjectId: sql`${modules.subject_id}::int`, // Use sql template para a coluna subject_id
+          subjectId: modules.subjectId, // Nome correto do campo
           createdAt: modules.createdAt,
           updatedAt: modules.updatedAt
         })
         .from(modules)
-        .where(sql`${modules.subject_id}::int = ${subjectId}`) // Use sql template com cast para garantir compatibilidade
+        .where(eq(modules.subjectId, subjectId)) // Usar eq com o nome correto
         .orderBy(modules.order);
       
       console.log(`[DEBUG-DB] Encontrados ${subjectModules.length} módulos para a disciplina ID: ${subjectId}`);
@@ -831,7 +831,7 @@ export class DatabaseStorage implements IStorage {
         title: modules.title,
         description: modules.description,
         order: modules.order,
-        subjectId: sql`${modules.subject_id}::int`, // Map da coluna subject_id para subjectId
+        subjectId: modules.subject_id, // Map da coluna subject_id para subjectId sem cast
         createdAt: modules.createdAt,
         updatedAt: modules.updatedAt
       })
@@ -865,7 +865,7 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .select({ maxOrder: sql`MAX(${modules.order})` })
         .from(modules)
-        .where(sql`${modules.subject_id}::int = ${moduleData.subjectId}`);
+        .where(eq(modules.subjectId, moduleData.subjectId));
       
       // Definir a ordem como a próxima disponível
       let nextOrder = 1;
@@ -877,7 +877,7 @@ export class DatabaseStorage implements IStorage {
         title: moduleData.title,
         description: moduleData.description || null,
         order: moduleData.order || nextOrder,
-        subject_id: moduleData.subjectId, // Usar nome da coluna correto
+        subjectId: moduleData.subjectId, // Usar nome correto do campo
         createdAt: new Date(),
         updatedAt: new Date()
       }).returning();
@@ -910,7 +910,7 @@ export class DatabaseStorage implements IStorage {
           title: modules.title,
           description: modules.description,
           order: modules.order,
-          subjectId: sql`${modules.subject_id}::int`, // Map da coluna subject_id para subjectId
+          subjectId: modules.subject_id, // Sem cast
           createdAt: modules.createdAt,
           updatedAt: modules.updatedAt
         });
