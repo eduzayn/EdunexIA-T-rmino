@@ -269,15 +269,21 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       console.log("===== FORMULÁRIO SUBMETIDO =====");
       console.log("Iniciando submissão de formulário de curso", data);
       
-      // Se houver uma imagem para upload, fazer o upload primeiro
-      if (imageFile) {
-        console.log("Executando upload de imagem antes de salvar o curso");
+      // Verificamos se ainda temos uma imagem não enviada
+      if (imageFile && !data.imageUrl) {
+        console.log("Há uma imagem selecionada, mas não enviada. Executando upload de imagem antes de salvar o curso.");
         const imageUrl = await uploadImage();
         if (imageUrl) {
           data.imageUrl = imageUrl;
           console.log("Upload de imagem concluído, URL:", imageUrl);
         } else {
           console.warn("Upload de imagem falhou ou retornou URL nula");
+          // Verificar se queremos continuar sem a imagem
+          const continuar = window.confirm("O upload da imagem falhou. Deseja continuar criando o curso sem a imagem?");
+          if (!continuar) {
+            console.log("Usuário cancelou a criação do curso após falha no upload de imagem");
+            return; // Não continuar com a criação do curso
+          }
           // Se o upload falhar, defina a URL da imagem para null em vez de string vazia
           data.imageUrl = null;
         }
@@ -285,6 +291,9 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
         // Se não houver arquivo para upload e a URL está vazia, define como null
         // para evitar problemas com strings vazias
         data.imageUrl = null;
+        console.log("Nenhuma imagem selecionada, definindo imageUrl como null");
+      } else {
+        console.log("Usando imageUrl já definida:", data.imageUrl);
       }
       
       // Log de validação de formulário
@@ -579,10 +588,49 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                 <p className="text-sm font-medium">Upload de Imagem</p>
                 <ImageUpload
                   previewUrl={initialData?.imageUrl || ""}
-                  onImageUpload={(file) => setImageFile(file)}
-                  onImageRemove={() => setImageFile(null)}
+                  onImageUpload={(file) => {
+                    console.log("Imagem selecionada para upload:", file.name);
+                    setImageFile(file);
+                  }}
+                  onImageRemove={() => {
+                    console.log("Removendo imagem selecionada");
+                    setImageFile(null);
+                    // Resetar o valor do campo imageUrl se uma imagem for removida
+                    form.setValue("imageUrl", "");
+                  }}
                   helperText="Arraste uma imagem ou clique para fazer upload"
                 />
+                {isUploading && (
+                  <div className="flex items-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-xs">Enviando imagem: {uploadProgress}%</span>
+                  </div>
+                )}
+                {imageFile && !isUploading && (
+                  <div>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={async () => {
+                        const imageUrl = await uploadImage();
+                        if (imageUrl) {
+                          form.setValue("imageUrl", imageUrl);
+                          toast({
+                            title: "Imagem enviada",
+                            description: "A imagem foi enviada com sucesso.",
+                            variant: "default",
+                          });
+                        }
+                      }}
+                    >
+                      Enviar imagem agora
+                    </Button>
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      Clique para enviar a imagem antes de salvar o curso
+                    </p>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Recomendado: imagem 16:9 com pelo menos 1280x720 pixels
                 </p>
