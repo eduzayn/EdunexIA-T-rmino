@@ -825,34 +825,55 @@ export class DatabaseStorage implements IStorage {
   
   async getModuleById(id: number): Promise<Module | undefined> {
     try {
-      // Usar select explícito com mapeamento para os nomes de colunas TypeScript
-      const [module] = await db.select({
-        id: modules.id,
-        title: modules.title,
-        description: modules.description,
-        order: modules.order,
-        subjectId: modules.subjectId, // Nome correto do campo
-        createdAt: modules.createdAt,
-        updatedAt: modules.updatedAt
-      })
-      .from(modules)
-      .where(eq(modules.id, id));
+      console.log(`[DEBUG] Buscando módulo com ID: ${id}`);
       
-      if (module) {
-        // Buscar aulas do módulo
-        const moduleLessons = await db
-          .select()
-          .from(lessons)
-          .where(eq(lessons.moduleId, module.id))
-          .orderBy(lessons.order);
-        
-        return {
-          ...module,
-          lessons: moduleLessons
-        } as Module;
+      // Primeiro verificar se o módulo existe
+      const moduleExists = await db
+        .select({ id: modules.id })
+        .from(modules)
+        .where(eq(modules.id, id))
+        .limit(1);
+      
+      if (!moduleExists || moduleExists.length === 0) {
+        console.log(`[DEBUG] Módulo com ID ${id} não encontrado`);
+        return undefined;
       }
       
-      return module;
+      // Se o módulo existe, buscar todos os dados
+      const [module] = await db
+        .select({
+          id: modules.id,
+          title: modules.title,
+          description: modules.description,
+          order: modules.order,
+          subjectId: modules.subjectId,
+          createdAt: modules.createdAt,
+          updatedAt: modules.updatedAt
+        })
+        .from(modules)
+        .where(eq(modules.id, id));
+      
+      if (!module) {
+        console.log(`[DEBUG] Dados do módulo com ID ${id} não puderam ser recuperados`);
+        return undefined;
+      }
+      
+      console.log(`[DEBUG] Módulo encontrado:`, module);
+      
+      // Buscar aulas do módulo
+      const moduleLessons = await db
+        .select()
+        .from(lessons)
+        .where(eq(lessons.moduleId, id))
+        .orderBy(lessons.order);
+      
+      console.log(`[DEBUG] Encontradas ${moduleLessons.length} aulas para o módulo ${id}`);
+      
+      // Retornar o módulo com suas aulas
+      return {
+        ...module,
+        lessons: moduleLessons
+      };
     } catch (error) {
       console.error('Erro ao buscar módulo por ID:', error);
       return undefined;
