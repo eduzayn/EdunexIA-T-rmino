@@ -85,7 +85,8 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     description: initialData?.description || "",
     area: initialData?.area || "",
     courseCategory: initialData?.courseCategory || "",
-    price: initialData?.price || null,
+    // Se tiver preço, converte de centavos para reais para exibição
+    price: initialData?.price ? initialData.price / 100 : null,
     status: initialData?.status || "draft",
     imageUrl: initialData?.imageUrl || "",
   };
@@ -560,6 +561,12 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                   
                   // Adicionar o tenantId que estava faltando (o erro que causava falha na validação)
                   values.tenantId = user?.tenantId || 1;
+                  
+                  // Converter o preço para inteiros (centavos) como esperado pelo servidor
+                  if (values.price) {
+                    // Multiplicar por 100 para converter para centavos e arredondar para inteiro
+                    values.price = Math.round(values.price * 100);
+                  }
                   
                   console.log("Enviando dados do curso com tenantId:", values);
                   
