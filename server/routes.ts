@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./database-storage";
 import { z } from "zod";
+import path from "path";
 import { 
   insertCourseSchema, insertEnrollmentSchema, insertLeadSchema, 
   insertModuleSchema, insertLessonSchema, insertSubjectSchema, 
@@ -1700,7 +1701,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/course-images', isAuthenticated, courseImageRouter);
   
   // Configurar pasta de uploads como estática
-  app.use('/uploads', express.static('uploads'));
+  // Usamos o path relativo para garantir que o Express encontrará os arquivos
+  // Como estamos usando ES modules, não podemos usar __dirname
+  const uploadsPath = path.resolve('./uploads');
+  console.log(`[DEBUG] Configurando pasta de uploads estáticos: ${uploadsPath}`);
+  app.use('/uploads', express.static(uploadsPath));
   
   // Rota de teste para envio de SMS (apenas para ambiente de desenvolvimento e admins)
   app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {

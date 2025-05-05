@@ -13,13 +13,15 @@ export const courseImageRouter = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Pasta para armazenar as imagens dos cursos
-    const uploadDir = path.join(__dirname, '../../uploads/courses');
+    // Como estamos usando ES modules, não podemos usar __dirname
+    const uploadDir = path.resolve('./uploads/courses');
     
     // Criar a pasta se não existir
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     
+    console.log(`[DEBUG] Salvando imagem no diretório: ${uploadDir}`);
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -125,7 +127,7 @@ courseImageRouter.delete('/:filename', async (req: Request, res: Response) => {
     }
     
     // Caminho completo do arquivo
-    const filePath = path.join(__dirname, '../../uploads/courses', filename);
+    const filePath = path.resolve('./uploads/courses', filename);
     
     // Verificar se o arquivo existe
     if (!fs.existsSync(filePath)) {
