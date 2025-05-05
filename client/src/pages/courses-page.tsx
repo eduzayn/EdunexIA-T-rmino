@@ -15,10 +15,19 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { usePortal } from "@/hooks/use-portal";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function CoursesPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
+  const [openFilters, setOpenFilters] = useState(false);
+  const [areaFilter, setAreaFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [priceMin, setPriceMin] = useState<string>("");
+  const [priceMax, setPriceMax] = useState<string>("");
   const { currentPortal } = usePortal();
 
   const {
@@ -30,10 +39,29 @@ export default function CoursesPage() {
     queryFn: getQueryFn({ on401: "throw" })
   });
 
-  const filteredCourses = courses?.filter(course => 
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (course.description && course.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredCourses = courses?.filter(course => {
+    // Filtro de busca textual
+    const matchesSearch = !searchTerm || 
+      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (course.description && course.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Filtro de área
+    const matchesArea = areaFilter === "all" || course.area === areaFilter;
+    
+    // Filtro de categoria
+    const matchesCategory = categoryFilter === "all" || course.courseCategory === categoryFilter;
+    
+    // Filtro de status
+    const matchesStatus = statusFilter === "all" || course.status === statusFilter;
+    
+    // Filtro de preço mínimo
+    const matchesPriceMin = !priceMin || (course.price || 0) >= parseFloat(priceMin) * 100;
+    
+    // Filtro de preço máximo
+    const matchesPriceMax = !priceMax || (course.price || 0) <= parseFloat(priceMax) * 100;
+    
+    return matchesSearch && matchesArea && matchesCategory && matchesStatus && matchesPriceMin && matchesPriceMax;
+  });
 
   // Função para renderizar o status do curso
   const renderStatus = (status: string) => {
@@ -144,10 +172,112 @@ export default function CoursesPage() {
             />
           </div>
           
-          <Button variant="outline" className="w-full md:w-auto">
-            <Filter className="mr-2 h-4 w-4" />
-            Filtros
-          </Button>
+          <Dialog open={openFilters} onOpenChange={setOpenFilters}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full md:w-auto">
+                <Filter className="mr-2 h-4 w-4" />
+                Filtros
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Filtros</DialogTitle>
+                <DialogDescription>
+                  Refine os resultados utilizando os filtros abaixo
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-1 gap-3">
+                  <Label htmlFor="area">Área</Label>
+                  <Select value={areaFilter} onValueChange={setAreaFilter}>
+                    <SelectTrigger id="area">
+                      <SelectValue placeholder="Todas as áreas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as áreas</SelectItem>
+                      <SelectItem value="development">Desenvolvimento</SelectItem>
+                      <SelectItem value="business">Negócios</SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="design">Design</SelectItem>
+                      <SelectItem value="technology">Tecnologia</SelectItem>
+                      <SelectItem value="education">Educação</SelectItem>
+                      <SelectItem value="health">Saúde</SelectItem>
+                      <SelectItem value="language">Idiomas</SelectItem>
+                      <SelectItem value="other">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <Label htmlFor="category">Categoria</Label>
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Todas as categorias" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
+                      <SelectItem value="segunda_graduacao">Segunda Graduação</SelectItem>
+                      <SelectItem value="segunda_licenciatura">Segunda Licenciatura</SelectItem>
+                      <SelectItem value="formacao_pedagogica">Formação Pedagógica</SelectItem>
+                      <SelectItem value="formacao_livre">Formação Livre</SelectItem>
+                      <SelectItem value="profissionalizante">Profissionalizante</SelectItem>
+                      <SelectItem value="sequencial">Sequencial</SelectItem>
+                      <SelectItem value="graduacao">Graduação</SelectItem>
+                      <SelectItem value="pos_graduacao">Pós-Graduação</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger id="status">
+                      <SelectValue placeholder="Todos os status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os status</SelectItem>
+                      <SelectItem value="draft">Rascunho</SelectItem>
+                      <SelectItem value="published">Publicado</SelectItem>
+                      <SelectItem value="archived">Arquivado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="priceMin">Preço Mínimo (R$)</Label>
+                    <Input
+                      id="priceMin"
+                      placeholder="0,00"
+                      value={priceMin}
+                      onChange={(e) => setPriceMin(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="priceMax">Preço Máximo (R$)</Label>
+                    <Input
+                      id="priceMax"
+                      placeholder="1.000,00"
+                      value={priceMax}
+                      onChange={(e) => setPriceMax(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter className="flex justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setAreaFilter("all");
+                    setCategoryFilter("all");
+                    setStatusFilter("all");
+                    setPriceMin("");
+                    setPriceMax("");
+                  }}
+                >
+                  Limpar
+                </Button>
+                <Button onClick={() => setOpenFilters(false)}>Aplicar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           
           <div className="flex items-center space-x-1 rounded-md border p-1">
             <Button
