@@ -78,36 +78,46 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Valores iniciais
-  const defaultValues: Partial<CourseFormValues> = {
-    code: initialData?.code,
-    title: initialData?.title || "",
-    shortDescription: initialData?.shortDescription || "",
-    description: initialData?.description || "",
-    area: initialData?.area || "",
-    courseCategory: initialData?.courseCategory || "",
-    // Se tiver preço, converte de centavos para reais para exibição
-    price: initialData?.price ? initialData.price / 100 : null,
-    status: initialData?.status || "draft",
-    imageUrl: initialData?.imageUrl || "",
-  };
+  const defaultValues: Partial<CourseFormValues> = (() => {
+    // Verificar se initialData é um objeto ou um array
+    const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
+    
+    return {
+      code: courseData?.code,
+      title: courseData?.title || "",
+      shortDescription: courseData?.shortDescription || "",
+      description: courseData?.description || "",
+      area: courseData?.area || "",
+      courseCategory: courseData?.courseCategory || "",
+      // Se tiver preço, converte de centavos para reais para exibição
+      price: courseData?.price ? courseData.price / 100 : null,
+      status: courseData?.status || "draft",
+      imageUrl: courseData?.imageUrl || "",
+    };
+  })();
 
   // Configurar formulário
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(courseFormSchema),
     defaultValues,
     mode: "onChange",
-    values: initialData ? { // Garantir que os valores sejam aplicados diretamente
-      code: initialData.code,
-      title: initialData.title || "",
-      shortDescription: initialData.shortDescription || "",
-      description: initialData.description || "",
-      area: initialData.area || "",
-      courseCategory: initialData.courseCategory || "",
-      price: initialData.price ? initialData.price / 100 : null,
-      status: initialData.status || "draft",
-      imageUrl: initialData.imageUrl || "",
-      tenantId: initialData.tenantId,
-    } : undefined,
+    values: initialData ? (() => {
+      // Verificar se initialData é um objeto ou um array
+      const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
+      
+      return {
+        code: courseData.code,
+        title: courseData.title || "",
+        shortDescription: courseData.shortDescription || "",
+        description: courseData.description || "",
+        area: courseData.area || "",
+        courseCategory: courseData.courseCategory || "",
+        price: courseData.price ? courseData.price / 100 : null,
+        status: courseData.status || "draft",
+        imageUrl: courseData.imageUrl || "",
+        tenantId: courseData.tenantId,
+      };
+    })() : undefined,
   });
   
   // Debug log para o formulário
@@ -368,19 +378,23 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Efeito para atualizar valores do formulário quando initialData mudar
   React.useEffect(() => {
     if (initialData && isEditMode) {
-      console.log("Dados iniciais recebidos, atualizando formulário:", initialData);
+      // Verificar se initialData é um objeto ou um array
+      const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
+      
+      console.log("Dados iniciais recebidos, atualizando formulário:", courseData);
+      
       // Atualiza os valores do formulário com os dados iniciais
       form.reset({
-        code: initialData.code,
-        title: initialData.title || "",
-        shortDescription: initialData.shortDescription || "",
-        description: initialData.description || "",
-        area: initialData.area || "",
-        courseCategory: initialData.courseCategory || "",
-        price: initialData.price ? initialData.price / 100 : null,
-        status: initialData.status || "draft",
-        imageUrl: initialData.imageUrl || "",
-        tenantId: initialData.tenantId,
+        code: courseData.code,
+        title: courseData.title || "",
+        shortDescription: courseData.shortDescription || "",
+        description: courseData.description || "",
+        area: courseData.area || "",
+        courseCategory: courseData.courseCategory || "",
+        price: courseData.price ? courseData.price / 100 : null,
+        status: courseData.status || "draft",
+        imageUrl: courseData.imageUrl || "",
+        tenantId: courseData.tenantId,
       });
     }
   }, [initialData, isEditMode]);
@@ -619,7 +633,9 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
               <div className="space-y-2">
                 <p className="text-sm font-medium">Upload de Imagem</p>
                 <ImageUpload
-                  previewUrl={initialData?.imageUrl || ""}
+                  previewUrl={Array.isArray(initialData) 
+                    ? (initialData[0]?.imageUrl || "") 
+                    : (initialData?.imageUrl || "")}
                   onImageUpload={(file) => {
                     console.log("Imagem selecionada para upload:", file.name);
                     setImageFile(file);
