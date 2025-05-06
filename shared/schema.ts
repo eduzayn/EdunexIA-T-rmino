@@ -430,7 +430,7 @@ export const productivityLogs = pgTable('productivity_logs', {
 export const classes = pgTable('classes', {
   id: serial('id').primaryKey(),
   tenantId: integer('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
-  subjectId: integer('subject_id').references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
+  subjectId: integer('subject_id').references(() => subjects.id, { onDelete: 'cascade' }),
   // Note: courseId está ausente no banco de dados; adicionaremos em uma migração futura quando necessário
   name: text('name').notNull(),
   code: text('code').notNull(),

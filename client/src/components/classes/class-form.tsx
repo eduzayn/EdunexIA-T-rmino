@@ -32,7 +32,7 @@ const formSchema = insertClassSchema
   .extend({
     startDate: z.string().nullable().optional().transform(val => val ? new Date(val).toISOString() : null),
     endDate: z.string().nullable().optional().transform(val => val ? new Date(val).toISOString() : null),
-    subjectId: z.coerce.number(),
+    subjectId: z.coerce.number().nullable().optional(), // Agora é opcional
     name: z.string().min(3, {
       message: 'O nome da turma deve ter pelo menos 3 caracteres.',
     }),
@@ -122,23 +122,24 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Disciplina (obrigatório) */}
+          {/* Disciplina (opcional) */}
           <FormField
             control={form.control}
             name="subjectId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Disciplina</FormLabel>
+                <FormLabel>Disciplina (opcional)</FormLabel>
                 <Select
-                  onValueChange={(value) => field.onChange(parseInt(value))}
-                  defaultValue={field.value?.toString()}
+                  onValueChange={(value) => field.onChange(value === "0" ? null : parseInt(value))}
+                  defaultValue={field.value?.toString() || "0"}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma disciplina" />
+                      <SelectValue placeholder="Selecione uma disciplina (opcional)" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    <SelectItem value="0">Nenhuma</SelectItem>
                     {subjects.map((subject) => (
                       <SelectItem key={subject.id} value={subject.id.toString()}>
                         {subject.title}
@@ -295,7 +296,13 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
               <FormItem>
                 <FormLabel>Local</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ex: Sala 101, Bloco B" {...field} />
+                  <Input 
+                    placeholder="Ex: Sala 101, Bloco B" 
+                    onChange={field.onChange}
+                    name={field.name}
+                    ref={field.ref}
+                    value={field.value || ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -314,7 +321,9 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
                 <Textarea
                   placeholder="Ex: Segunda e Quarta, 19h às 22h"
                   className="min-h-[100px]"
-                  {...field}
+                  onChange={field.onChange}
+                  name={field.name}
+                  ref={field.ref}
                   value={field.value || ''}
                 />
               </FormControl>
@@ -334,7 +343,9 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
                 <Textarea
                   placeholder="Descrição detalhada da turma"
                   className="min-h-[100px]"
-                  {...field}
+                  onChange={field.onChange}
+                  name={field.name}
+                  ref={field.ref}
                   value={field.value || ''}
                 />
               </FormControl>
