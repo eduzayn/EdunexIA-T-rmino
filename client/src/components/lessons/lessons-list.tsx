@@ -436,10 +436,10 @@ export function LessonsList({ moduleId, subjectId }: LessonsListProps) {
                       </div>
                       
                       {/* Visualização prévia do documento */}
-                      {expandedDocumentId === lesson.id && (lesson.fileUrl || lesson.fileUploadPath) && (
+                      {expandedDocumentId === lesson.id && lesson.fileUrl && (
                         <div className="mt-2">
                           <DocumentPreview 
-                            url={lesson.fileUrl || lesson.fileUploadPath || ''} 
+                            url={lesson.fileUrl || ''} 
                             title={lesson.title}
                             fileType={lesson.fileType || lesson.materialType}
                           />
