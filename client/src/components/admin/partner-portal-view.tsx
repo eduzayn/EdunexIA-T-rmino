@@ -5,7 +5,7 @@ import { EyeOff } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppShell } from '@/components/layout/app-shell';
 import { useQuery } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/query-client';
+import { apiRequest } from '@/lib/queryClient';
 import { DashboardCard } from '@/components/dashboard/dashboard-card';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { PopularCourses } from '@/components/dashboard/popular-courses';

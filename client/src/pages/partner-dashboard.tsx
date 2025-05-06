@@ -7,7 +7,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { DashboardCard } from '@/components/dashboard/dashboard-card';
 import { PopularCourses } from '@/components/dashboard/popular-courses';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
-import { apiRequest } from '@/lib/query-client';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function PartnerDashboard() {
   // Consulta os dados do dashboard

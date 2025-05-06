@@ -21,7 +21,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
-import { queryClient, apiRequest } from '@/lib/query-client';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 
 // Esquema de validação para o formulário de cadastro de aluno
 const registerStudentSchema = z.object({
