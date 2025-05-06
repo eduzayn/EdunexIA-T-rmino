@@ -38,18 +38,23 @@ const optionSchema = z.object({
 // Esquema de validação para criação/edição de questão
 const questionSchema = z.object({
   questionText: z.string().min(3, { message: 'A pergunta deve ter pelo menos 3 caracteres' }),
-  questionType: z.enum(['multiple_choice', 'true_false']).default('multiple_choice'),
-  options: z.array(optionSchema).min(2, { message: 'A questão deve ter pelo menos 2 opções' }),
+  questionType: z.enum(['multiple_choice', 'true_false', 'essay']).default('multiple_choice'),
+  options: z.array(optionSchema).min(2, { message: 'A questão deve ter pelo menos 2 opções' }).optional().default([]),
   explanation: z.string().optional(),
   points: z.number().min(1, { message: 'A pontuação deve ser pelo menos 1' }).default(10),
   difficultyLevel: z.number().min(1, { message: 'A dificuldade deve ser entre 1 e 5' }).max(5, { message: 'A dificuldade deve ser entre 1 e 5' }).default(2),
   order: z.number().optional(),
-}).refine((data) => {
-  // Verificar se pelo menos uma opção está marcada como correta
-  return data.options.some(option => option.isCorrect);
-}, {
-  message: 'Selecione pelo menos uma opção correta',
-  path: ['options'],
+}).superRefine((data, ctx) => {
+  // Verificar se pelo menos uma opção está marcada como correta para questões de múltipla escolha e verdadeiro/falso
+  if (data.questionType === 'multiple_choice' || data.questionType === 'true_false') {
+    if (!data.options || !data.options.some(option => option.isCorrect)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecione pelo menos uma opção correta',
+        path: ['options'],
+      });
+    }
+  }
 });
 
 // Tipo para os valores do formulário
@@ -66,8 +71,8 @@ export function QuestionForm({
   onSubmit, 
   isSubmitting = false 
 }: QuestionFormProps) {
-  const [questionType, setQuestionType] = useState<'multiple_choice' | 'true_false'>(
-    (defaultValues?.questionType as 'multiple_choice' | 'true_false') || 'multiple_choice'
+  const [questionType, setQuestionType] = useState<'multiple_choice' | 'true_false' | 'essay'>(
+    (defaultValues?.questionType as 'multiple_choice' | 'true_false' | 'essay') || 'multiple_choice'
   );
   
   // Valores padrão para o formulário
