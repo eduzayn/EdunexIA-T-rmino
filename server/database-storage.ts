@@ -461,7 +461,34 @@ export class DatabaseStorage implements IStorage {
 
   async getCourseById(id: number): Promise<Course | undefined> {
     try {
-      const [course] = await db.select().from(courses).where(eq(courses.id, id));
+      // Selecionando explicitamente todos os campos para garantir que todos sejam retornados
+      const [course] = await db.select({
+        id: courses.id,
+        code: courses.code,
+        tenantId: courses.tenantId, 
+        title: courses.title,
+        shortDescription: courses.shortDescription,
+        description: courses.description,
+        area: courses.area,
+        courseCategory: courses.courseCategory,
+        imageUrl: courses.imageUrl,
+        price: courses.price,
+        status: courses.status,
+        teacherId: courses.teacherId,
+        createdAt: courses.createdAt,
+        updatedAt: courses.updatedAt
+      })
+      .from(courses)
+      .where(eq(courses.id, id));
+      
+      console.log('Dados do curso recuperados do banco:', {
+        id: course?.id,
+        code: course?.code,
+        area: course?.area,
+        courseCategory: course?.courseCategory,
+        createdAt: course?.createdAt
+      });
+      
       return course;
     } catch (error) {
       console.error('Erro ao buscar curso por ID:', error);
