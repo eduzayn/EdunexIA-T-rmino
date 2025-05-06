@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from './db';
 import { storage } from './database-storage';
 import { quizzes, questions } from '@shared/schema';
-import { requireAuth } from './middleware/auth-middleware';
+import { requireAuth, requireTeacherOrAdmin } from './middleware/auth-middleware';
 import { eq, and, desc } from 'drizzle-orm';
 import type { Request, Response } from 'express';
 

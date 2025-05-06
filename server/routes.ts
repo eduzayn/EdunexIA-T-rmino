@@ -32,6 +32,7 @@ import { settingsRouter } from "./settings-routes";
 import { courseRouter } from "./routes/course-routes";
 import { notificationService } from "./services/notification-service";
 import courseImageRouter from "./routes/course-image-upload";
+import quizRouter from "./quiz-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
@@ -2146,6 +2147,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next(error);
     }
   });
+
+  // Rotas para quizzes (simulados e avaliações)
+  app.use('/api/quizzes', quizRouter);
   
   // Configurar pasta de uploads como estática
   // Usamos o path relativo para garantir que o Express encontrará os arquivos
