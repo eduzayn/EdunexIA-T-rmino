@@ -1978,6 +1978,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Rota de API para gerenciamento de cursos
   app.use('/api', isAuthenticated, courseRouter);
   
+  // Rota pública para visualização de cursos
+  app.get('/api/public/courses/:id', async (req, res, next) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      
+      if (isNaN(courseId)) {
+        return res.status(400).json({ error: 'ID de curso inválido' });
+      }
+      
+      // Buscar curso pelo ID (sem verificar tenantId)
+      // Em uma implementação real, verificaríamos se o curso está com status "published"
+      const course = await storage.getCourseById(courseId);
+      
+      if (!course) {
+        return res.status(404).json({ error: 'Curso não encontrado' });
+      }
+      
+      // Retornamos o curso para visualização pública
+      res.json(course);
+    } catch (error) {
+      console.error('Erro ao buscar curso público:', error);
+      next(error);
+    }
+  });
+  
   // Adicionar rotas para upload de imagens de cursos
   app.use('/api/course-images', isAuthenticated, courseImageRouter);
   

@@ -70,8 +70,17 @@ export default function PublicCourseViewPage() {
     isLoading,
     error
   } = useQuery<Course>({
-    queryKey: ['/api/courses', courseId],
-    queryFn: getQueryFn()
+    queryKey: ['/api/public/courses', courseId],
+    queryFn: async ({ queryKey }) => {
+      const url = `${queryKey[0]}/${queryKey[1]}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar curso: ${response.status} ${response.statusText}`);
+      }
+      
+      return response.json();
+    }
   });
 
   // Função para formatar preço em reais
