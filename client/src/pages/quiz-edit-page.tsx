@@ -168,8 +168,21 @@ export default function QuizEditPage() {
           <Card>
             <CardContent className="pt-6">
               <QuizForm
-                quizType={quiz.quizType}
-                defaultValues={quiz}
+                quizType={quiz.quizType as 'practice' | 'final'}
+                defaultValues={{
+                  title: quiz.title,
+                  description: quiz.description || undefined,
+                  instructions: quiz.instructions || undefined,
+                  timeLimit: quiz.timeLimit || 30,
+                  passingScore: quiz.passingScore || 70,
+                  isRequired: quiz.isRequired,
+                  isActive: quiz.isActive,
+                  allowRetake: quiz.allowRetake,
+                  maxAttempts: quiz.maxAttempts || undefined,
+                  shuffleQuestions: quiz.shuffleQuestions,
+                  showAnswers: quiz.showAnswers,
+                  quizType: quiz.quizType as 'practice' | 'final'
+                }}
                 onSubmit={handleSubmit}
                 isSubmitting={isSubmitting}
               />

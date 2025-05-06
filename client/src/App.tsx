@@ -107,6 +107,7 @@ function Router() {
       <ProtectedRoute path="/admin/subjects/:subjectId/modules/new" component={SubjectModuleCreatePage} />
       <ProtectedRoute path="/admin/subjects/:subjectId/modules/:moduleId/edit" component={SubjectModuleEditPage} />
       <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/new" component={QuizCreatePage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/:quizId/edit" component={QuizEditPage} />
       
       {/* Rotas de Turmas */}
       <ProtectedRoute path="/admin/classes" component={ClassesPage} />
