@@ -2,7 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { db } from './db';
 import { storage } from './database-storage';
-import { quizzes, questions } from '@shared/schema';
+import { quizzes, questions, modules } from '@shared/schema';
 import { requireAuth, requireTeacherOrAdmin } from './middleware/auth-middleware';
 import { eq, and, desc } from 'drizzle-orm';
 import type { Request, Response } from 'express';
@@ -145,14 +145,30 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const validatedData = quizSchema.parse(req.body);
 
-    if (!validatedData.moduleId && !validatedData.subjectId) {
-      return res.status(400).json({ error: 'É necessário informar pelo menos o moduleId ou o subjectId' });
+    if (!validatedData.subjectId) {
+      return res.status(400).json({ error: 'É necessário informar o subjectId' });
+    }
+
+    // Buscar o primeiro módulo da disciplina se moduleId não for fornecido
+    let moduleId = validatedData.moduleId;
+    if (!moduleId) {
+      const subjectModules = await db
+        .select()
+        .from(modules)
+        .where(eq(modules.subjectId, validatedData.subjectId))
+        .limit(1);
+      
+      if (subjectModules.length > 0) {
+        moduleId = subjectModules[0].id;
+      } else {
+        return res.status(400).json({ error: 'A disciplina não possui módulos. Adicione pelo menos um módulo antes de criar um simulado.' });
+      }
     }
 
     const [newQuiz] = await db
       .insert(quizzes)
       .values({
-        moduleId: validatedData.moduleId || 0, // Valor padrão temporário
+        moduleId: moduleId,
         subjectId: validatedData.subjectId,
         title: validatedData.title,
         description: validatedData.description,
@@ -185,14 +201,30 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     const quizId = Number(req.params.id);
     const validatedData = quizSchema.parse(req.body);
 
-    if (!validatedData.moduleId && !validatedData.subjectId) {
-      return res.status(400).json({ error: 'É necessário informar pelo menos o moduleId ou o subjectId' });
+    if (!validatedData.subjectId) {
+      return res.status(400).json({ error: 'É necessário informar o subjectId' });
+    }
+
+    // Buscar o primeiro módulo da disciplina se moduleId não for fornecido
+    let moduleId = validatedData.moduleId;
+    if (!moduleId) {
+      const subjectModules = await db
+        .select()
+        .from(modules)
+        .where(eq(modules.subjectId, validatedData.subjectId))
+        .limit(1);
+      
+      if (subjectModules.length > 0) {
+        moduleId = subjectModules[0].id;
+      } else {
+        return res.status(400).json({ error: 'A disciplina não possui módulos. Adicione pelo menos um módulo antes de criar um simulado.' });
+      }
     }
 
     const [updatedQuiz] = await db
       .update(quizzes)
       .set({
-        moduleId: validatedData.moduleId || 0, // Valor padrão temporário
+        moduleId: moduleId,
         subjectId: validatedData.subjectId,
         title: validatedData.title,
         description: validatedData.description,
