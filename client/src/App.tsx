@@ -111,6 +111,7 @@ function Router() {
       <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/new" component={QuizCreatePage} />
       <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/:quizId/edit" component={QuizEditPage} />
       <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/:quizId/questions" component={QuizQuestionsPage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/:quizId/questions/new" component={QuizAddQuestionPage} />
       
       {/* Rotas de Turmas */}
       <ProtectedRoute path="/admin/classes" component={ClassesPage} />
