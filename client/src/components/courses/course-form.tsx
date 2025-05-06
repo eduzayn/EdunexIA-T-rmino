@@ -96,6 +96,18 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     resolver: zodResolver(courseFormSchema),
     defaultValues,
     mode: "onChange",
+    values: initialData ? { // Garantir que os valores sejam aplicados diretamente
+      code: initialData.code,
+      title: initialData.title || "",
+      shortDescription: initialData.shortDescription || "",
+      description: initialData.description || "",
+      area: initialData.area || "",
+      courseCategory: initialData.courseCategory || "",
+      price: initialData.price ? initialData.price / 100 : null,
+      status: initialData.status || "draft",
+      imageUrl: initialData.imageUrl || "",
+      tenantId: initialData.tenantId,
+    } : undefined,
   });
   
   // Debug log para o formulário
@@ -352,6 +364,26 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       debugFormValues();
     }, 500);
   }, []);
+  
+  // Efeito para atualizar valores do formulário quando initialData mudar
+  React.useEffect(() => {
+    if (initialData && isEditMode) {
+      console.log("Dados iniciais recebidos, atualizando formulário:", initialData);
+      // Atualiza os valores do formulário com os dados iniciais
+      form.reset({
+        code: initialData.code,
+        title: initialData.title || "",
+        shortDescription: initialData.shortDescription || "",
+        description: initialData.description || "",
+        area: initialData.area || "",
+        courseCategory: initialData.courseCategory || "",
+        price: initialData.price ? initialData.price / 100 : null,
+        status: initialData.status || "draft",
+        imageUrl: initialData.imageUrl || "",
+        tenantId: initialData.tenantId,
+      });
+    }
+  }, [initialData, isEditMode]);
 
   return (
     <Card className="w-full">
