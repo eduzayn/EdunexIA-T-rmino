@@ -75,6 +75,8 @@ const formSchema = z.object({
   poloId: z.string().optional(),
   consultantId: z.string(),
   tenantId: z.string(),
+  // Campo opcional para IDs de turmas
+  classIds: z.array(z.string()).optional(),
 });
 
 // Schema para exibição de dados
@@ -109,6 +111,9 @@ export default function SimplifiedEnrollmentPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("new");
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [availableClasses, setAvailableClasses] = useState<any[]>([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
   
   // Consultas
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery<any[]>({
@@ -206,6 +211,8 @@ export default function SimplifiedEnrollmentPage() {
         studentCpf: values.studentCpf.replace(/[^\d]/g, ''),
         // Garantir que paymentMethod é um valor válido
         paymentMethod: values.paymentMethod || "BOLETO",
+        // Converter IDs de turmas para números (se houver)
+        classIds: values.classIds ? values.classIds.map(id => parseInt(id)) : undefined
       };
       
       // Log para debug
@@ -287,10 +294,51 @@ export default function SimplifiedEnrollmentPage() {
   };
   
   // Manipular mudança no campo de curso
-  const handleCourseChange = (courseId: string) => {
+  const handleCourseChange = async (courseId: string) => {
+    setSelectedCourseId(courseId);
+    
+    // Atualizar o valor do curso no formulário
     const selectedCourse = courses.find((c: any) => c.id.toString() === courseId);
     if (selectedCourse && selectedCourse.price) {
       form.setValue("amount", selectedCourse.price.toString());
+    }
+    
+    // Buscar as disciplinas do curso e suas turmas
+    try {
+      setIsLoadingClasses(true);
+      
+      // Primero, buscar as disciplinas do curso
+      const subjectsResponse = await fetch(`/api/courses/${courseId}/subjects`);
+      if (!subjectsResponse.ok) {
+        throw new Error('Falha ao buscar disciplinas do curso');
+      }
+      const subjects = await subjectsResponse.json();
+      
+      // Para cada disciplina, buscar suas turmas
+      let allClasses: any[] = [];
+      for (const subject of subjects) {
+        const classesResponse = await fetch(`/api/classes?subjectId=${subject.id}`);
+        if (classesResponse.ok) {
+          const subjectClasses = await classesResponse.json();
+          // Adiciona o nome da disciplina em cada turma para melhor exibição
+          const classesWithSubject = subjectClasses.map((c: any) => ({
+            ...c,
+            subjectName: subject.title
+          }));
+          allClasses = [...allClasses, ...classesWithSubject];
+        }
+      }
+      
+      setAvailableClasses(allClasses);
+    } catch (error) {
+      console.error('Erro ao buscar turmas:', error);
+      toast({
+        title: "Aviso",
+        description: "Não foi possível carregar as turmas disponíveis para este curso",
+        variant: "default",
+      });
+    } finally {
+      setIsLoadingClasses(false);
     }
   };
   
@@ -607,6 +655,69 @@ export default function SimplifiedEnrollmentPage() {
                             </FormItem>
                           )}
                         />
+                        
+                        {/* Campo para seleção de turmas (opcional) */}
+                        {selectedCourseId && (
+                          <FormField
+                            control={form.control}
+                            name="classIds"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Turmas (Opcional)</FormLabel>
+                                <div className="space-y-2 max-h-48 overflow-y-auto border rounded-md p-2">
+                                  {isLoadingClasses ? (
+                                    <div className="flex items-center justify-center py-4">
+                                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                      <span>Carregando turmas...</span>
+                                    </div>
+                                  ) : availableClasses.length === 0 ? (
+                                    <div className="text-center py-3 text-muted-foreground">
+                                      Não foram encontradas turmas para este curso
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-1.5">
+                                      {availableClasses.map((classItem) => (
+                                        <div 
+                                          key={classItem.id} 
+                                          className="flex items-center space-x-2 border p-2 rounded-md hover:bg-muted/50"
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            id={`class-${classItem.id}`}
+                                            className="h-4 w-4 rounded border-gray-300"
+                                            value={classItem.id}
+                                            checked={(field.value || []).includes(classItem.id.toString())}
+                                            onChange={(e) => {
+                                              const value = classItem.id.toString();
+                                              const currentValues = field.value || [];
+                                              const newValues = e.target.checked
+                                                ? [...currentValues, value]
+                                                : currentValues.filter(v => v !== value);
+                                              field.onChange(newValues);
+                                            }}
+                                          />
+                                          <label 
+                                            htmlFor={`class-${classItem.id}`}
+                                            className="text-sm font-medium flex-1"
+                                          >
+                                            <div>{classItem.name}</div>
+                                            <div className="text-xs text-muted-foreground">
+                                              Disciplina: {classItem.subjectName}
+                                            </div>
+                                          </label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <FormDescription>
+                                  Selecione as turmas para matricular o aluno (opcional)
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
                         
                         {/* Campos ocultos como FormFields para melhor integração */}
                         <FormField
