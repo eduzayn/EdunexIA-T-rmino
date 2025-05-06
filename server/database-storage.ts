@@ -478,10 +478,19 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getCourseById(id: number): Promise<Course | undefined> {
+  async getCourseById(id: number, tenantId?: number): Promise<Course | undefined> {
     try {
-      const [course] = await db.select().from(courses).where(eq(courses.id, id));
-      return course;
+      // Se tenantId for fornecido, inclui na condição de busca para garantir isolamento entre tenants
+      if (tenantId !== undefined) {
+        const [course] = await db.select().from(courses)
+          .where(eq(courses.id, id))
+          .where(eq(courses.tenantId, tenantId));
+        return course;
+      } else {
+        // Comportamento original, usado em contextos onde o tenant não é relevante
+        const [course] = await db.select().from(courses).where(eq(courses.id, id));
+        return course;
+      }
     } catch (error) {
       console.error('Erro ao buscar curso por ID:', error);
       return undefined;
