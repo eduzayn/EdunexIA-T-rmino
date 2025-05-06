@@ -57,8 +57,8 @@ async function generateCertificateData(studentId: number, courseId: number): Pro
       throw new Error('Estudante não encontrado');
     }
 
-    // Obter dados do curso (usando o tenantId do estudante para garantir isolamento)
-    const course = await storage.getCourseById(courseId, student.tenantId);
+    // Obter dados do curso
+    const course = await storage.getCourseById(courseId);
     if (!course) {
       throw new Error('Curso não encontrado');
     }
@@ -165,14 +165,10 @@ certificateRouter.get('/verify/:certificateId', async (req: Request, res: Respon
     
     // Verificar se o estudante e curso existem
     const student = await storage.getStudentById(studentId);
-    if (!student) {
-      return res.status(404).json({ error: 'Estudante não encontrado' });
-    }
+    const course = await storage.getCourseById(courseId);
     
-    // Usar o tenantId do estudante para garantir isolamento de dados
-    const course = await storage.getCourseById(courseId, student.tenantId);
-    if (!course) {
-      return res.status(404).json({ error: 'Curso não encontrado' });
+    if (!student || !course) {
+      return res.status(404).json({ error: 'Certificado não encontrado' });
     }
     
     // Verificar se o estudante está matriculado no curso

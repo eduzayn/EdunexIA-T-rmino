@@ -266,9 +266,10 @@ export default function StudentCourseDetailsPage() {
             
             {/* Tabs */}
             <Tabs defaultValue="content" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="content">Conteúdo</TabsTrigger>
                 <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                <TabsTrigger value="materials">Materiais</TabsTrigger>
               </TabsList>
               
               {/* Aba de Conteúdo (principal para alunos) */}
@@ -365,6 +366,37 @@ export default function StudentCourseDetailsPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </TabsContent>
+              
+              {/* Aba de Materiais */}
+              <TabsContent value="materials" className="pt-4 px-1">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Materiais Complementares</h3>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Apostila do Curso</CardTitle>
+                      <CardDescription>Material de apoio em PDF com todo o conteúdo teórico</CardDescription>
+                    </CardHeader>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Download className="h-4 w-4 mr-1.5" /> Baixar (3.5 MB)
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Planilhas de Exercícios</CardTitle>
+                      <CardDescription>Exercícios práticos para consolidação do aprendizado</CardDescription>
+                    </CardHeader>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Download className="h-4 w-4 mr-1.5" /> Baixar (1.2 MB)
+                      </Button>
+                    </CardFooter>
+                  </Card>
                 </div>
               </TabsContent>
             </Tabs>

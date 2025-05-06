@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import type { Subject } from '@shared/schema';
 
 // Estendendo o schema para validação do formulário
 const formSchema = insertClassSchema
@@ -30,7 +32,7 @@ const formSchema = insertClassSchema
   .extend({
     startDate: z.string().nullable().optional().transform(val => val ? new Date(val).toISOString() : null),
     endDate: z.string().nullable().optional().transform(val => val ? new Date(val).toISOString() : null),
-    subjectId: z.coerce.number().nullable().optional(), // Agora é opcional
+    subjectId: z.coerce.number(),
     name: z.string().min(3, {
       message: 'O nome da turma deve ter pelo menos 3 caracteres.',
     }),
@@ -50,12 +52,18 @@ interface ClassFormProps {
 
 export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormProps) {
   const { toast } = useToast();
+  
+  // Buscar disciplinas para o select
+  const { data: subjects = [] } = useQuery<Subject[]>({
+    queryKey: ['/api/subjects'],
+    refetchOnWindowFocus: false,
+  });
 
   // Valores padrão para o formulário
   const defaultFormValues: Partial<FormData> = {
     name: '',
     description: '',
-    subjectId: null, // Mantemos como null por compatibilidade, mas não exibimos no formulário
+    subjectId: undefined,
     code: '',
     startDate: null,
     endDate: null,
@@ -114,7 +122,34 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+          {/* Disciplina (obrigatório) */}
+          <FormField
+            control={form.control}
+            name="subjectId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Disciplina</FormLabel>
+                <Select
+                  onValueChange={(value) => field.onChange(parseInt(value))}
+                  defaultValue={field.value?.toString()}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma disciplina" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id.toString()}>
+                        {subject.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Nome da turma (obrigatório) */}
           <FormField
@@ -260,13 +295,7 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
               <FormItem>
                 <FormLabel>Local</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Ex: Sala 101, Bloco B" 
-                    onChange={field.onChange}
-                    name={field.name}
-                    ref={field.ref}
-                    value={field.value || ''}
-                  />
+                  <Input placeholder="Ex: Sala 101, Bloco B" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -285,9 +314,7 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
                 <Textarea
                   placeholder="Ex: Segunda e Quarta, 19h às 22h"
                   className="min-h-[100px]"
-                  onChange={field.onChange}
-                  name={field.name}
-                  ref={field.ref}
+                  {...field}
                   value={field.value || ''}
                 />
               </FormControl>
@@ -307,9 +334,7 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
                 <Textarea
                   placeholder="Descrição detalhada da turma"
                   className="min-h-[100px]"
-                  onChange={field.onChange}
-                  name={field.name}
-                  ref={field.ref}
+                  {...field}
                   value={field.value || ''}
                 />
               </FormControl>

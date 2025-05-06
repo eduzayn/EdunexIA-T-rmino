@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Module, Lesson } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -51,11 +50,11 @@ export function ModulesList({ courseId }: ModulesListProps) {
   const [isAddingModule, setIsAddingModule] = useState(false);
   const [editingModuleId, setEditingModuleId] = useState<number | null>(null);
 
-  // Buscar módulos do curso usando a nova API que filtra por courseId
+  // Buscar módulos do curso
   const { data: modules, isLoading, error } = useQuery<ModuleWithLessons[]>({
-    queryKey: ['/api/modules', { courseId }],
+    queryKey: ['/api/courses', courseId, 'modules'],
     queryFn: async () => {
-      const res = await fetch(`/api/modules?courseId=${courseId}`);
+      const res = await fetch(`/api/courses/${courseId}/modules`);
       if (!res.ok) throw new Error('Falha ao carregar módulos');
       return res.json();
     }
@@ -71,8 +70,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
       toast({
         title: "Módulo excluído com sucesso",
       });
-      // Atualizar para a nova queryKey
-      queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] });
+      queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] });
     },
     onError: (error: Error) => {
       toast({
@@ -83,25 +81,14 @@ export function ModulesList({ courseId }: ModulesListProps) {
     },
   });
 
-  const [, navigate] = useLocation();
-  
   const handleAddModule = () => {
     // Redirecionar para página de criação de módulo
-    navigate(`/admin/courses/${courseId}/modules/new`);
+    window.location.href = `/admin/courses/${courseId}/modules/new`;
   };
 
   const handleEditModule = (moduleId: number) => {
-    // Verificar se o módulo realmente existe antes de navegar
-    if (modules && modules.some(mod => mod.id === moduleId)) {
-      console.log(`Navegando para: /admin/courses/${courseId}/modules/${moduleId}/edit`);
-      navigate(`/admin/courses/${courseId}/modules/${moduleId}/edit`);
-    } else {
-      toast({
-        title: "Erro ao editar módulo",
-        description: `O módulo com ID ${moduleId} não existe no banco de dados.`,
-        variant: "destructive",
-      });
-    }
+    // Redirecionar para página de edição de módulo
+    window.location.href = `/admin/courses/${courseId}/modules/${moduleId}/edit`;
   };
 
   const handleCancelEdit = () => {
@@ -144,7 +131,7 @@ export function ModulesList({ courseId }: ModulesListProps) {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] })}>
+          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] })}>
             Tentar novamente
           </Button>
         </CardFooter>

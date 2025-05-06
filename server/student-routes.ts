@@ -81,14 +81,9 @@ studentRouter.get('/courses', async (req: Request, res: Response) => {
     // Obter IDs dos cursos das matrículas
     const courseIds = enrollments.map(enrollment => enrollment.courseId);
     
-    // Buscar os cursos para cada matrícula (usando tenantId para garantir isolamento)
-    const tenantId = req.user?.tenantId;
-    if (!tenantId) {
-      return res.status(400).json({ error: 'TenantId não encontrado' });
-    }
-    
+    // Buscar os cursos para cada matrícula
     const coursesPromises = courseIds.map(async (courseId) => {
-      const course = await storage.getCourseById(courseId, tenantId);
+      const course = await storage.getCourseById(courseId);
       
       if (!course) return null;
       
@@ -205,13 +200,8 @@ studentRouter.get('/courses/:id', async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Você não está matriculado neste curso' });
     }
     
-    // Buscar detalhes do curso (usando tenantId para garantir isolamento)
-    const tenantId = req.user?.tenantId;
-    if (!tenantId) {
-      return res.status(400).json({ error: 'TenantId não encontrado' });
-    }
-    
-    const course = await storage.getCourseById(courseId, tenantId);
+    // Buscar detalhes do curso
+    const course = await storage.getCourseById(courseId);
     
     if (!course) {
       return res.status(404).json({ error: 'Curso não encontrado' });

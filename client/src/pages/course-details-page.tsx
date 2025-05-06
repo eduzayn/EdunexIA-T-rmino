@@ -1,9 +1,9 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { useParams, Link, useLocation } from "wouter";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/layout/app-shell";
-import { getQueryFn, apiRequest } from "@/lib/queryClient";
+import { getQueryFn } from "@/lib/queryClient";
 import { Course } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,22 +13,10 @@ import { formatCurrency } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModulesList } from "@/components/modules/modules-list";
-import { CourseDisciplinesList } from "@/components/disciplines/course-disciplines-list";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { 
-  AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, Trash2,
-  FileText, Globe, GraduationCap, LayoutDashboard, Loader2, Play, Share, Users 
+  AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
+  FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, Users 
 } from "lucide-react";
 
 export default function CourseDetailsPage() {
@@ -36,43 +24,6 @@ export default function CourseDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const courseId = parseInt(id);
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
-  const queryClient = useQueryClient();
-  
-  // Função de navegação
-  const navigate = (path: string) => setLocation(path);
-  
-  // Mutação para excluir o curso
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("DELETE", `/api/courses/${courseId}`);
-      return res;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Curso excluído com sucesso",
-        description: "O curso foi removido permanentemente.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
-      navigate("/admin/courses");
-    },
-    onError: (error: Error) => {
-      // O backend previne exclusão de cursos com matrículas
-      if (error.message.includes("matrículas")) {
-        toast({
-          title: "Não foi possível excluir o curso",
-          description: "Este curso possui alunos matriculados e não pode ser excluído.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Erro ao excluir curso",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    },
-  });
 
   // Buscar detalhes do curso
   const {
@@ -81,39 +32,31 @@ export default function CourseDetailsPage() {
     error
   } = useQuery<Course>({
     queryKey: ['/api/courses', courseId],
-    queryFn: async ({ queryKey }) => {
-      const url = `${queryKey[0]}/${queryKey[1]}`;
-      const response = await fetch(url, {
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
+    queryFn: getQueryFn({ on401: 'throw' }),
+    onSuccess: (data) => {
+      console.log("Dados do curso recebidos:", {
+        id: data?.id,
+        codigo: data?.code,
+        createdAt: data?.createdAt,
+        area: data?.area,
+        categoria: data?.courseCategory,
+        dataTypes: {
+          code: typeof data?.code,
+          createdAt: typeof data?.createdAt,
+          area: typeof data?.area,
+          courseCategory: typeof data?.courseCategory
         }
       });
-      
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar curso: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log("Dados do curso recebidos:", data);
-      return data;
-    },
-    onSuccess: (data) => {
-      console.log("Dados do curso recebidos:", data);
     }
   });
 
-  // Buscar módulos do curso usando a nova API
+  // Buscar módulos do curso
   const {
     data: modules,
     isLoading: isLoadingModules
   } = useQuery<any[]>({
-    queryKey: ['/api/modules', { courseId }],
-    queryFn: async () => {
-      const response = await fetch(`/api/modules?courseId=${courseId}`);
-      if (!response.ok) throw new Error('Falha ao carregar módulos');
-      return response.json();
-    },
+    queryKey: ['/api/courses', courseId, 'modules'],
+    queryFn: getQueryFn({ on401: 'throw' }),
     // Não buscar se não tivermos o curso ainda
     enabled: !!course
   });
@@ -288,11 +231,9 @@ export default function CourseDetailsPage() {
           </div>
           
           <div className="flex gap-1.5">
-            <Button size="sm" variant="outline" className="h-8" asChild>
-              <Link href={`/courses/${courseId}`} target="_blank">
-                <Globe className="h-4 w-4 mr-1.5" />
-                Visualizar
-              </Link>
+            <Button size="sm" variant="outline" className="h-8">
+              <Globe className="h-4 w-4 mr-1.5" />
+              Visualizar
             </Button>
             <Button size="sm" className="h-8" asChild>
               <Link href={`/admin/courses/${courseId}/edit`}>
@@ -321,9 +262,10 @@ export default function CourseDetailsPage() {
             
             {/* Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-                <TabsTrigger value="disciplines">Disciplinas</TabsTrigger>
+                <TabsTrigger value="curriculum">Currículo</TabsTrigger>
+                <TabsTrigger value="materials">Materiais</TabsTrigger>
               </TabsList>
               
               {/* Aba de Visão Geral */}
@@ -344,14 +286,20 @@ export default function CourseDetailsPage() {
                       <FileText className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Código do Curso</p>
-                        <p className="font-medium">{course.code || "Não definido"}</p>
+                        <p className="font-medium">
+                          {typeof course.code === 'number' ? course.code : "Não definido"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Data de Criação</p>
-                        <p className="font-medium">{course.createdAt ? new Date(course.createdAt).toLocaleDateString('pt-BR') : "Data não disponível"}</p>
+                        <p className="font-medium">
+                          {course.createdAt ? 
+                            new Date(course.createdAt).toLocaleDateString('pt-BR') : 
+                            "Data não disponível"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -379,23 +327,49 @@ export default function CourseDetailsPage() {
                       <GraduationCap className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Área</p>
-                        <p className="font-medium">{getAreaName(course.area)}</p>
+                        <p className="font-medium">
+                          {course.area ? getAreaName(course.area) : "Não definida"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Categoria Educacional</p>
-                        <p className="font-medium">{getCourseCategoryName(course.courseCategory)}</p>
+                        <p className="font-medium">
+                          {course.courseCategory ? getCourseCategoryName(course.courseCategory) : "Não definida"}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </TabsContent>
               
-              {/* Aba de Disciplinas */}
-              <TabsContent value="disciplines" className="space-y-5 pt-4 px-1">
-                {courseId && <CourseDisciplinesList courseId={courseId} />}
+              {/* Aba de Currículo */}
+              <TabsContent value="curriculum" className="space-y-5 pt-4 px-1">
+                {courseId && <ModulesList courseId={courseId} />}
+              </TabsContent>
+              
+              {/* Aba de Materiais */}
+              <TabsContent value="materials" className="pt-4 px-1">
+                <div className="text-center py-8 border rounded-lg">
+                  <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                  <h3 className="font-medium mb-1">Nenhum material disponível</h3>
+                  <p className="text-muted-foreground mb-4">Adicione materiais complementares para este curso.</p>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      toast({
+                        title: "Função em desenvolvimento",
+                        description: "A funcionalidade de adicionar materiais será disponibilizada em breve.",
+                        variant: "default"
+                      });
+                    }}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1.5" />
+                    Adicionar Material
+                  </Button>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -450,18 +424,7 @@ export default function CourseDetailsPage() {
                   </Link>
                 </Button>
                 
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => {
-                    const url = `${window.location.origin}/courses/${courseId}`;
-                    navigator.clipboard.writeText(url);
-                    toast({
-                      title: "Link copiado!",
-                      description: "URL do curso copiada para a área de transferência.",
-                    });
-                  }}
-                >
+                <Button variant="outline" className="w-full justify-start">
                   <Share className="h-4 w-4 mr-1.5" />
                   Compartilhar Curso
                 </Button>
@@ -472,42 +435,6 @@ export default function CourseDetailsPage() {
                     Ir para Dashboard
                   </Link>
                 </Button>
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10">
-                      <Trash2 className="h-4 w-4 mr-1.5" />
-                      Excluir Curso
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Excluir curso</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Tem certeza que deseja excluir o curso <strong>{course.title}</strong>?
-                        <br /><br />
-                        Esta ação não pode ser desfeita. Cursos com alunos matriculados não podem ser excluídos.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteMutation.mutate()}
-                        className="bg-destructive hover:bg-destructive/90"
-                        disabled={deleteMutation.isPending}
-                      >
-                        {deleteMutation.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Excluindo...
-                          </>
-                        ) : (
-                          'Sim, excluir curso'
-                        )}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
               </div>
             </div>
           </div>

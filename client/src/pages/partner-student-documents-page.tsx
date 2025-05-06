@@ -31,7 +31,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { queryClient, apiRequest } from '@/lib/queryClient';
+import { queryClient, apiRequest } from '@/lib/query-client';
 import { Badge } from '@/components/ui/badge';
 import { 
   Form, 

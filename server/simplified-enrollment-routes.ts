@@ -79,8 +79,8 @@ router.post('/simplified-enrollments', isAuthenticated, async (req: any, res) =>
     // Validar dados de entrada
     const enrollmentData = createEnrollmentSchema.parse(enrollmentInput);
     
-    // Buscar curso para obter título (usando tenantId para garantir isolamento)
-    const course = await storage.getCourseById(enrollmentData.courseId, enrollmentData.tenantId);
+    // Buscar curso para obter título
+    const course = await storage.getCourseById(enrollmentData.courseId);
     if (!course) {
       return res.status(404).json({ error: 'Curso não encontrado' });
     }

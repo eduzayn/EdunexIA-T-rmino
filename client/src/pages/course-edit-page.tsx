@@ -6,7 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, AlertTriangle, Loader2 } from "lucide-react";
-import { CourseFormFixed } from "@/components/courses/course-form-fixed";
+import { CourseForm } from "@/components/courses/course-form";
 import { getQueryFn } from "@/lib/queryClient";
 import { Course } from "@shared/schema";
 
@@ -22,29 +22,7 @@ export default function CourseEditPage() {
     error
   } = useQuery<Course>({
     queryKey: ['/api/courses', courseId],
-    queryFn: async ({ queryKey }) => {
-      console.log(`[CourseEditPage] Buscando curso ID: ${courseId}`);
-      const url = `${queryKey[0]}/${queryKey[1]}`;
-      console.log(`[CourseEditPage] URL: ${url}`);
-      
-      const res = await fetch(url, {
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-      
-      console.log(`[CourseEditPage] Status da resposta: ${res.status}`);
-      
-      if (!res.ok) {
-        console.error(`[CourseEditPage] Erro ao buscar curso: ${res.status} ${res.statusText}`);
-        throw new Error(`Erro ao buscar curso: ${res.status} ${res.statusText}`);
-      }
-      
-      const data = await res.json();
-      console.log(`[CourseEditPage] Dados do curso recebidos:`, data);
-      return data;
-    }
+    queryFn: getQueryFn({ on401: 'throw' })
   });
 
   // Estado de carregamento
@@ -105,7 +83,7 @@ export default function CourseEditPage() {
         </div>
         
         {/* Formulário */}
-        <CourseFormFixed initialData={course} courseId={courseId} />
+        <CourseForm initialData={course} courseId={courseId} />
       </div>
     </AppShell>
   );

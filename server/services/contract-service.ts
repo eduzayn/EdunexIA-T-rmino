@@ -16,8 +16,8 @@ class ContractService {
         throw new Error('Matrícula simplificada não encontrada');
       }
       
-      // Buscar informações do curso (usando o tenantId para garantir isolamento)
-      const course = await storage.getCourseById(enrollment.courseId, enrollment.tenantId);
+      // Buscar informações do curso
+      const course = await storage.getCourseById(enrollment.courseId);
       if (!course) {
         throw new Error('Curso não encontrado');
       }

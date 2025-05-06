@@ -78,52 +78,24 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Valores iniciais
-  const defaultValues: Partial<CourseFormValues> = (() => {
-    // Verificar se initialData é um objeto ou um array
-    const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
-    
-    console.log("Preparando valores defaultValues com dados:", courseData);
-    
-    return {
-      code: courseData?.code,
-      title: courseData?.title || "",
-      shortDescription: courseData?.shortDescription || "",
-      description: courseData?.description || "",
-      // Para selects, undefined é melhor que string vazia
-      area: courseData?.area || undefined,
-      courseCategory: courseData?.courseCategory || undefined,
-      // Se tiver preço, converte de centavos para reais para exibição
-      price: courseData?.price ? courseData.price / 100 : null,
-      status: courseData?.status || "draft",
-      imageUrl: courseData?.imageUrl || "",
-    };
-  })();
+  const defaultValues: Partial<CourseFormValues> = {
+    code: initialData?.code,
+    title: initialData?.title || "",
+    shortDescription: initialData?.shortDescription || "",
+    description: initialData?.description || "",
+    area: initialData?.area || "",
+    courseCategory: initialData?.courseCategory || "",
+    // Se tiver preço, converte de centavos para reais para exibição
+    price: initialData?.price ? initialData.price / 100 : null,
+    status: initialData?.status || "draft",
+    imageUrl: initialData?.imageUrl || "",
+  };
 
   // Configurar formulário
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(courseFormSchema),
     defaultValues,
     mode: "onChange",
-    values: initialData ? (() => {
-      // Verificar se initialData é um objeto ou um array
-      const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
-      
-      console.log("Preparando valores iniciais para useForm com dados:", courseData);
-      
-      return {
-        code: courseData.code,
-        title: courseData.title || "",
-        shortDescription: courseData.shortDescription || "",
-        description: courseData.description || "",
-        // Usar undefined para selects é crucial para que funcionem corretamente
-        area: courseData.area || undefined,
-        courseCategory: courseData.courseCategory || undefined,
-        price: courseData.price ? courseData.price / 100 : null,
-        status: courseData.status || "draft",
-        imageUrl: courseData.imageUrl || "",
-        tenantId: courseData.tenantId,
-      };
-    })() : undefined,
   });
   
   // Debug log para o formulário
@@ -138,14 +110,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     mutationFn: async (data: CourseFormValues) => {
       console.log("mutationFn - Iniciando criação do curso:", data);
       try {
-        // Nova abordagem para preços: garantir que esteja em centavos
-        if (data.price !== null && data.price !== undefined) {
-          // Se o preço for fornecido com vírgula (BR format), converter para float
-          // Apenas converter para centavos se o valor parecer estar em reais (tem valor decimal ou é muito pequeno)
-          if (data.price < 1000 || data.price % 1 !== 0) {
-            data.price = Math.round(data.price * 100);
-          }
-          console.log("mutationFn - Preço final em centavos:", data.price);
+        // Convertendo preço para centavos, se houver um valor
+        if (data.price) {
+          data.price = Math.round(data.price * 100);
+          console.log("mutationFn - Preço convertido para centavos:", data.price);
         }
         
         const res = await apiRequest("POST", "/api/courses", data);
@@ -186,14 +154,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
   // Mutação para atualizar curso
   const updateMutation = useMutation({
     mutationFn: async (data: CourseFormValues) => {
-      // Nova abordagem para preços: garantir que esteja em centavos
-      if (data.price !== null && data.price !== undefined) {
-        // Se o preço for fornecido com vírgula (BR format), converter para float
-        // Apenas converter para centavos se o valor parecer estar em reais (tem valor decimal ou é muito pequeno)
-        if (data.price < 1000 || data.price % 1 !== 0) {
-          data.price = Math.round(data.price * 100);
-        }
-        console.log("updateMutation - Preço final em centavos:", data.price);
+      // Convertendo preço para centavos, se houver um valor
+      if (data.price) {
+        data.price = Math.round(data.price * 100);
+        console.log("updateMutation - Preço convertido para centavos:", data.price);
       }
       
       const res = await apiRequest("PUT", `/api/courses/${courseId}`, data);
@@ -219,10 +183,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
 
   // Função para fazer upload da imagem
   const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) {
-      console.log("Upload de imagem cancelado: nenhum arquivo selecionado");
-      return null;
-    }
+    if (!imageFile) return null;
     
     try {
       setIsUploading(true);
@@ -243,19 +204,10 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
         courseId: courseId 
       });
       
-      // Verifica se o componente de upload está funcionando
-      console.log("FormData criado para upload:", formData.has('image') ? "Imagem anexada" : "Imagem não anexada");
-      
       const response = await fetch('/api/course-images/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
-      });
-      
-      console.log("Resposta do servidor para upload:", {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
       });
       
       if (!response.ok) {
@@ -269,23 +221,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       setIsUploading(false);
       setUploadProgress(100);
       
-      if (!data.imageUrl) {
-        console.error("Upload de imagem retornou URL vazia ou nula");
-        toast({
-          title: "Aviso",
-          description: "O upload da imagem foi concluído, mas a URL da imagem não foi retornada corretamente.",
-          variant: "destructive",
-        });
-        return null;
-      }
-      
-      // Verificar se a URL retornada é absoluta ou relativa
-      const imageUrl = data.imageUrl.startsWith('http') || data.imageUrl.startsWith('/') 
-        ? data.imageUrl 
-        : `/${data.imageUrl.replace(/^\//, '')}`;
-      
-      console.log("URL da imagem após processamento:", imageUrl);
-      return imageUrl;
+      return data.imageUrl;
     } catch (error: any) {
       console.error("Exceção no upload de imagem:", error);
       setIsUploading(false);
@@ -304,31 +240,16 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       console.log("===== FORMULÁRIO SUBMETIDO =====");
       console.log("Iniciando submissão de formulário de curso", data);
       
-      // Verificamos se ainda temos uma imagem não enviada
-      if (imageFile && !data.imageUrl) {
-        console.log("Há uma imagem selecionada, mas não enviada. Executando upload de imagem antes de salvar o curso.");
+      // Se houver uma imagem para upload, fazer o upload primeiro
+      if (imageFile) {
+        console.log("Executando upload de imagem antes de salvar o curso");
         const imageUrl = await uploadImage();
         if (imageUrl) {
           data.imageUrl = imageUrl;
           console.log("Upload de imagem concluído, URL:", imageUrl);
         } else {
           console.warn("Upload de imagem falhou ou retornou URL nula");
-          // Verificar se queremos continuar sem a imagem
-          const continuar = window.confirm("O upload da imagem falhou. Deseja continuar criando o curso sem a imagem?");
-          if (!continuar) {
-            console.log("Usuário cancelou a criação do curso após falha no upload de imagem");
-            return; // Não continuar com a criação do curso
-          }
-          // Se o upload falhar, defina a URL da imagem para null em vez de string vazia
-          data.imageUrl = null;
         }
-      } else if (data.imageUrl === '') {
-        // Se não houver arquivo para upload e a URL está vazia, define como null
-        // para evitar problemas com strings vazias
-        data.imageUrl = null;
-        console.log("Nenhuma imagem selecionada, definindo imageUrl como null");
-      } else {
-        console.log("Usando imageUrl já definida:", data.imageUrl);
       }
       
       // Log de validação de formulário
@@ -387,33 +308,6 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       debugFormValues();
     }, 500);
   }, []);
-  
-  // Efeito para atualizar valores do formulário quando initialData mudar
-  React.useEffect(() => {
-    if (initialData && isEditMode) {
-      // Verificar se initialData é um objeto ou um array
-      const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
-      
-      console.log("Dados iniciais recebidos, atualizando formulário:", courseData);
-      
-      console.log("Atualizando form.reset com dados de curso:", courseData);
-      
-      // Atualiza os valores do formulário com os dados iniciais
-      form.reset({
-        code: courseData.code,
-        title: courseData.title || "",
-        shortDescription: courseData.shortDescription || "",
-        description: courseData.description || "",
-        // Para campos de select, undefined é melhor que string vazia
-        area: courseData.area || undefined,
-        courseCategory: courseData.courseCategory || undefined,
-        price: courseData.price ? courseData.price / 100 : null,
-        status: courseData.status || "draft",
-        imageUrl: courseData.imageUrl || "",
-        tenantId: courseData.tenantId,
-      });
-    }
-  }, [initialData, isEditMode]);
 
   return (
     <Card className="w-full">
@@ -478,7 +372,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Área</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -510,7 +404,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Categoria</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -541,11 +435,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                 <FormItem>
                   <FormLabel>Descrição Curta</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Uma breve descrição do curso (será exibida nas listagens)" 
-                      {...field}
-                      value={field.value || ""} 
-                    />
+                    <Input placeholder="Uma breve descrição do curso (será exibida nas listagens)" {...field} />
                   </FormControl>
                   <FormDescription>
                     Máximo de 150 caracteres
@@ -609,7 +499,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -653,52 +543,11 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
               <div className="space-y-2">
                 <p className="text-sm font-medium">Upload de Imagem</p>
                 <ImageUpload
-                  previewUrl={form.getValues("imageUrl") || (Array.isArray(initialData) 
-                    ? (initialData[0]?.imageUrl || "") 
-                    : (initialData?.imageUrl || ""))}
-                  onImageUpload={(file) => {
-                    console.log("Imagem selecionada para upload:", file.name);
-                    setImageFile(file);
-                  }}
-                  onImageRemove={() => {
-                    console.log("Removendo imagem selecionada");
-                    setImageFile(null);
-                    // Resetar o valor do campo imageUrl se uma imagem for removida
-                    form.setValue("imageUrl", "");
-                  }}
+                  previewUrl={initialData?.imageUrl || ""}
+                  onImageUpload={(file) => setImageFile(file)}
+                  onImageRemove={() => setImageFile(null)}
                   helperText="Arraste uma imagem ou clique para fazer upload"
                 />
-                {isUploading && (
-                  <div className="flex items-center space-x-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    <span className="text-xs">Enviando imagem: {uploadProgress}%</span>
-                  </div>
-                )}
-                {imageFile && !isUploading && (
-                  <div>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      onClick={async () => {
-                        const imageUrl = await uploadImage();
-                        if (imageUrl) {
-                          form.setValue("imageUrl", imageUrl);
-                          toast({
-                            title: "Imagem enviada",
-                            description: "A imagem foi enviada com sucesso.",
-                            variant: "default",
-                          });
-                        }
-                      }}
-                    >
-                      Enviar imagem agora
-                    </Button>
-                    <p className="text-xs mt-1 text-muted-foreground">
-                      Clique para enviar a imagem antes de salvar o curso
-                    </p>
-                  </div>
-                )}
                 <p className="text-xs text-muted-foreground">
                   Recomendado: imagem 16:9 com pelo menos 1280x720 pixels
                 </p>
