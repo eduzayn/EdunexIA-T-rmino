@@ -32,7 +32,22 @@ export default function CourseDetailsPage() {
     error
   } = useQuery<Course>({
     queryKey: ['/api/courses', courseId],
-    queryFn: getQueryFn({ on401: 'throw' })
+    queryFn: getQueryFn({ on401: 'throw' }),
+    onSuccess: (data) => {
+      console.log("Dados do curso recebidos:", {
+        id: data?.id,
+        codigo: data?.code,
+        createdAt: data?.createdAt,
+        area: data?.area,
+        categoria: data?.courseCategory,
+        dataTypes: {
+          code: typeof data?.code,
+          createdAt: typeof data?.createdAt,
+          area: typeof data?.area,
+          courseCategory: typeof data?.courseCategory
+        }
+      });
+    }
   });
 
   // Buscar módulos do curso
