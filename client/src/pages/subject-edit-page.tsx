@@ -15,11 +15,22 @@ export function SubjectEditPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { currentPortal } = usePortal();
+  
+  // Verificar se o ID é válido
+  const idNumber = parseInt(id);
+  const isValidId = !isNaN(idNumber) && idNumber > 0;
+  
+  // Redirecionar se o ID não for válido
+  React.useEffect(() => {
+    if (!isValidId) {
+      navigate(`${currentPortal.baseRoute}/subjects`);
+    }
+  }, [isValidId, navigate, currentPortal.baseRoute]);
 
   // Buscar detalhes da disciplina
   const { data: subject, isLoading, error } = useQuery({
     queryKey: [`/api/subjects/${id}`],
-    enabled: !!id,
+    enabled: !!id && isValidId,
   });
 
   // Mutação para atualizar disciplina
