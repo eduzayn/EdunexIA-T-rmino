@@ -339,7 +339,7 @@ export function CourseFormFixed({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Área</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -371,7 +371,7 @@ export function CourseFormFixed({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Categoria</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -470,7 +470,7 @@ export function CourseFormFixed({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl>
                         <SelectTrigger>

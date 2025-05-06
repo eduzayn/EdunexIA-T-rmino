@@ -25,7 +25,7 @@ export default function CourseCreatePage() {
         </div>
         
         {/* Formulário */}
-        <CourseForm />
+        <CourseFormFixed />
       </div>
     </AppShell>
   );
