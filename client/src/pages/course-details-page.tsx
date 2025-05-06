@@ -271,14 +271,20 @@ export default function CourseDetailsPage() {
                       <FileText className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Código do Curso</p>
-                        <p className="font-medium">{course.code || "Não definido"}</p>
+                        <p className="font-medium">
+                          {typeof course.code === 'number' ? course.code : "Não definido"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Data de Criação</p>
-                        <p className="font-medium">{course.createdAt ? new Date(course.createdAt).toLocaleDateString('pt-BR') : "Data não disponível"}</p>
+                        <p className="font-medium">
+                          {course.createdAt ? 
+                            new Date(course.createdAt).toLocaleDateString('pt-BR') : 
+                            "Data não disponível"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -306,14 +312,18 @@ export default function CourseDetailsPage() {
                       <GraduationCap className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Área</p>
-                        <p className="font-medium">{getAreaName(course.area)}</p>
+                        <p className="font-medium">
+                          {course.area ? getAreaName(course.area) : "Não definida"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Categoria Educacional</p>
-                        <p className="font-medium">{getCourseCategoryName(course.courseCategory)}</p>
+                        <p className="font-medium">
+                          {course.courseCategory ? getCourseCategoryName(course.courseCategory) : "Não definida"}
+                        </p>
                       </div>
                     </div>
                   </div>
