@@ -89,9 +89,9 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       title: courseData?.title || "",
       shortDescription: courseData?.shortDescription || "",
       description: courseData?.description || "",
-      // Não usar string vazia como valor padrão para área e categoria
-      area: courseData?.area === null ? "" : (courseData?.area || ""),
-      courseCategory: courseData?.courseCategory === null ? "" : (courseData?.courseCategory || ""),
+      // Para selects, undefined é melhor que string vazia
+      area: courseData?.area || undefined,
+      courseCategory: courseData?.courseCategory || undefined,
       // Se tiver preço, converte de centavos para reais para exibição
       price: courseData?.price ? courseData.price / 100 : null,
       status: courseData?.status || "draft",
@@ -115,9 +115,9 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
         title: courseData.title || "",
         shortDescription: courseData.shortDescription || "",
         description: courseData.description || "",
-        // Não usar string vazia como valor padrão para área e categoria
-        area: courseData.area === null ? "" : (courseData.area || ""),
-        courseCategory: courseData.courseCategory === null ? "" : (courseData.courseCategory || ""),
+        // Usar undefined para selects é crucial para que funcionem corretamente
+        area: courseData.area || undefined,
+        courseCategory: courseData.courseCategory || undefined,
         price: courseData.price ? courseData.price / 100 : null,
         status: courseData.status || "draft",
         imageUrl: courseData.imageUrl || "",

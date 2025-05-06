@@ -29,10 +29,13 @@ export function SubjectEditPage() {
 
   // Interface para definir o tipo da disciplina
   interface Subject {
-    id: number;
+    id?: number;
     title: string;
     description?: string;
     code?: string;
+    area?: string;
+    isActive?: boolean;
+    workload?: number;
     [key: string]: any; // Para permitir outras propriedades
   }
   
@@ -44,7 +47,7 @@ export function SubjectEditPage() {
 
   // Mutação para atualizar disciplina
   const updateMutation = useMutation({
-    mutationFn: async (data: Subject) => {
+    mutationFn: async (data: any) => {
       const response = await apiRequest('PUT', `/api/subjects/${id}`, data);
       return response;
     },
@@ -65,8 +68,13 @@ export function SubjectEditPage() {
   });
 
   // Handler para submissão do formulário
-  const handleSubmit = (data: Subject) => {
-    updateMutation.mutate(data);
+  const handleSubmit = (data: any) => {
+    // Adicionar o ID ao enviar para o servidor
+    const submitData = { 
+      ...data,
+      id: subject?.id 
+    };
+    updateMutation.mutate(submitData);
   };
 
   if (isLoading) {
