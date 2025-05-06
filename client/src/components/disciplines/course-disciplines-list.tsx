@@ -355,7 +355,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                             className="mt-1" 
                             asChild
                           >
-                            <Link href={`/admin/subjects/${courseDiscipline.id}/modules/new`}>
+                            <Link href={`/admin/subjects/${courseDiscipline.subject?.id || courseDiscipline.subjectId}/modules/new`}>
                               Adicionar Módulo
                             </Link>
                           </Button>
