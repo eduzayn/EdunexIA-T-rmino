@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { 
   AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, Trash2,
-  FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, Users 
+  FileText, Globe, GraduationCap, LayoutDashboard, Loader2, Play, Share, Users 
 } from "lucide-react";
 
 export default function CourseDetailsPage() {
@@ -440,6 +440,42 @@ export default function CourseDetailsPage() {
                     Ir para Dashboard
                   </Link>
                 </Button>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10">
+                      <Trash2 className="h-4 w-4 mr-1.5" />
+                      Excluir Curso
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir curso</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja excluir o curso <strong>{course.title}</strong>?
+                        <br /><br />
+                        Esta ação não pode ser desfeita. Cursos com alunos matriculados não podem ser excluídos.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteMutation.mutate()}
+                        className="bg-destructive hover:bg-destructive/90"
+                        disabled={deleteMutation.isPending}
+                      >
+                        {deleteMutation.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Excluindo...
+                          </>
+                        ) : (
+                          'Sim, excluir curso'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </div>
