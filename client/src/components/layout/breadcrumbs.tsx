@@ -24,9 +24,8 @@ export function Breadcrumbs({ items = [], className = "" }: BreadcrumbsProps) {
     
     // Mapeamento de rotas para labels mais amigáveis
     const routeLabels: Record<string, string> = {
-      // Rotas gerais
       'courses': 'Cursos',
-      'new': 'Novo',
+      'new': 'Novo Curso',
       'edit': 'Editar',
       'subjects': 'Disciplinas',
       'students': 'Alunos',
@@ -35,38 +34,6 @@ export function Breadcrumbs({ items = [], className = "" }: BreadcrumbsProps) {
       'assessments': 'Avaliações',
       'leads': 'Leads',
       'settings': 'Configurações',
-      
-      // Portal do Admin
-      'admin': 'Administrativo',
-      'student-documents': 'Documentos de Alunos',
-      'partner-view': 'Visualização do Parceiro',
-      'teacher-view': 'Visualização do Professor',
-      'hub-view': 'Visualização do Polo',
-      'simplified-enrollment': 'Matrícula Simplificada',
-      'contracts': 'Contratos',
-      'sms-test': 'Teste de SMS',
-      'partner-certifications': 'Certificações de Parceiros',
-      'partner-payments': 'Pagamentos de Parceiros',
-
-      // Portal do Aluno
-      'student': 'Aluno',
-      'dashboard': 'Dashboard',
-      'documents': 'Documentos',
-      
-      // Portal do Professor
-      'teacher': 'Professor',
-      
-      // Portal do Parceiro
-      'partner': 'Parceiro',
-      'register-student': 'Cadastrar Aluno',
-      'certification-requests': 'Solicitações de Certificação',
-      'payments': 'Pagamentos',
-      
-      // Portal do Polo
-      'hub': 'Polo',
-
-      // Certificados
-      'certificates': 'Certificados',
     };
     
     // Sempre começa com o dashboard

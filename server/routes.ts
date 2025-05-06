@@ -3,17 +3,19 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./database-storage";
 import { z } from "zod";
+import path from "path";
 import { 
   insertCourseSchema, insertEnrollmentSchema, insertLeadSchema, 
   insertModuleSchema, insertLessonSchema, insertSubjectSchema, 
   insertClassSchema, insertClassEnrollmentSchema, insertUserSchema,
-  insertAssessmentSchema, insertAssessmentResultSchema
+  insertAssessmentSchema, insertAssessmentResultSchema,
+  courseSubjects, insertCourseSubjectSchema
 } from "@shared/schema";
 import { testDatabaseConnection } from "./db";
 import { db } from "./db";
 import { tenants, users } from "@shared/schema";
 import { log } from "./vite";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 import { studentRouter } from "./student-routes";
 import { adminRouter } from "./admin-routes";
 import { adminPaymentRouter } from "./admin-payment-routes";
@@ -30,6 +32,8 @@ import { settingsRouter } from "./settings-routes";
 import { courseRouter } from "./routes/course-routes";
 import { notificationService } from "./services/notification-service";
 import courseImageRouter from "./routes/course-image-upload";
+import quizRouter from "./quiz-routes";
+import questionRouter from "./question-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teste de conexão com banco de dados e inicialização
@@ -141,8 +145,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Forbidden" });
       }
 
-      const modules = await storage.getModulesByCourse(courseId);
-      res.json(modules);
+      // Buscar as disciplinas do curso
+      const courseSubjects = await storage.getCourseSubjects(courseId);
+      
+      // Se não houver disciplinas, retornar lista vazia
+      if (courseSubjects.length === 0) {
+        return res.json([]);
+      }
+      
+      // Buscar e combinar módulos de todas as disciplinas do curso
+      const allModules = [];
+      for (const courseSubject of courseSubjects) {
+        const modules = await storage.getModulesBySubject(courseSubject.subjectId);
+        allModules.push(...modules);
+      }
+      
+      res.json(allModules);
     } catch (error) {
       next(error);
     }
@@ -234,6 +252,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Módulos
+  // Obter todos os módulos (filtrados por courseId se fornecido)
+  app.get("/api/modules", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseId = req.query.courseId ? parseInt(req.query.courseId as string) : undefined;
+      const subjectId = req.query.subjectId ? parseInt(req.query.subjectId as string) : undefined;
+      const tenantId = req.user?.tenantId;
+      
+      if (!tenantId) {
+        return res.status(401).json({ message: "Usuário não autenticado" });
+      }
+      
+      // Caso de uso 1: filtrar por disciplina específica
+      if (subjectId) {
+        // Verificar se a disciplina existe e se o usuário tem acesso a ela
+        const subject = await storage.getSubjectById(subjectId);
+        if (!subject) {
+          return res.status(404).json({ message: "Disciplina não encontrada" });
+        }
+        
+        if (subject.tenantId !== tenantId) {
+          return res.status(403).json({ message: "Acesso negado à disciplina especificada" });
+        }
+        
+        // Retornar apenas os módulos desta disciplina
+        const subjectModules = await storage.getModulesBySubject(subjectId);
+        return res.json(subjectModules);
+      } 
+      // Caso de uso 2: compatibilidade com frontend - filtrar por curso
+      else if (courseId) {
+        // Verificar se o curso existe e se o usuário tem acesso a ele
+        const course = await storage.getCourseById(courseId);
+        if (!course) {
+          return res.status(404).json({ message: "Curso não encontrado" });
+        }
+        
+        if (course.tenantId !== tenantId) {
+          return res.status(403).json({ message: "Acesso negado ao curso especificado" });
+        }
+        
+        // Buscar todas as disciplinas associadas ao curso
+        const courseSubjects = await storage.getCourseSubjects(courseId);
+        
+        // Se não houver disciplinas, retornar lista vazia
+        if (courseSubjects.length === 0) {
+          return res.json([]);
+        }
+        
+        // Buscar e combinar módulos de todas as disciplinas do curso
+        const allModules = [];
+        for (const courseSubject of courseSubjects) {
+          const modules = await storage.getModulesBySubject(courseSubject.subjectId);
+          allModules.push(...modules);
+        }
+        
+        return res.json(allModules);
+      } 
+      // Caso de uso 3: listar todos os módulos do tenant
+      else {
+        // Se não for especificado um courseId ou subjectId, retornar todos os módulos do tenant
+        const subjects = await storage.getSubjectsByTenant(tenantId);
+        
+        // Se não houver disciplinas, retornar lista vazia
+        if (subjects.length === 0) {
+          return res.json([]);
+        }
+        
+        // Buscar e combinar módulos de todas as disciplinas do tenant
+        const allModules = [];
+        for (const subject of subjects) {
+          const modules = await storage.getModulesBySubject(subject.id);
+          allModules.push(...modules);
+        }
+        
+        return res.json(allModules);
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Obter um módulo específico pelo ID
   app.get("/api/modules/:id", isAuthenticated, async (req, res, next) => {
     try {
       const moduleId = parseInt(req.params.id);
@@ -243,9 +342,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Módulo não encontrado" });
       }
       
-      // Verificar se o usuário tem acesso ao curso deste módulo
-      const course = await storage.getCourseById(module.courseId);
-      if (!course || course.tenantId !== req.user?.tenantId) {
+      // Verificar se o usuário tem acesso à disciplina deste módulo
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
         return res.status(403).json({ message: "Acesso negado" });
       }
       
@@ -264,19 +363,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const moduleData = insertModuleSchema.parse(req.body);
       
-      // Verificar se o curso existe e pertence ao tenant do usuário
-      const course = await storage.getCourseById(moduleData.courseId);
-      if (!course) {
-        return res.status(404).json({ message: "Curso não encontrado" });
+      // Verificar se a disciplina existe e pertence ao tenant do usuário
+      const subject = await storage.getSubjectById(moduleData.subjectId);
+      if (!subject) {
+        return res.status(404).json({ message: "Disciplina não encontrada" });
       }
       
-      if (course.tenantId !== req.user.tenantId) {
-        return res.status(403).json({ message: "Você não tem permissão para adicionar módulos a este curso" });
+      if (subject.tenantId !== req.user.tenantId) {
+        return res.status(403).json({ message: "Você não tem permissão para adicionar módulos a esta disciplina" });
       }
       
-      // Verificar se o usuário é o criador do curso ou admin
-      if (req.user?.role !== 'admin' && course.teacherId !== req.user?.id) {
-        return res.status(403).json({ message: "Apenas o criador do curso ou administradores podem adicionar módulos" });
+      // Verificar permissões do usuário (admin ou professor responsável)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas professores e administradores podem adicionar módulos" });
       }
       
       const module = await storage.createModule(moduleData);
@@ -296,15 +395,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Módulo não encontrado" });
       }
       
-      // Verificar se o curso pertence ao tenant do usuário
-      const course = await storage.getCourseById(existingModule.courseId);
-      if (!course || course.tenantId !== req.user?.tenantId) {
+      // Verificar se a disciplina pertence ao tenant do usuário
+      const subject = await storage.getSubjectById(existingModule.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
         return res.status(403).json({ message: "Acesso negado" });
       }
       
-      // Verificar se o usuário é o criador do curso ou admin
-      if (req.user?.role !== 'admin' && course.teacherId !== req.user?.id) {
-        return res.status(403).json({ message: "Apenas o criador do curso ou administradores podem editar módulos" });
+      // Verificar se o usuário tem permissão (professor ou admin)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas professores e administradores podem editar módulos" });
       }
       
       // Validar e atualizar dados do módulo
@@ -327,15 +426,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Módulo não encontrado" });
       }
       
-      // Verificar se o curso pertence ao tenant do usuário
-      const course = await storage.getCourseById(existingModule.courseId);
-      if (!course || course.tenantId !== req.user?.tenantId) {
+      // Verificar se a disciplina pertence ao tenant do usuário
+      const subject = await storage.getSubjectById(existingModule.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
         return res.status(403).json({ message: "Acesso negado" });
       }
       
-      // Verificar se o usuário é o criador do curso ou admin
-      if (req.user?.role !== 'admin' && course.teacherId !== req.user?.id) {
-        return res.status(403).json({ message: "Apenas o criador do curso ou administradores podem excluir módulos" });
+      // Verificar permissões do usuário (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas professores ou administradores podem excluir módulos" });
       }
       
       const deleted = await storage.deleteModule(moduleId);
@@ -390,14 +489,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Dados recebidos:", req.body);
       console.log("Usuário atual:", req.user?.id, req.user?.tenantId);
 
-      const subjectData = insertSubjectSchema.parse({
+      // Vamos usar o schema apenas para validar os campos obrigatórios do formulário
+      // O código será gerado automaticamente pelo método createSubject
+      const validatedData = {
         ...req.body,
         tenantId: req.user.tenantId || 1
-      });
+      };
 
-      console.log("Dados após validação:", subjectData);
+      console.log("Dados para criação:", validatedData);
 
-      const subject = await storage.createSubject(subjectData);
+      const subject = await storage.createSubject(validatedData);
       console.log("Disciplina criada:", subject);
       
       res.status(201).json(subject);
@@ -466,6 +567,187 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Falha ao excluir disciplina" });
       }
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Associações entre Cursos e Disciplinas
+  // Obter disciplinas de um curso
+  app.get("/api/courses/:id/subjects", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      
+      // Verificar se o curso existe
+      const course = await storage.getCourseById(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Curso não encontrado" });
+      }
+      
+      // Verificar acesso ao tenant
+      if (course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      const courseSubjects = await storage.getCourseSubjects(courseId);
+      
+      // Buscar informações completas das disciplinas
+      const subjects = await Promise.all(
+        courseSubjects.map(async (cs) => {
+          const subject = await storage.getSubjectById(cs.subjectId);
+          return {
+            ...subject,
+            courseSubjectId: cs.id,
+            order: cs.order
+          };
+        })
+      );
+      
+      res.json(subjects);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Adicionar disciplina a um curso
+  app.post("/api/courses/:id/subjects", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      
+      // Verificar se o curso existe
+      const course = await storage.getCourseById(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Curso não encontrado" });
+      }
+      
+      // Verificar acesso ao tenant
+      if (course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Apenas administradores e professores responsáveis podem adicionar disciplinas
+      if (req.user?.role !== 'admin' && 
+          (req.user?.role !== 'teacher' || course.teacherId !== req.user?.id)) {
+        return res.status(403).json({ message: "Apenas administradores ou o professor responsável pode adicionar disciplinas ao curso" });
+      }
+      
+      const { subjectId, order } = req.body;
+      
+      if (!subjectId) {
+        return res.status(400).json({ message: "ID da disciplina é obrigatório" });
+      }
+      
+      // Verificar se a disciplina existe
+      const subject = await storage.getSubjectById(subjectId);
+      if (!subject) {
+        return res.status(404).json({ message: "Disciplina não encontrada" });
+      }
+      
+      // Verificar se a disciplina pertence ao mesmo tenant do curso
+      if (subject.tenantId !== course.tenantId) {
+        return res.status(403).json({ message: "A disciplina não pertence ao mesmo tenant do curso" });
+      }
+      
+      // Verificar se a disciplina já está associada ao curso
+      const existingSubjects = await storage.getCourseSubjects(courseId);
+      const alreadyAdded = existingSubjects.some(cs => cs.subjectId === subjectId);
+      
+      if (alreadyAdded) {
+        return res.status(400).json({ message: "Esta disciplina já está associada ao curso" });
+      }
+      
+      // Adicionar a disciplina ao curso
+      const courseSubject = await storage.addSubjectToCourse({
+        courseId,
+        subjectId,
+        order: order || existingSubjects.length + 1
+      });
+      
+      res.status(201).json(courseSubject);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Remover disciplina de um curso
+  app.delete("/api/courses/:courseId/subjects/:subjectId", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const subjectId = parseInt(req.params.subjectId);
+      
+      // Verificar se o curso existe
+      const course = await storage.getCourseById(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Curso não encontrado" });
+      }
+      
+      // Verificar acesso ao tenant
+      if (course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Apenas administradores e professores responsáveis podem remover disciplinas
+      if (req.user?.role !== 'admin' && 
+          (req.user?.role !== 'teacher' || course.teacherId !== req.user?.id)) {
+        return res.status(403).json({ message: "Apenas administradores ou o professor responsável pode remover disciplinas do curso" });
+      }
+      
+      // Verificar se a disciplina está associada ao curso
+      const courseSubjects = await storage.getCourseSubjects(courseId);
+      const isAssociated = courseSubjects.some(cs => cs.subjectId === subjectId);
+      
+      if (!isAssociated) {
+        return res.status(404).json({ message: "Esta disciplina não está associada ao curso" });
+      }
+      
+      // Remover a disciplina do curso
+      const removed = await storage.removeSubjectFromCourse(courseId, subjectId);
+      
+      if (removed) {
+        res.status(200).json({ message: "Disciplina removida do curso com sucesso" });
+      } else {
+        res.status(500).json({ message: "Falha ao remover disciplina do curso" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Atualizar ordem das disciplinas em um curso
+  app.put("/api/course-subjects/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const courseSubjectId = parseInt(req.params.id);
+      const { order } = req.body;
+      
+      if (order === undefined) {
+        return res.status(400).json({ message: "A ordem é obrigatória" });
+      }
+      
+      // Buscar a relação curso-disciplina usando a função de storage
+      const courseSubjectInfo = await storage.getCourseSubjectById(courseSubjectId);
+      
+      if (!courseSubjectInfo) {
+        return res.status(404).json({ message: "Relação curso-disciplina não encontrada" });
+      }
+      
+      const courseSubject = courseSubjectInfo;
+      
+      // Verificar se o curso existe e se o usuário tem acesso
+      const course = await storage.getCourseById(courseSubject.courseId);
+      if (!course || course.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Apenas administradores e professores responsáveis podem alterar a ordem
+      if (req.user?.role !== 'admin' && 
+          (req.user?.role !== 'teacher' || course.teacherId !== req.user?.id)) {
+        return res.status(403).json({ message: "Apenas administradores ou o professor responsável pode alterar a ordem das disciplinas" });
+      }
+      
+      // Atualizar a ordem
+      const updatedCourseSubject = await storage.updateCourseSubjectOrder(courseSubjectId, order);
+      
+      res.json(updatedCourseSubject);
     } catch (error) {
       next(error);
     }
@@ -1699,8 +1981,184 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Adicionar rotas para upload de imagens de cursos
   app.use('/api/course-images', isAuthenticated, courseImageRouter);
   
+  // Endpoints para gerenciamento de lições (lessons)
+  
+  // Obter todas as lições de um módulo
+  app.get("/api/modules/:moduleId/lessons", isAuthenticated, async (req, res, next) => {
+    try {
+      const moduleId = parseInt(req.params.moduleId);
+      
+      // Verificar se o módulo existe
+      const module = await storage.getModuleById(moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      // Verificar se o usuário tem acesso à disciplina do módulo
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Buscar lições do módulo
+      const moduleLessons = await storage.getLessonsByModule(moduleId);
+      res.json(moduleLessons);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Obter uma lição específica
+  app.get("/api/lessons/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const lesson = await storage.getLessonById(lessonId);
+      
+      if (!lesson) {
+        return res.status(404).json({ message: "Lição não encontrada" });
+      }
+      
+      // Verificar permissão de acesso
+      const module = await storage.getModuleById(lesson.moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      res.json(lesson);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Criar uma nova lição
+  app.post("/api/modules/:moduleId/lessons", isAuthenticated, async (req, res, next) => {
+    try {
+      const moduleId = parseInt(req.params.moduleId);
+      
+      // Verificar se o módulo existe
+      const module = await storage.getModuleById(moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      // Verificar permissão de acesso
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário tem permissão para criar lições (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem criar lições" });
+      }
+      
+      // Validar dados da lição
+      const lessonData = insertLessonSchema.parse({
+        ...req.body,
+        moduleId
+      });
+      
+      // Criar a lição
+      const lesson = await storage.createLesson(lessonData);
+      res.status(201).json(lesson);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Atualizar uma lição existente
+  app.put("/api/lessons/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      
+      // Verificar se a lição existe
+      const lesson = await storage.getLessonById(lessonId);
+      if (!lesson) {
+        return res.status(404).json({ message: "Lição não encontrada" });
+      }
+      
+      // Verificar permissão de acesso
+      const module = await storage.getModuleById(lesson.moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário tem permissão para atualizar lições (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem atualizar lições" });
+      }
+      
+      // Permitir atualização parcial
+      const lessonData = insertLessonSchema.partial().parse(req.body);
+      
+      // Atualizar a lição
+      const updatedLesson = await storage.updateLesson(lessonId, lessonData);
+      res.json(updatedLesson);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Excluir uma lição
+  app.delete("/api/lessons/:id", isAuthenticated, async (req, res, next) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      
+      // Verificar se a lição existe
+      const lesson = await storage.getLessonById(lessonId);
+      if (!lesson) {
+        return res.status(404).json({ message: "Lição não encontrada" });
+      }
+      
+      // Verificar permissão de acesso
+      const module = await storage.getModuleById(lesson.moduleId);
+      if (!module) {
+        return res.status(404).json({ message: "Módulo não encontrado" });
+      }
+      
+      const subject = await storage.getSubjectById(module.subjectId);
+      if (!subject || subject.tenantId !== req.user?.tenantId) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+      
+      // Verificar se o usuário tem permissão para excluir lições (admin ou professor)
+      if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Apenas administradores e professores podem excluir lições" });
+      }
+      
+      // Excluir a lição
+      const success = await storage.deleteLesson(lessonId);
+      
+      if (success) {
+        res.status(200).json({ message: "Lição excluída com sucesso" });
+      } else {
+        res.status(500).json({ message: "Não foi possível excluir a lição" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Rotas para quizzes (simulados e avaliações)
+  app.use('/api/quizzes', quizRouter);
+  app.use('/api', questionRouter);
+  
   // Configurar pasta de uploads como estática
-  app.use('/uploads', express.static('uploads'));
+  // Usamos o path relativo para garantir que o Express encontrará os arquivos
+  // Como estamos usando ES modules, não podemos usar __dirname
+  const uploadsPath = path.resolve('./uploads');
+  console.log(`[DEBUG] Configurando pasta de uploads estáticos: ${uploadsPath}`);
+  app.use('/uploads', express.static(uploadsPath));
   
   // Rota de teste para envio de SMS (apenas para ambiente de desenvolvimento e admins)
   app.post('/api/admin/test-sms', isAuthenticated, async (req, res) => {

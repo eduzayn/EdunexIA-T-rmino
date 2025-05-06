@@ -16,6 +16,12 @@ import { SubjectsPage } from "@/pages/subjects-page";
 import { SubjectCreatePage } from "@/pages/subject-create-page";
 import { SubjectEditPage } from "@/pages/subject-edit-page";
 import { SubjectDetailsPage } from "@/pages/subject-details-page";
+import { SubjectModuleCreatePage } from "@/pages/subject-module-create-page";
+import { SubjectModuleEditPage } from "@/pages/subject-module-edit-page";
+import QuizCreatePage from "@/pages/quiz-create-page";
+import QuizEditPage from "@/pages/quiz-edit-page";
+import QuizQuestionsPage from "@/pages/quiz-questions-page";
+import QuizAddQuestionPage from "@/pages/quiz-add-question-page";
 import { ClassesPage } from "@/pages/classes-page";
 import { ClassCreatePage } from "@/pages/class-create-page";
 import { ClassEditPage } from "@/pages/class-edit-page";
@@ -91,7 +97,7 @@ function Router() {
       <ProtectedRoute path="/admin/courses" component={CoursesPage} />
       <ProtectedRoute path="/admin/courses/new" component={CourseCreatePage} />
       <ProtectedRoute path="/admin/courses/:id/edit" component={CourseEditPage} />
-      <ProtectedRoute path="/admin/courses/:id/modules/new" component={ModuleCreatePage} />
+      <ProtectedRoute path="/admin/courses/:courseId/modules/new" component={ModuleCreatePage} />
       <ProtectedRoute path="/admin/courses/:courseId/modules/:moduleId/edit" component={ModuleEditPage} />
       <ProtectedRoute path="/admin/courses/:id" component={CourseDetailsPage} />
       
@@ -100,6 +106,12 @@ function Router() {
       <ProtectedRoute path="/admin/subjects/new" component={SubjectCreatePage} />
       <ProtectedRoute path="/admin/subjects/:id/edit" component={SubjectEditPage} />
       <ProtectedRoute path="/admin/subjects/:id" component={SubjectDetailsPage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/modules/new" component={SubjectModuleCreatePage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/modules/:moduleId/edit" component={SubjectModuleEditPage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/new" component={QuizCreatePage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/:quizId/edit" component={QuizEditPage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/:quizId/questions" component={QuizQuestionsPage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/:quizId/questions/new" component={QuizAddQuestionPage} />
       
       {/* Rotas de Turmas */}
       <ProtectedRoute path="/admin/classes" component={ClassesPage} />

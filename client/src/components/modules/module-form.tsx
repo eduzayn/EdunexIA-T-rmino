@@ -42,11 +42,12 @@ type ModuleFormValues = z.infer<typeof moduleFormSchema>;
 interface ModuleFormProps {
   initialData?: Module;
   moduleId?: number;
-  courseId: number;
+  subjectId: number;
+  courseId?: number; // Usado apenas para navegação
   onCancel?: () => void;
 }
 
-export function ModuleForm({ initialData, moduleId, courseId, onCancel }: ModuleFormProps) {
+export function ModuleForm({ initialData, moduleId, subjectId, courseId, onCancel }: ModuleFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
@@ -56,7 +57,7 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
   const defaultValues: Partial<ModuleFormValues> = {
     title: initialData?.title || "",
     description: initialData?.description || "",
-    courseId: initialData?.courseId || courseId,
+    subjectId: initialData?.subjectId || subjectId,
     order: initialData?.order || undefined,
   };
 
@@ -78,7 +79,8 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
         title: "Módulo criado com sucesso",
         description: "O módulo foi criado e está disponível no curso.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] });
+      // Atualizar para usar a nova queryKey de módulos filtrada por curso
+      queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] });
       if (onCancel) {
         onCancel();
       } else {
@@ -105,8 +107,12 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
         title: "Módulo atualizado com sucesso",
         description: "As alterações foram salvas com sucesso.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'modules'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/modules', moduleId] });
+      // Atualizar para usar a nova queryKey de módulos filtrada por curso
+      queryClient.invalidateQueries({ queryKey: ['/api/modules', { courseId }] });
+      // Invalida também a consulta específica do módulo se necessário
+      if (moduleId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/modules', moduleId] });
+      }
       if (onCancel) {
         onCancel();
       } else {
@@ -205,7 +211,7 @@ export function ModuleForm({ initialData, moduleId, courseId, onCancel }: Module
               )}
             />
 
-            <input type="hidden" {...form.register("courseId")} />
+            <input type="hidden" {...form.register("subjectId")} />
 
             <div className="flex justify-between">
               <Button

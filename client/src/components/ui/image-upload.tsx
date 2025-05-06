@@ -30,7 +30,25 @@ export function ImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLocalPreviewUrl(previewUrl);
+    console.log("ImageUpload recebeu previewUrl:", previewUrl);
+    if (previewUrl) {
+      // Se a URL parece ser absoluta (começa com http ou /)
+      if (previewUrl.startsWith('http') || previewUrl.startsWith('/')) {
+        setLocalPreviewUrl(previewUrl);
+      } else if (previewUrl.startsWith('data:image/')) {
+        // Se é uma URL data de imagem
+        setLocalPreviewUrl(previewUrl);
+      } else if (previewUrl.trim() !== '') {
+        // Se não é uma URL absoluta mas existe conteúdo, tenta resolver como caminho relativo
+        const path = previewUrl.replace(/^\//, '');
+        setLocalPreviewUrl(`/${path}`);
+      } else {
+        // String vazia
+        setLocalPreviewUrl(undefined);
+      }
+    } else {
+      setLocalPreviewUrl(undefined);
+    }
   }, [previewUrl]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -130,10 +148,15 @@ export function ImageUpload({
       >
         {localPreviewUrl ? (
           <div className="relative w-full">
+            <div className="text-xs text-gray-500 mb-1">Preview URL: {localPreviewUrl?.substring(0, 50)}{localPreviewUrl && localPreviewUrl.length > 50 ? '...' : ''}</div>
             <img
               src={localPreviewUrl}
               alt="Preview"
               className="w-full h-auto rounded-lg object-cover"
+              onError={(e) => {
+                console.error("Erro ao carregar imagem:", localPreviewUrl);
+                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23cccccc' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'%3E%3C/circle%3E%3Cpolyline points='21 15 16 10 5 21'%3E%3C/polyline%3E%3C/svg%3E";
+              }}
             />
             <Button
               type="button"

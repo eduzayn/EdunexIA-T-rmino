@@ -1,9 +1,9 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { useParams, Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useParams, Link, useLocation } from "wouter";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/layout/app-shell";
-import { getQueryFn } from "@/lib/queryClient";
+import { getQueryFn, apiRequest } from "@/lib/queryClient";
 import { Course } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,10 +13,22 @@ import { formatCurrency } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModulesList } from "@/components/modules/modules-list";
+import { CourseDisciplinesList } from "@/components/disciplines/course-disciplines-list";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { 
-  AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
-  FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, Users 
+  AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, Trash2,
+  FileText, Globe, GraduationCap, LayoutDashboard, Loader2, Play, Share, Users 
 } from "lucide-react";
 
 export default function CourseDetailsPage() {
@@ -24,6 +36,43 @@ export default function CourseDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const courseId = parseInt(id);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
+  
+  // Função de navegação
+  const navigate = (path: string) => setLocation(path);
+  
+  // Mutação para excluir o curso
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("DELETE", `/api/courses/${courseId}`);
+      return res;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Curso excluído com sucesso",
+        description: "O curso foi removido permanentemente.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
+      navigate("/admin/courses");
+    },
+    onError: (error: Error) => {
+      // O backend previne exclusão de cursos com matrículas
+      if (error.message.includes("matrículas")) {
+        toast({
+          title: "Não foi possível excluir o curso",
+          description: "Este curso possui alunos matriculados e não pode ser excluído.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao excluir curso",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    },
+  });
 
   // Buscar detalhes do curso
   const {
@@ -34,21 +83,21 @@ export default function CourseDetailsPage() {
     queryKey: ['/api/courses', courseId],
     queryFn: getQueryFn({ on401: 'throw' }),
     onSuccess: (data) => {
-      console.log("Detalhes do curso:", data);
-      console.log("Código:", data?.code);
-      console.log("Data de criação:", data?.createdAt);
-      console.log("Área:", data?.area);
-      console.log("Categoria:", data?.courseCategory);
+      console.log("Dados do curso recebidos:", data);
     }
   });
 
-  // Buscar módulos do curso
+  // Buscar módulos do curso usando a nova API
   const {
     data: modules,
     isLoading: isLoadingModules
   } = useQuery<any[]>({
-    queryKey: ['/api/courses', courseId, 'modules'],
-    queryFn: getQueryFn({ on401: 'throw' }),
+    queryKey: ['/api/modules', { courseId }],
+    queryFn: async () => {
+      const response = await fetch(`/api/modules?courseId=${courseId}`);
+      if (!response.ok) throw new Error('Falha ao carregar módulos');
+      return response.json();
+    },
     // Não buscar se não tivermos o curso ainda
     enabled: !!course
   });
@@ -254,10 +303,9 @@ export default function CourseDetailsPage() {
             
             {/* Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-                <TabsTrigger value="curriculum">Currículo</TabsTrigger>
-                <TabsTrigger value="materials">Materiais</TabsTrigger>
+                <TabsTrigger value="disciplines">Disciplinas</TabsTrigger>
               </TabsList>
               
               {/* Aba de Visão Geral */}
@@ -327,31 +375,9 @@ export default function CourseDetailsPage() {
                 </div>
               </TabsContent>
               
-              {/* Aba de Currículo */}
-              <TabsContent value="curriculum" className="space-y-5 pt-4 px-1">
-                {courseId && <ModulesList courseId={courseId} />}
-              </TabsContent>
-              
-              {/* Aba de Materiais */}
-              <TabsContent value="materials" className="pt-4 px-1">
-                <div className="text-center py-8 border rounded-lg">
-                  <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-                  <h3 className="font-medium mb-1">Nenhum material disponível</h3>
-                  <p className="text-muted-foreground mb-4">Adicione materiais complementares para este curso.</p>
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      toast({
-                        title: "Função em desenvolvimento",
-                        description: "A funcionalidade de adicionar materiais será disponibilizada em breve.",
-                        variant: "default"
-                      });
-                    }}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1.5" />
-                    Adicionar Material
-                  </Button>
-                </div>
+              {/* Aba de Disciplinas */}
+              <TabsContent value="disciplines" className="space-y-5 pt-4 px-1">
+                {courseId && <CourseDisciplinesList courseId={courseId} />}
               </TabsContent>
             </Tabs>
           </div>
@@ -417,6 +443,42 @@ export default function CourseDetailsPage() {
                     Ir para Dashboard
                   </Link>
                 </Button>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10">
+                      <Trash2 className="h-4 w-4 mr-1.5" />
+                      Excluir Curso
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir curso</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja excluir o curso <strong>{course.title}</strong>?
+                        <br /><br />
+                        Esta ação não pode ser desfeita. Cursos com alunos matriculados não podem ser excluídos.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteMutation.mutate()}
+                        className="bg-destructive hover:bg-destructive/90"
+                        disabled={deleteMutation.isPending}
+                      >
+                        {deleteMutation.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Excluindo...
+                          </>
+                        ) : (
+                          'Sim, excluir curso'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </div>

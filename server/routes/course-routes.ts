@@ -50,14 +50,6 @@ courseRouter.get('/courses/:id', async (req: Request, res: Response, next: NextF
       return res.status(403).json({ error: 'Você não tem permissão para acessar este curso' });
     }
     
-    console.log('Detalhes do curso enviados para o cliente:', {
-      id: course.id,
-      code: course.code,
-      createdAt: course.createdAt,
-      area: course.area,
-      courseCategory: course.courseCategory
-    });
-    
     res.json(course);
   } catch (error) {
     console.error('Erro ao buscar curso:', error);
