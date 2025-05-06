@@ -94,7 +94,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
   // Mutation para adicionar disciplina ao curso
   const addDisciplineMutation = useMutation({
     mutationFn: async (subjectId: number) => {
-      return apiRequest('/api/courses/' + courseId + '/subjects', 'POST', { subjectId });
+      return apiRequest('POST', '/api/courses/' + courseId + '/subjects', { subjectId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'disciplines'] });
@@ -117,7 +117,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
   // Mutation para remover disciplina do curso
   const removeDisciplineMutation = useMutation({
     mutationFn: async (courseSubjectId: number) => {
-      return apiRequest('/api/courses/' + courseId + '/subjects/' + courseSubjectId, 'DELETE');
+      return apiRequest('DELETE', '/api/courses/' + courseId + '/subjects/' + courseSubjectId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/courses', courseId, 'disciplines'] });

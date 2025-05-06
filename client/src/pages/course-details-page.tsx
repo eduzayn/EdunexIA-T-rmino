@@ -252,10 +252,9 @@ export default function CourseDetailsPage() {
             
             {/* Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Visão Geral</TabsTrigger>
                 <TabsTrigger value="disciplines">Disciplinas</TabsTrigger>
-                <TabsTrigger value="curriculum">Currículo</TabsTrigger>
                 <TabsTrigger value="materials">Materiais</TabsTrigger>
               </TabsList>
               
