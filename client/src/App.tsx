@@ -18,6 +18,8 @@ import { SubjectEditPage } from "@/pages/subject-edit-page";
 import { SubjectDetailsPage } from "@/pages/subject-details-page";
 import { SubjectModuleCreatePage } from "@/pages/subject-module-create-page";
 import { SubjectModuleEditPage } from "@/pages/subject-module-edit-page";
+import QuizCreatePage from "@/pages/quiz-create-page";
+import QuizEditPage from "@/pages/quiz-edit-page";
 import { ClassesPage } from "@/pages/classes-page";
 import { ClassCreatePage } from "@/pages/class-create-page";
 import { ClassEditPage } from "@/pages/class-edit-page";
@@ -104,6 +106,7 @@ function Router() {
       <ProtectedRoute path="/admin/subjects/:id" component={SubjectDetailsPage} />
       <ProtectedRoute path="/admin/subjects/:subjectId/modules/new" component={SubjectModuleCreatePage} />
       <ProtectedRoute path="/admin/subjects/:subjectId/modules/:moduleId/edit" component={SubjectModuleEditPage} />
+      <ProtectedRoute path="/admin/subjects/:subjectId/quizzes/new" component={QuizCreatePage} />
       
       {/* Rotas de Turmas */}
       <ProtectedRoute path="/admin/classes" component={ClassesPage} />

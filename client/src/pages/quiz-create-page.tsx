@@ -4,9 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet';
-import { Container } from '@/components/container';
-import { PageHeader } from '@/components/page-header';
-import { Card, CardContent } from '@/components/ui/card';
+import { AppShell } from '@/components/layout/app-shell';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { QuizForm } from '@/components/quizzes/quiz-form';
 import { ArrowLeft } from 'lucide-react';
 
@@ -78,28 +78,42 @@ export default function QuizCreatePage() {
         </title>
       </Helmet>
       
-      <Container>
-        <PageHeader
-          title={quizType === 'practice' ? 'Novo Simulado' : 'Nova Avaliação Final'}
-          subtitle={quizType === 'practice'
-            ? 'Crie um simulado para prática dos alunos'
-            : 'Crie uma avaliação final para avaliar o aprendizado'
-          }
-          backLink={`/admin/subjects/${subjectId}`}
-          backLinkText="Voltar para a disciplina"
-          icon={<ArrowLeft className="h-5 w-5" />}
-        />
-        
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <QuizForm
-              quizType={quizType === 'final' ? 'final' : 'practice'}
-              onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
-            />
-          </CardContent>
-        </Card>
-      </Container>
+      <AppShell>
+        <div className="container mx-auto py-6">
+          <div className="flex items-center mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(`/admin/subjects/${subjectId}`)}
+              className="mr-2"
+            >
+              <ArrowLeft className="h-5 w-5 mr-1" />
+              Voltar para a disciplina
+            </Button>
+          </div>
+          
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold">
+              {quizType === 'practice' ? 'Novo Simulado' : 'Nova Avaliação Final'}
+            </h1>
+            <p className="text-gray-500 mt-1">
+              {quizType === 'practice'
+                ? 'Crie um simulado para prática dos alunos'
+                : 'Crie uma avaliação final para avaliar o aprendizado'
+              }
+            </p>
+          </div>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <QuizForm
+                quizType={quizType === 'final' ? 'final' : 'practice'}
+                onSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </AppShell>
     </>
   );
 }
