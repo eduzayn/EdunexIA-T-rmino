@@ -93,6 +93,9 @@ function Router() {
       }} />
       <Route path="/auth" component={AuthPage} />
       
+      {/* Rotas Públicas */}
+      <Route path="/courses/:id" component={dynamic(() => import('@/pages/public-course-view-page'))} />
+      
       {/* Rotas do Portal Administrativo */}
       <ProtectedRoute path="/admin/courses" component={CoursesPage} />
       <ProtectedRoute path="/admin/courses/new" component={CourseCreatePage} />
