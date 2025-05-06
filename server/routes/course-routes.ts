@@ -39,15 +39,11 @@ courseRouter.get('/courses/:id', async (req: Request, res: Response, next: NextF
       return res.status(400).json({ error: 'ID de curso inválido' });
     }
     
-    const course = await storage.getCourseById(courseId);
+    // Passa o tenantId para garantir isolamento entre tenants
+    const course = await storage.getCourseById(courseId, tenantId);
     
     if (!course) {
       return res.status(404).json({ error: 'Curso não encontrado' });
-    }
-    
-    // Verificar se o curso pertence ao tenant do usuário
-    if (course.tenantId !== tenantId) {
-      return res.status(403).json({ error: 'Você não tem permissão para acessar este curso' });
     }
     
     res.json(course);
@@ -122,16 +118,11 @@ courseRouter.put('/courses/:id', async (req: Request, res: Response, next: NextF
       return res.status(400).json({ error: 'ID de curso inválido' });
     }
     
-    // Verificar se o curso existe
-    const existingCourse = await storage.getCourseById(courseId);
+    // Verificar se o curso existe (já passando o tenantId para garantir isolamento)
+    const existingCourse = await storage.getCourseById(courseId, tenantId);
     
     if (!existingCourse) {
       return res.status(404).json({ error: 'Curso não encontrado' });
-    }
-    
-    // Verificar se o curso pertence ao tenant do usuário
-    if (existingCourse.tenantId !== tenantId) {
-      return res.status(403).json({ error: 'Você não tem permissão para editar este curso' });
     }
     
     // Validar e atualizar os dados do curso
@@ -170,18 +161,12 @@ courseRouter.get('/courses/:id/modules', async (req: Request, res: Response, nex
       return res.status(400).json({ error: 'ID de curso inválido' });
     }
     
-    // Verificar se o curso existe
-    const course = await storage.getCourseById(courseId);
+    // Verificar se o curso existe (passando tenantId para garantir isolamento)
+    const course = await storage.getCourseById(courseId, tenantId);
     
     if (!course) {
-      console.log(`[DEBUG] Curso ID ${courseId} não encontrado`);
+      console.log(`[DEBUG] Curso ID ${courseId} não encontrado para o tenant ${tenantId}`);
       return res.status(404).json({ error: 'Curso não encontrado' });
-    }
-    
-    // Verificar se o curso pertence ao tenant do usuário
-    if (course.tenantId !== tenantId) {
-      console.log(`[DEBUG] Acesso negado: Curso pertence ao tenant ${course.tenantId}, usuário é do tenant ${tenantId}`);
-      return res.status(403).json({ error: 'Você não tem permissão para acessar os módulos deste curso' });
     }
     
     // Buscar módulos do curso
@@ -215,16 +200,11 @@ courseRouter.delete('/courses/:id', async (req: Request, res: Response, next: Ne
       return res.status(403).json({ error: 'Apenas administradores podem excluir cursos' });
     }
     
-    // Verificar se o curso existe
-    const existingCourse = await storage.getCourseById(courseId);
+    // Verificar se o curso existe (passando tenantId para garantir isolamento)
+    const existingCourse = await storage.getCourseById(courseId, tenantId);
     
     if (!existingCourse) {
       return res.status(404).json({ error: 'Curso não encontrado' });
-    }
-    
-    // Verificar se o curso pertence ao tenant do usuário
-    if (existingCourse.tenantId !== tenantId) {
-      return res.status(403).json({ error: 'Você não tem permissão para excluir este curso' });
     }
     
     // Excluir o curso
