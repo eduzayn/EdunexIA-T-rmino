@@ -23,8 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
-import type { Subject } from '@shared/schema';
 
 // Estendendo o schema para validação do formulário
 const formSchema = insertClassSchema
@@ -52,18 +50,12 @@ interface ClassFormProps {
 
 export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormProps) {
   const { toast } = useToast();
-  
-  // Buscar disciplinas para o select
-  const { data: subjects = [] } = useQuery<Subject[]>({
-    queryKey: ['/api/subjects'],
-    refetchOnWindowFocus: false,
-  });
 
   // Valores padrão para o formulário
   const defaultFormValues: Partial<FormData> = {
     name: '',
     description: '',
-    subjectId: undefined,
+    subjectId: null, // Mantemos como null por compatibilidade, mas não exibimos no formulário
     code: '',
     startDate: null,
     endDate: null,
@@ -122,33 +114,7 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Disciplina (opcional) */}
-          <FormField
-            control={form.control}
-            name="subjectId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Disciplina (opcional)</FormLabel>
-                <Select
-                  onValueChange={(value) => field.onChange(value === "0" ? null : parseInt(value))}
-                  defaultValue={field.value?.toString() || "0"}
-                >
-                  <FormControl>
-                    <SelectValue placeholder="Selecione uma disciplina (opcional)" />
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="0">Nenhuma</SelectItem>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject.id} value={subject.id.toString()}>
-                        {subject.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
 
           {/* Nome da turma (obrigatório) */}
           <FormField
