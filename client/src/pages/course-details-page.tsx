@@ -13,6 +13,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModulesList } from "@/components/modules/modules-list";
+import { CourseDisciplinesList } from "@/components/disciplines/course-disciplines-list";
 import { useToast } from "@/hooks/use-toast";
 import { 
   AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
@@ -323,6 +324,11 @@ export default function CourseDetailsPage() {
                     </div>
                   </div>
                 </div>
+              </TabsContent>
+              
+              {/* Aba de Disciplinas */}
+              <TabsContent value="disciplines" className="space-y-5 pt-4 px-1">
+                {courseId && <CourseDisciplinesList courseId={courseId} />}
               </TabsContent>
               
               {/* Aba de Currículo */}
