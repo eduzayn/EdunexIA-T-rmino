@@ -15,34 +15,11 @@ export function SubjectEditPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { currentPortal } = usePortal();
-  
-  // Verificar se o ID é válido
-  const idNumber = parseInt(id);
-  const isValidId = !isNaN(idNumber) && idNumber > 0;
-  
-  // Redirecionar se o ID não for válido
-  React.useEffect(() => {
-    if (!isValidId) {
-      navigate(`${currentPortal.baseRoute}/subjects`);
-    }
-  }, [isValidId, navigate, currentPortal.baseRoute]);
 
-  // Interface para definir o tipo da disciplina
-  interface Subject {
-    id?: number;
-    title: string;
-    description?: string;
-    code?: string;
-    area?: string;
-    isActive?: boolean;
-    workload?: number;
-    [key: string]: any; // Para permitir outras propriedades
-  }
-  
   // Buscar detalhes da disciplina
-  const { data: subject, isLoading, error } = useQuery<Subject>({
+  const { data: subject, isLoading, error } = useQuery({
     queryKey: [`/api/subjects/${id}`],
-    enabled: !!id && isValidId,
+    enabled: !!id,
   });
 
   // Mutação para atualizar disciplina
@@ -69,12 +46,7 @@ export function SubjectEditPage() {
 
   // Handler para submissão do formulário
   const handleSubmit = (data: any) => {
-    // Adicionar o ID ao enviar para o servidor
-    const submitData = { 
-      ...data,
-      id: subject?.id 
-    };
-    updateMutation.mutate(submitData);
+    updateMutation.mutate(data);
   };
 
   if (isLoading) {
@@ -141,7 +113,7 @@ export function SubjectEditPage() {
         </Button>
 
         <div className="space-y-4">
-          <h1 className="text-2xl font-bold mb-6">Editar Disciplina: {subject?.title || ''}</h1>
+          <h1 className="text-2xl font-bold mb-6">Editar Disciplina: {subject.title}</h1>
           
           <div className="bg-white p-6 rounded-lg shadow">
             <SubjectForm 

@@ -13,24 +13,13 @@ export const courseImageRouter = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Pasta para armazenar as imagens dos cursos
-    // Como estamos usando ES modules, não podemos usar __dirname
-    const uploadDir = path.resolve('./uploads/courses');
+    const uploadDir = path.join(__dirname, '../../uploads/courses');
     
     // Criar a pasta se não existir
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
-      console.log(`[DEBUG] Pasta de uploads de cursos criada: ${uploadDir}`);
     }
     
-    // Verificar permissões da pasta
-    try {
-      fs.accessSync(uploadDir, fs.constants.W_OK);
-      console.log(`[DEBUG] Permissão de escrita confirmada para: ${uploadDir}`);
-    } catch (err) {
-      console.error(`[ERROR] Sem permissão de escrita para ${uploadDir}:`, err);
-    }
-    
-    console.log(`[DEBUG] Salvando imagem no diretório: ${uploadDir}`);
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -64,27 +53,9 @@ const upload = multer({
 
 // Função para obter URL pública para um arquivo
 function getPublicUrl(filepath: string): string {
-  try {
-    // Remove o caminho absoluto e mantém apenas o caminho relativo a uploads
-    const pathParts = filepath.split('uploads/');
-    if (pathParts.length < 2) {
-      console.error(`[ERROR] Erro ao extrair caminho relativo de: ${filepath}`);
-      return '/uploads/error-invalid-path';
-    }
-    
-    const relativePath = pathParts[1];
-    const publicUrl = `/uploads/${relativePath}`;
-    
-    console.log(`[DEBUG] Caminho do arquivo: ${filepath}`);
-    console.log(`[DEBUG] Caminho relativo extraído: ${relativePath}`);
-    console.log(`[DEBUG] URL pública gerada: ${publicUrl}`);
-    
-    return publicUrl;
-  } catch (error) {
-    console.error(`[ERROR] Erro ao processar caminho do arquivo: ${filepath}`, error);
-    // Retorna um caminho de fallback para evitar erros
-    return '/uploads/error-processing-path';
-  }
+  // Remove o caminho absoluto e mantém apenas o caminho relativo a uploads
+  const relativePath = filepath.split('uploads/')[1];
+  return `/uploads/${relativePath}`;
 }
 
 // Rota para upload de imagem de curso
@@ -154,7 +125,7 @@ courseImageRouter.delete('/:filename', async (req: Request, res: Response) => {
     }
     
     // Caminho completo do arquivo
-    const filePath = path.resolve('./uploads/courses', filename);
+    const filePath = path.join(__dirname, '../../uploads/courses', filename);
     
     // Verificar se o arquivo existe
     if (!fs.existsSync(filePath)) {

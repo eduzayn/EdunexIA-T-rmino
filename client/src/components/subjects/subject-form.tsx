@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 
 // Estendendo o schema para validação do formulário
 const formSchema = insertSubjectSchema
-  .omit({ tenantId: true, code: true }) // Remover campos que serão preenchidos pelo servidor
+  .omit({ tenantId: true }) // Remover campos que serão preenchidos pelo servidor
   .extend({
     title: z.string().min(3, {
       message: 'O nome da disciplina deve ter pelo menos 3 caracteres.',
