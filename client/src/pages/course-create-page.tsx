@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { CourseForm } from "@/components/courses/course-form";
+import { CourseFormFixed } from "@/components/courses/course-form-fixed";
 
 export default function CourseCreatePage() {
   return (

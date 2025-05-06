@@ -6,7 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, AlertTriangle, Loader2 } from "lucide-react";
-import { CourseForm } from "@/components/courses/course-form";
+import { CourseFormFixed } from "@/components/courses/course-form-fixed";
 import { getQueryFn } from "@/lib/queryClient";
 import { Course } from "@shared/schema";
 
@@ -83,7 +83,7 @@ export default function CourseEditPage() {
         </div>
         
         {/* Formulário */}
-        <CourseForm initialData={course} courseId={courseId} />
+        <CourseFormFixed initialData={course} courseId={courseId} />
       </div>
     </AppShell>
   );
