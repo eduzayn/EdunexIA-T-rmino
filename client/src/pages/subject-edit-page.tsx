@@ -27,15 +27,24 @@ export function SubjectEditPage() {
     }
   }, [isValidId, navigate, currentPortal.baseRoute]);
 
+  // Interface para definir o tipo da disciplina
+  interface Subject {
+    id: number;
+    title: string;
+    description?: string;
+    code?: string;
+    [key: string]: any; // Para permitir outras propriedades
+  }
+  
   // Buscar detalhes da disciplina
-  const { data: subject, isLoading, error } = useQuery({
+  const { data: subject, isLoading, error } = useQuery<Subject>({
     queryKey: [`/api/subjects/${id}`],
     enabled: !!id && isValidId,
   });
 
   // Mutação para atualizar disciplina
   const updateMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Subject) => {
       const response = await apiRequest('PUT', `/api/subjects/${id}`, data);
       return response;
     },
@@ -56,7 +65,7 @@ export function SubjectEditPage() {
   });
 
   // Handler para submissão do formulário
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: Subject) => {
     updateMutation.mutate(data);
   };
 
