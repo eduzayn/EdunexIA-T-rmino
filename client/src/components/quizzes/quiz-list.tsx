@@ -19,6 +19,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import type { Quiz } from '@shared/schema';
+
+// Interface estendida para o Quiz com a contagem de questões
+interface QuizWithQuestionCount extends Quiz {
+  questionCount?: number;
+}
 
 interface QuizListProps {
   subjectId: number;
@@ -31,7 +37,7 @@ export function QuizList({ subjectId, quizType }: QuizListProps) {
   const [, navigate] = useLocation();
   
   // Buscar quizzes da disciplina
-  const { data: quizzes = [], isLoading, error } = useQuery({
+  const { data: quizzes = [], isLoading, error } = useQuery<QuizWithQuestionCount[]>({
     queryKey: ['/api/quizzes', { subjectId, quizType }],
     queryFn: async () => {
       try {
