@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Pencil, Clock, BookOpen, CheckCircle, XCircle, Layers } from 'lucide-react';
+import { ArrowLeft, Pencil, Clock, BookOpen, CheckCircle, XCircle, Layers, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { usePortal } from '@/hooks/use-portal';
@@ -134,6 +134,8 @@ export function SubjectDetailsPage() {
             <TabsList>
               <TabsTrigger value="info">Informações</TabsTrigger>
               <TabsTrigger value="modules">Módulos</TabsTrigger>
+              <TabsTrigger value="practice">Simulados</TabsTrigger>
+              <TabsTrigger value="assessment">Avaliações Finais</TabsTrigger>
             </TabsList>
             
             <TabsContent value="info" className="mt-4">
@@ -205,6 +207,58 @@ export function SubjectDetailsPage() {
                 </CardHeader>
                 <CardContent>
                   <SubjectModulesList subjectId={parseInt(id)} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="practice" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <BookOpen className="w-5 h-5 mr-2" />
+                    Simulados
+                  </CardTitle>
+                  <CardDescription>
+                    Simulados para prática dos alunos durante o aprendizado dos módulos.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* Substituir pela lista de simulados quando implementada */}
+                  <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <BookOpen className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-medium mb-2">Nenhum simulado encontrado</h3>
+                    <p className="text-gray-500 mb-4">Esta disciplina ainda não possui simulados para prática.</p>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Criar simulado
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="assessment" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Avaliações Finais
+                  </CardTitle>
+                  <CardDescription>
+                    Avaliações para testar o conhecimento adquirido ao final da disciplina.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* Substituir pela lista de avaliações quando implementada */}
+                  <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <CheckCircle className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-medium mb-2">Nenhuma avaliação encontrada</h3>
+                    <p className="text-gray-500 mb-4">Esta disciplina ainda não possui avaliações finais.</p>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Criar avaliação final
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
