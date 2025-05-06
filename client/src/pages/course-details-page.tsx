@@ -34,7 +34,11 @@ export default function CourseDetailsPage() {
     queryKey: ['/api/courses', courseId],
     queryFn: getQueryFn({ on401: 'throw' }),
     onSuccess: (data) => {
-      console.log("Curso carregado:", JSON.stringify(data, null, 2));
+      console.log("Detalhes do curso:", data);
+      console.log("Código:", data?.code);
+      console.log("Data de criação:", data?.createdAt);
+      console.log("Área:", data?.area);
+      console.log("Categoria:", data?.courseCategory);
     }
   });
 

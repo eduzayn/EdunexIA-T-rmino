@@ -548,37 +548,6 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                   onImageRemove={() => setImageFile(null)}
                   helperText="Arraste uma imagem ou clique para fazer upload"
                 />
-                <div className="flex items-center gap-2 mt-2">
-                  <Button 
-                    type="button" 
-                    size="sm"
-                    disabled={!imageFile || isUploading}
-                    onClick={async () => {
-                      const imageUrl = await uploadImage();
-                      if (imageUrl) {
-                        form.setValue("imageUrl", imageUrl);
-                        toast({
-                          title: "Imagem enviada com sucesso",
-                          description: "A imagem foi armazenada e será vinculada ao curso.",
-                        });
-                      }
-                    }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Enviando...
-                      </>
-                    ) : (
-                      <>Enviar Imagem</>
-                    )}
-                  </Button>
-                  {uploadProgress > 0 && uploadProgress < 100 && (
-                    <div className="text-xs text-muted-foreground">
-                      {uploadProgress}%
-                    </div>
-                  )}
-                </div>
                 <p className="text-xs text-muted-foreground">
                   Recomendado: imagem 16:9 com pelo menos 1280x720 pixels
                 </p>
