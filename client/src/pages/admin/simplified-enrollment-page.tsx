@@ -737,9 +737,6 @@ export default function SimplifiedEnrollmentPage() {
                                                   className="text-sm font-medium flex-1"
                                                 >
                                                   <div>{classItem.name}</div>
-                                                  <div className="text-xs text-muted-foreground">
-                                                    Disciplina: {classItem.subjectName}
-                                                  </div>
                                                 </label>
                                               </div>
                                             ))}
