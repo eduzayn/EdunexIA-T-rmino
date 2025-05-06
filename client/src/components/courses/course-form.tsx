@@ -82,13 +82,16 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
     // Verificar se initialData é um objeto ou um array
     const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
     
+    console.log("Preparando valores defaultValues com dados:", courseData);
+    
     return {
       code: courseData?.code,
       title: courseData?.title || "",
       shortDescription: courseData?.shortDescription || "",
       description: courseData?.description || "",
-      area: courseData?.area || "",
-      courseCategory: courseData?.courseCategory || "",
+      // Não usar string vazia como valor padrão para área e categoria
+      area: courseData?.area === null ? "" : (courseData?.area || ""),
+      courseCategory: courseData?.courseCategory === null ? "" : (courseData?.courseCategory || ""),
       // Se tiver preço, converte de centavos para reais para exibição
       price: courseData?.price ? courseData.price / 100 : null,
       status: courseData?.status || "draft",
@@ -105,13 +108,16 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       // Verificar se initialData é um objeto ou um array
       const courseData = Array.isArray(initialData) ? initialData[0] : initialData;
       
+      console.log("Preparando valores iniciais para useForm com dados:", courseData);
+      
       return {
         code: courseData.code,
         title: courseData.title || "",
         shortDescription: courseData.shortDescription || "",
         description: courseData.description || "",
-        area: courseData.area || "",
-        courseCategory: courseData.courseCategory || "",
+        // Não usar string vazia como valor padrão para área e categoria
+        area: courseData.area === null ? "" : (courseData.area || ""),
+        courseCategory: courseData.courseCategory === null ? "" : (courseData.courseCategory || ""),
         price: courseData.price ? courseData.price / 100 : null,
         status: courseData.status || "draft",
         imageUrl: courseData.imageUrl || "",
@@ -270,9 +276,16 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
           description: "O upload da imagem foi concluído, mas a URL da imagem não foi retornada corretamente.",
           variant: "destructive",
         });
+        return null;
       }
       
-      return data.imageUrl;
+      // Verificar se a URL retornada é absoluta ou relativa
+      const imageUrl = data.imageUrl.startsWith('http') || data.imageUrl.startsWith('/') 
+        ? data.imageUrl 
+        : `/${data.imageUrl.replace(/^\//, '')}`;
+      
+      console.log("URL da imagem após processamento:", imageUrl);
+      return imageUrl;
     } catch (error: any) {
       console.error("Exceção no upload de imagem:", error);
       setIsUploading(false);
@@ -383,14 +396,17 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
       
       console.log("Dados iniciais recebidos, atualizando formulário:", courseData);
       
+      console.log("Atualizando form.reset com dados de curso:", courseData);
+      
       // Atualiza os valores do formulário com os dados iniciais
       form.reset({
         code: courseData.code,
         title: courseData.title || "",
         shortDescription: courseData.shortDescription || "",
         description: courseData.description || "",
-        area: courseData.area || "",
-        courseCategory: courseData.courseCategory || "",
+        // Não usar string vazia como valor padrão para área e categoria
+        area: courseData.area === null ? "" : (courseData.area || ""),
+        courseCategory: courseData.courseCategory === null ? "" : (courseData.courseCategory || ""),
         price: courseData.price ? courseData.price / 100 : null,
         status: courseData.status || "draft",
         imageUrl: courseData.imageUrl || "",
