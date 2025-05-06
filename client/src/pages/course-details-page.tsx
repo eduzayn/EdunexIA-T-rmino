@@ -32,7 +32,10 @@ export default function CourseDetailsPage() {
     error
   } = useQuery<Course>({
     queryKey: ['/api/courses', courseId],
-    queryFn: getQueryFn({ on401: 'throw' })
+    queryFn: getQueryFn({ on401: 'throw' }),
+    onSuccess: (data) => {
+      console.log("Curso carregado:", JSON.stringify(data, null, 2));
+    }
   });
 
   // Buscar módulos do curso
