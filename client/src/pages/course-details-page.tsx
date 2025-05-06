@@ -330,11 +330,6 @@ export default function CourseDetailsPage() {
                 {courseId && <CourseDisciplinesList courseId={courseId} />}
               </TabsContent>
               
-              {/* Aba de Currículo */}
-              <TabsContent value="curriculum" className="space-y-5 pt-4 px-1">
-                {courseId && <ModulesList courseId={courseId} />}
-              </TabsContent>
-              
               {/* Aba de Materiais */}
               <TabsContent value="materials" className="pt-4 px-1">
                 <div className="text-center py-8 border rounded-lg">
