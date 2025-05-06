@@ -3,8 +3,21 @@ import { z } from 'zod';
 import { db } from './db';
 import { questions, quizzes, insertQuestionSchema } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
-import { isAuthenticated } from './middleware/auth-middleware';
-import { isAdmin } from './middleware/role-middleware';
+// Importando o middleware de autenticação
+const isAuthenticated = (req: any, res: any, next: any) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Unauthorized" });
+};
+
+// Middleware para verificar se o usuário é admin
+const isAdmin = (req: any, res: any, next: any) => {
+  if (req.user?.role === 'admin') {
+    return next();
+  }
+  res.status(403).json({ message: "Forbidden: Admin access required" });
+};
 
 const router = express.Router();
 
@@ -83,7 +96,7 @@ router.post('/quizzes/:quizId/questions', isAuthenticated, isAdmin, async (req, 
     if (!questionData.order) {
       const lastQuestion = await db.query.questions.findFirst({
         where: eq(questions.quizId, parseInt(quizId)),
-        orderBy: [{ field: questions.order, direction: 'desc' }],
+        orderBy: questions.order,
       });
       
       questionData.order = lastQuestion ? lastQuestion.order + 1 : 1;
