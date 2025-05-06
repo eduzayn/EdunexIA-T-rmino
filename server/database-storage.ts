@@ -480,8 +480,11 @@ export class DatabaseStorage implements IStorage {
 
   async getCourseById(id: number, tenantId?: number): Promise<Course | undefined> {
     try {
+      console.log(`[database-storage] getCourseById - ID: ${id}, tenantId: ${tenantId}`);
+      
       // Se tenantId for fornecido, inclui na condição de busca para garantir isolamento entre tenants
       if (tenantId !== undefined) {
+        console.log(`[database-storage] getCourseById - Executando busca com filtro de tenant: ${tenantId}`);
         const [course] = await db.select().from(courses)
           .where(
             and(
@@ -489,14 +492,38 @@ export class DatabaseStorage implements IStorage {
               eq(courses.tenantId, tenantId)
             )
           );
+        
+        if (course) {
+          console.log(`[database-storage] getCourseById - Curso encontrado:`, { 
+            id: course.id, 
+            title: course.title, 
+            tenantId: course.tenantId 
+          });
+        } else {
+          console.log(`[database-storage] getCourseById - Nenhum curso encontrado para id ${id} e tenantId ${tenantId}`);
+        }
+        
         return course;
       } else {
-        // Comportamento original, usado em contextos onde o tenant não é relevante
+        // AVISO: Este comportamento só deve ser usado em contextos específicos onde o tenant não importa
+        // ou em casos excepcionais como administração do sistema
+        console.warn(`[database-storage] getCourseById - Chamada sem tenantId - POSSÍVEL FALHA DE ISOLAMENTO - ID: ${id}`);
         const [course] = await db.select().from(courses).where(eq(courses.id, id));
+        
+        if (course) {
+          console.log(`[database-storage] getCourseById - Curso encontrado (sem filtro de tenant):`, { 
+            id: course.id, 
+            title: course.title, 
+            tenantId: course.tenantId 
+          });
+        } else {
+          console.log(`[database-storage] getCourseById - Nenhum curso encontrado para id ${id}`);
+        }
+        
         return course;
       }
     } catch (error) {
-      console.error('Erro ao buscar curso por ID:', error);
+      console.error('[database-storage] Erro ao buscar curso por ID:', error);
       return undefined;
     }
   }

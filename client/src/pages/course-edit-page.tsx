@@ -22,7 +22,26 @@ export default function CourseEditPage() {
     error
   } = useQuery<Course>({
     queryKey: ['/api/courses', courseId],
-    queryFn: getQueryFn({ on401: 'throw' })
+    queryFn: async ({ queryKey }) => {
+      console.log(`[CourseEditPage] Buscando curso ID: ${courseId}`);
+      const url = `${queryKey[0]}/${queryKey[1]}`;
+      console.log(`[CourseEditPage] URL: ${url}`);
+      
+      const res = await fetch(url, {
+        credentials: "include",
+      });
+      
+      console.log(`[CourseEditPage] Status da resposta: ${res.status}`);
+      
+      if (!res.ok) {
+        console.error(`[CourseEditPage] Erro ao buscar curso: ${res.status} ${res.statusText}`);
+        throw new Error(`Erro ao buscar curso: ${res.status} ${res.statusText}`);
+      }
+      
+      const data = await res.json();
+      console.log(`[CourseEditPage] Dados do curso recebidos:`, data);
+      return data;
+    }
   });
 
   // Estado de carregamento

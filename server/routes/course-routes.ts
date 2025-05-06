@@ -31,20 +31,32 @@ courseRouter.get('/courses/:id', async (req: Request, res: Response, next: NextF
     const userId = req.user?.id;
     const tenantId = req.user?.tenantId;
     
+    console.log(`[SERVER] GET /courses/${courseId} - Usuário ID: ${userId}, Tenant ID: ${tenantId}`);
+    
     if (!userId || !tenantId) {
+      console.log(`[SERVER] GET /courses/${courseId} - Usuário não identificado`);
       return res.status(401).json({ error: 'Usuário não identificado' });
     }
     
     if (isNaN(courseId)) {
+      console.log(`[SERVER] GET /courses/${courseId} - ID de curso inválido`);
       return res.status(400).json({ error: 'ID de curso inválido' });
     }
     
     // Passa o tenantId para garantir isolamento entre tenants
+    console.log(`[SERVER] GET /courses/${courseId} - Buscando curso com tenantId: ${tenantId}`);
     const course = await storage.getCourseById(courseId, tenantId);
     
     if (!course) {
+      console.log(`[SERVER] GET /courses/${courseId} - Curso não encontrado`);
       return res.status(404).json({ error: 'Curso não encontrado' });
     }
+    
+    console.log(`[SERVER] GET /courses/${courseId} - Curso encontrado:`, {
+      id: course.id,
+      title: course.title,
+      tenantId: course.tenantId
+    });
     
     res.json(course);
   } catch (error) {
