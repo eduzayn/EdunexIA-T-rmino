@@ -89,9 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: `Bem-vindo(a), ${user.fullName}!`,
       });
       
-      // Programar um redirecionamento forçado após 500ms para garantir que as atualizações sejam aplicadas
+      // Usar a navegação do wouter em vez de window.location para evitar recarregar a página
       setTimeout(() => {
-        window.location.href = "/";
+        navigate("/");
       }, 500);
     },
     onError: (error: Error) => {
@@ -122,9 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: `Bem-vindo(a) ao Edunéxia, ${user.fullName}!`,
       });
       
-      // Programar um redirecionamento forçado após 500ms
+      // Usar a navegação do wouter em vez de window.location para evitar recarregar a página
       setTimeout(() => {
-        window.location.href = "/";
+        navigate("/");
       }, 500);
     },
     onError: (error: Error) => {
@@ -146,6 +146,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Logout realizado com sucesso",
         description: "Você foi desconectado do sistema.",
       });
+      // Redirecionar para a página de login após o logout
+      navigate("/auth");
     },
     onError: (error: Error) => {
       toast({
