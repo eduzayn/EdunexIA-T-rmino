@@ -2,7 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { db } from './db';
 import { storage } from './database-storage';
-import { quizzes, questions, modules } from '@shared/schema';
+import { quizzes, questions, modules, subjects } from '@shared/schema';
 import { requireAuth, requireTeacherOrAdmin } from './middleware/auth-middleware';
 import { eq, and, desc } from 'drizzle-orm';
 import type { Request, Response } from 'express';
@@ -150,39 +150,50 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     }
 
     // Buscar o primeiro módulo da disciplina se moduleId não for fornecido
-    let moduleId = validatedData.moduleId;
-    if (!moduleId) {
+    let moduleIdToUse: number;
+    
+    if (validatedData.moduleId) {
+      moduleIdToUse = validatedData.moduleId;
+    } else {
+      // Buscar o primeiro módulo da disciplina
       const subjectModules = await db
         .select()
         .from(modules)
         .where(eq(modules.subjectId, validatedData.subjectId))
         .limit(1);
       
-      if (subjectModules.length > 0) {
-        moduleId = subjectModules[0].id;
-      } else {
-        return res.status(400).json({ error: 'A disciplina não possui módulos. Adicione pelo menos um módulo antes de criar um simulado.' });
+      if (subjectModules.length === 0) {
+        return res.status(400).json({ 
+          error: 'A disciplina não possui módulos. Adicione pelo menos um módulo antes de criar um simulado.' 
+        });
       }
+      
+      moduleIdToUse = subjectModules[0].id;
     }
 
+    // Garantir valores padrão para quaisquer valores nulos/undefined
+    const quizValues = {
+      moduleId: moduleIdToUse,
+      subjectId: validatedData.subjectId,
+      title: validatedData.title,
+      description: validatedData.description || null,
+      instructions: validatedData.instructions || null,
+      timeLimit: validatedData.timeLimit,
+      passingScore: validatedData.passingScore,
+      isRequired: validatedData.isRequired,
+      isActive: validatedData.isActive,
+      allowRetake: validatedData.allowRetake,
+      maxAttempts: validatedData.maxAttempts || null,
+      shuffleQuestions: validatedData.shuffleQuestions,
+      showAnswers: validatedData.showAnswers,
+      quizType: validatedData.quizType,
+    };
+
+    console.log("Criando quiz com os valores:", quizValues);
+    
     const [newQuiz] = await db
       .insert(quizzes)
-      .values({
-        moduleId: moduleId,
-        subjectId: validatedData.subjectId,
-        title: validatedData.title,
-        description: validatedData.description,
-        instructions: validatedData.instructions,
-        timeLimit: validatedData.timeLimit,
-        passingScore: validatedData.passingScore,
-        isRequired: validatedData.isRequired,
-        isActive: validatedData.isActive,
-        allowRetake: validatedData.allowRetake,
-        maxAttempts: validatedData.maxAttempts,
-        shuffleQuestions: validatedData.shuffleQuestions,
-        showAnswers: validatedData.showAnswers,
-        quizType: validatedData.quizType,
-      })
+      .values(quizValues)
       .returning();
 
     return res.status(201).json(newQuiz);
@@ -206,40 +217,51 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     // Buscar o primeiro módulo da disciplina se moduleId não for fornecido
-    let moduleId = validatedData.moduleId;
-    if (!moduleId) {
+    let moduleIdToUse: number;
+    
+    if (validatedData.moduleId) {
+      moduleIdToUse = validatedData.moduleId;
+    } else {
+      // Buscar o primeiro módulo da disciplina
       const subjectModules = await db
         .select()
         .from(modules)
         .where(eq(modules.subjectId, validatedData.subjectId))
         .limit(1);
       
-      if (subjectModules.length > 0) {
-        moduleId = subjectModules[0].id;
-      } else {
-        return res.status(400).json({ error: 'A disciplina não possui módulos. Adicione pelo menos um módulo antes de criar um simulado.' });
+      if (subjectModules.length === 0) {
+        return res.status(400).json({ 
+          error: 'A disciplina não possui módulos. Adicione pelo menos um módulo antes de atualizar o simulado.' 
+        });
       }
+      
+      moduleIdToUse = subjectModules[0].id;
     }
 
+    // Garantir valores padrão para quaisquer valores nulos/undefined
+    const quizValues = {
+      moduleId: moduleIdToUse,
+      subjectId: validatedData.subjectId,
+      title: validatedData.title,
+      description: validatedData.description || null,
+      instructions: validatedData.instructions || null,
+      timeLimit: validatedData.timeLimit,
+      passingScore: validatedData.passingScore,
+      isRequired: validatedData.isRequired,
+      isActive: validatedData.isActive,
+      allowRetake: validatedData.allowRetake,
+      maxAttempts: validatedData.maxAttempts || null,
+      shuffleQuestions: validatedData.shuffleQuestions,
+      showAnswers: validatedData.showAnswers,
+      quizType: validatedData.quizType,
+      updatedAt: new Date(),
+    };
+
+    console.log("Atualizando quiz com os valores:", quizValues);
+    
     const [updatedQuiz] = await db
       .update(quizzes)
-      .set({
-        moduleId: moduleId,
-        subjectId: validatedData.subjectId,
-        title: validatedData.title,
-        description: validatedData.description,
-        instructions: validatedData.instructions,
-        timeLimit: validatedData.timeLimit,
-        passingScore: validatedData.passingScore,
-        isRequired: validatedData.isRequired,
-        isActive: validatedData.isActive,
-        allowRetake: validatedData.allowRetake,
-        maxAttempts: validatedData.maxAttempts,
-        shuffleQuestions: validatedData.shuffleQuestions,
-        showAnswers: validatedData.showAnswers,
-        quizType: validatedData.quizType,
-        updatedAt: new Date(),
-      })
+      .set(quizValues)
       .where(eq(quizzes.id, quizId))
       .returning();
 

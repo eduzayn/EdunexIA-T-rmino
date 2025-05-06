@@ -171,16 +171,16 @@ export default function QuizEditPage() {
                 quizType={quiz.quizType as 'practice' | 'final'}
                 defaultValues={{
                   title: quiz.title,
-                  description: quiz.description || undefined,
-                  instructions: quiz.instructions || undefined,
+                  description: quiz.description || '',
+                  instructions: quiz.instructions || '',
                   timeLimit: quiz.timeLimit || 30,
                   passingScore: quiz.passingScore || 70,
-                  isRequired: quiz.isRequired,
-                  isActive: quiz.isActive,
-                  allowRetake: quiz.allowRetake,
+                  isRequired: quiz.isRequired === null ? false : Boolean(quiz.isRequired),
+                  isActive: quiz.isActive === null ? true : Boolean(quiz.isActive),
+                  allowRetake: quiz.allowRetake === null ? true : Boolean(quiz.allowRetake),
                   maxAttempts: quiz.maxAttempts || undefined,
-                  shuffleQuestions: quiz.shuffleQuestions,
-                  showAnswers: quiz.showAnswers,
+                  shuffleQuestions: quiz.shuffleQuestions === null ? false : Boolean(quiz.shuffleQuestions),
+                  showAnswers: quiz.showAnswers === null ? true : Boolean(quiz.showAnswers),
                   quizType: quiz.quizType as 'practice' | 'final'
                 }}
                 onSubmit={handleSubmit}

@@ -58,21 +58,33 @@ interface QuizFormProps {
 }
 
 export function QuizForm({ defaultValues, quizType, onSubmit, isSubmitting = false }: QuizFormProps) {
-  // Valores padrão com base no tipo
+  // Valores padrão completos para o formulário
   const typeBasedDefaults = {
     practice: {
+      title: '',
+      description: '',
+      instructions: '',
       timeLimit: 30,
       passingScore: 70,
       isRequired: false,
+      isActive: true,
       allowRetake: true,
+      maxAttempts: undefined,
+      shuffleQuestions: false,
       showAnswers: true,
       quizType: 'practice' as const,
     },
     final: {
+      title: '',
+      description: '',
+      instructions: '',
       timeLimit: 60,
       passingScore: 70,
       isRequired: true,
+      isActive: true,
       allowRetake: false,
+      maxAttempts: undefined,
+      shuffleQuestions: false,
       showAnswers: false,
       quizType: 'final' as const,
     }
@@ -81,7 +93,7 @@ export function QuizForm({ defaultValues, quizType, onSubmit, isSubmitting = fal
   // Mesclar valores padrão específicos do tipo com valores padrão fornecidos
   const mergedDefaults = {
     ...typeBasedDefaults[quizType],
-    ...defaultValues,
+    ...(defaultValues || {}),
   };
 
   // Formulário
