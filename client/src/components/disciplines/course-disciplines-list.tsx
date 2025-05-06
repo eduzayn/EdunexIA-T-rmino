@@ -242,7 +242,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                     availableSubjects
                       // Filtra disciplinas que já estão no curso
                       .filter(subject => 
-                        !courseDisciplines?.some(cd => cd.subject.id === subject.id)
+                        !courseDisciplines?.some(cd => cd.subjectId === subject.id)
                       )
                       .map(subject => (
                         <SelectItem key={subject.id} value={subject.id.toString()}>
@@ -308,13 +308,13 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                       </Button>
                       <div>
                         <CardTitle className="text-base font-medium flex items-center">
-                          {courseDiscipline.subject.title}
+                          {courseDiscipline.title}
                           <Badge variant="outline" className="ml-2 text-xs">
-                            {courseDiscipline.subject.code}
+                            {courseDiscipline.code}
                           </Badge>
                         </CardTitle>
                         <CardDescription className="text-sm">
-                          {courseDiscipline.subject.description || "Sem descrição"}
+                          {courseDiscipline.description || "Sem descrição"}
                         </CardDescription>
                       </div>
                     </div>
@@ -355,7 +355,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                             className="mt-1" 
                             asChild
                           >
-                            <Link href={`/admin/subjects/${courseDiscipline.subject.id}/modules/new`}>
+                            <Link href={`/admin/subjects/${courseDiscipline.id}/modules/new`}>
                               Adicionar Módulo
                             </Link>
                           </Button>
