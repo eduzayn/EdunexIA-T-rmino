@@ -359,6 +359,7 @@ export const aiGeneratedContent = pgTable('ai_generated_content', {
 export const quizzes = pgTable('quizzes', {
   id: serial('id').primaryKey(),
   moduleId: integer('module_id').references(() => modules.id, { onDelete: 'cascade' }).notNull(),
+  subjectId: integer('subject_id').references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
   description: text('description'),
   instructions: text('instructions'),
@@ -656,6 +657,10 @@ export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
   module: one(modules, {
     fields: [quizzes.moduleId],
     references: [modules.id],
+  }),
+  subject: one(subjects, {
+    fields: [quizzes.subjectId],
+    references: [subjects.id],
   }),
   questions: many(questions),
 }));
