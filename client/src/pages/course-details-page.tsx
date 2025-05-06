@@ -81,7 +81,10 @@ export default function CourseDetailsPage() {
     error
   } = useQuery<Course>({
     queryKey: ['/api/courses', courseId],
-    queryFn: getQueryFn({ on401: 'throw' })
+    queryFn: getQueryFn({ on401: 'throw' }),
+    onSuccess: (data) => {
+      console.log("Dados do curso recebidos:", data);
+    }
   });
 
   // Buscar módulos do curso usando a nova API
