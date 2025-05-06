@@ -228,9 +228,15 @@ courseRouter.delete('/courses/:id', async (req: Request, res: Response, next: Ne
     }
     
     // Excluir o curso
-    await storage.deleteCourse(courseId);
+    const deleted = await storage.deleteCourse(courseId);
     
-    res.status(204).end();
+    if (deleted) {
+      // Curso excluído com sucesso
+      res.status(204).end();
+    } else {
+      // Não foi possível excluir o curso (provavelmente tem matrículas)
+      res.status(400).json({ error: 'Não foi possível excluir o curso. Verifique se ele possui matrículas ativas.' });
+    }
   } catch (error) {
     console.error('Erro ao excluir curso:', error);
     next(error);
