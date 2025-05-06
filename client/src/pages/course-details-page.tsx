@@ -1,9 +1,9 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { useParams, Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useParams, Link, useLocation } from "wouter";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/layout/app-shell";
-import { getQueryFn } from "@/lib/queryClient";
+import { getQueryFn, apiRequest } from "@/lib/queryClient";
 import { Course } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,8 +15,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ModulesList } from "@/components/modules/modules-list";
 import { CourseDisciplinesList } from "@/components/disciplines/course-disciplines-list";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { 
-  AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, 
+  AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, Edit, ExternalLink, Trash2,
   FileText, Globe, GraduationCap, LayoutDashboard, Play, Share, Users 
 } from "lucide-react";
 
@@ -25,6 +36,43 @@ export default function CourseDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const courseId = parseInt(id);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
+  
+  // Função de navegação
+  const navigate = (path: string) => setLocation(path);
+  
+  // Mutação para excluir o curso
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("DELETE", `/api/courses/${courseId}`);
+      return res;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Curso excluído com sucesso",
+        description: "O curso foi removido permanentemente.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
+      navigate("/admin/courses");
+    },
+    onError: (error: Error) => {
+      // O backend previne exclusão de cursos com matrículas
+      if (error.message.includes("matrículas")) {
+        toast({
+          title: "Não foi possível excluir o curso",
+          description: "Este curso possui alunos matriculados e não pode ser excluído.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao excluir curso",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    },
+  });
 
   // Buscar detalhes do curso
   const {
