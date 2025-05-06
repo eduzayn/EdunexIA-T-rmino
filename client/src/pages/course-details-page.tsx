@@ -81,7 +81,23 @@ export default function CourseDetailsPage() {
     error
   } = useQuery<Course>({
     queryKey: ['/api/courses', courseId],
-    queryFn: getQueryFn({ on401: 'throw' }),
+    queryFn: async ({ queryKey }) => {
+      const url = `${queryKey[0]}/${queryKey[1]}`;
+      const response = await fetch(url, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar curso: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log("Dados do curso recebidos:", data);
+      return data;
+    },
     onSuccess: (data) => {
       console.log("Dados do curso recebidos:", data);
     }

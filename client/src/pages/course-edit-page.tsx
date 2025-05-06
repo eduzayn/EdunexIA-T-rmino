@@ -29,6 +29,9 @@ export default function CourseEditPage() {
       
       const res = await fetch(url, {
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        }
       });
       
       console.log(`[CourseEditPage] Status da resposta: ${res.status}`);

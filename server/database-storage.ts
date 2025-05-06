@@ -2321,7 +2321,7 @@ export class DatabaseStorage implements IStorage {
         
         try {
           // Buscar dados do curso
-          const course = await this.getCourseById(contract.courseId);
+          const course = await this.getCourseById(contract.courseId, contract.tenantId);
           if (course) {
             courseName = course.title;
           }
