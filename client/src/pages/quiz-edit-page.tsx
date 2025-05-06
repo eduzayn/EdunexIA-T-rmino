@@ -8,7 +8,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { QuizForm } from '@/components/quizzes/quiz-form';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, List, PlusCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Quiz } from '@shared/schema';
 
@@ -153,16 +153,33 @@ export default function QuizEditPage() {
             </Button>
           </div>
           
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold">
-              {quiz.quizType === 'practice' ? 'Editar Simulado' : 'Editar Avaliação Final'}
-            </h1>
-            <p className="text-gray-500 mt-1">
-              {quiz.quizType === 'practice'
-                ? 'Atualize as informações do simulado'
-                : 'Atualize as informações da avaliação final'
-              }
-            </p>
+          <div className="mb-6 flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold">
+                {quiz.quizType === 'practice' ? 'Editar Simulado' : 'Editar Avaliação Final'}
+              </h1>
+              <p className="text-gray-500 mt-1">
+                {quiz.quizType === 'practice'
+                  ? 'Atualize as informações do simulado'
+                  : 'Atualize as informações da avaliação final'
+                }
+              </p>
+            </div>
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline"
+                onClick={() => navigate(`/admin/subjects/${subjectId}/quizzes/${quizId}/questions`)}
+              >
+                <List className="h-5 w-5 mr-1" />
+                Gerenciar Questões
+              </Button>
+              <Button 
+                onClick={() => navigate(`/admin/subjects/${subjectId}/quizzes/${quizId}/questions/new`)}
+              >
+                <PlusCircle className="h-5 w-5 mr-1" />
+                Adicionar Questão
+              </Button>
+            </div>
           </div>
           
           <Card>

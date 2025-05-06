@@ -21,6 +21,7 @@ import { SubjectModuleEditPage } from "@/pages/subject-module-edit-page";
 import QuizCreatePage from "@/pages/quiz-create-page";
 import QuizEditPage from "@/pages/quiz-edit-page";
 import QuizQuestionsPage from "@/pages/quiz-questions-page";
+import QuizAddQuestionPage from "@/pages/quiz-add-question-page";
 import { ClassesPage } from "@/pages/classes-page";
 import { ClassCreatePage } from "@/pages/class-create-page";
 import { ClassEditPage } from "@/pages/class-edit-page";
