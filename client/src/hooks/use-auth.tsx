@@ -7,6 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 type LoginData = Pick<InsertUser, "username" | "password">;
 
@@ -30,6 +31,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   console.log("AuthProvider - Inicializando");
   
   // Verificar o usuário atual
