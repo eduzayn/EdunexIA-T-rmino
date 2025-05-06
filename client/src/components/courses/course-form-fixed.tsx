@@ -107,29 +107,52 @@ export function CourseFormFixed({ initialData, courseId }: CourseFormProps) {
       
       // Timeout para garantir que o formulário está totalmente inicializado
       setTimeout(() => {
-        // Definimos cada campo individualmente para garantir que são atualizados corretamente
-        form.setValue("code", courseData.code);
-        form.setValue("title", courseData.title || "");
-        form.setValue("shortDescription", courseData.shortDescription || "");
-        form.setValue("description", courseData.description || "");
+        try {
+          // Definimos cada campo individualmente para garantir que são atualizados corretamente
+          if (courseData.code) {
+            form.setValue("code", courseData.code);
+          }
+          
+          form.setValue("title", courseData.title || "");
+          form.setValue("shortDescription", courseData.shortDescription || "");
+          form.setValue("description", courseData.description || "");
 
-        // Para os selects, usamos setValue com valor ou undefined (nunca string vazia)
-        form.setValue("area", courseData.area || undefined);
-        form.setValue("courseCategory", courseData.courseCategory || undefined);
-        
-        // Preço: converter de centavos para reais se existir
-        form.setValue("price", courseData.price ? courseData.price / 100 : null);
-        
-        // Status e imagem
-        form.setValue("status", courseData.status || "draft");
-        form.setValue("imageUrl", courseData.imageUrl || "");
-        
-        if (courseData.tenantId) {
-          form.setValue("tenantId", courseData.tenantId);
+          // Para os selects, garantimos que há um valor adequado e não apenas uma string vazia
+          if (courseData.area) {
+            form.setValue("area", courseData.area);
+          }
+          
+          if (courseData.courseCategory) {
+            form.setValue("courseCategory", courseData.courseCategory);
+          }
+          
+          // Preço: converter de centavos para reais se existir
+          if (courseData.price !== undefined && courseData.price !== null) {
+            form.setValue("price", courseData.price / 100);
+          } else {
+            form.setValue("price", null);
+          }
+          
+          // Status e imagem
+          if (courseData.status) {
+            form.setValue("status", courseData.status);
+          } else {
+            form.setValue("status", "draft");
+          }
+          
+          if (courseData.imageUrl) {
+            form.setValue("imageUrl", courseData.imageUrl);
+          }
+          
+          if (courseData.tenantId) {
+            form.setValue("tenantId", courseData.tenantId);
+          }
+          
+          // Log dos valores definidos para debugging
+          console.log("[CourseFormFixed] Valores definidos no formulário:", form.getValues());
+        } catch (error) {
+          console.error("[CourseFormFixed] Erro ao definir valores do formulário:", error);
         }
-        
-        // Log dos valores definidos
-        console.log("[CourseFormFixed] Valores definidos no formulário:", form.getValues());
       }, 100);
     }
   }, [courseData, form]);
@@ -339,7 +362,8 @@ export function CourseFormFixed({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Área</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      value={field.value !== null && field.value !== undefined ? field.value : ""}
+                      defaultValue={courseData?.area || ""}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -371,7 +395,8 @@ export function CourseFormFixed({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Categoria</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      value={field.value !== null && field.value !== undefined ? field.value : ""}
+                      defaultValue={courseData?.courseCategory || ""}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -470,7 +495,8 @@ export function CourseFormFixed({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      value={field.value !== null && field.value !== undefined ? field.value : ""}
+                      defaultValue={courseData?.status || "draft"}
                     >
                       <FormControl>
                         <SelectTrigger>
