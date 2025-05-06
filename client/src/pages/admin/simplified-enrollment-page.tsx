@@ -320,12 +320,31 @@ export default function SimplifiedEnrollmentPage() {
         const classesResponse = await fetch(`/api/classes?subjectId=${subject.id}`);
         if (classesResponse.ok) {
           const subjectClasses = await classesResponse.json();
-          // Adiciona o nome da disciplina em cada turma para melhor exibição
-          const classesWithSubject = subjectClasses.map((c: any) => ({
-            ...c,
-            subjectName: subject.title
-          }));
-          allClasses = [...allClasses, ...classesWithSubject];
+          // Adiciona o nome da disciplina e processa o período acadêmico
+          // Formato do período será extraído da data de início da turma, ex: "01/2025"
+          const classesWithPeriod = subjectClasses.map((c: any) => {
+            // Extrair o período a partir da data de início (startDate)
+            let period = "Período não definido";
+            if (c.startDate) {
+              try {
+                const startDate = new Date(c.startDate);
+                const month = startDate.getMonth() + 1; // getMonth() retorna 0-11
+                const year = startDate.getFullYear();
+                // Formatar como semestre - para os primeiros 6 meses é 01/ANO, para os últimos é 02/ANO
+                const semester = month <= 6 ? "01" : "02";
+                period = `${semester}/${year}`;
+              } catch (e) {
+                console.error("Erro ao processar data da turma:", e);
+              }
+            }
+            
+            return {
+              ...c,
+              subjectName: subject.title,
+              period: period
+            };
+          });
+          allClasses = [...allClasses, ...classesWithPeriod];
         }
       }
       
@@ -675,39 +694,59 @@ export default function SimplifiedEnrollmentPage() {
                                       Não foram encontradas turmas para este curso
                                     </div>
                                   ) : (
-                                    <div className="space-y-1.5">
-                                      {availableClasses.map((classItem) => (
-                                        <div 
-                                          key={classItem.id} 
-                                          className="flex items-center space-x-2 border p-2 rounded-md hover:bg-muted/50"
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            id={`class-${classItem.id}`}
-                                            className="h-4 w-4 rounded border-gray-300"
-                                            value={classItem.id}
-                                            checked={(field.value || []).includes(classItem.id.toString())}
-                                            onChange={(e) => {
-                                              const value = classItem.id.toString();
-                                              const currentValues = field.value || [];
-                                              const newValues = e.target.checked
-                                                ? [...currentValues, value]
-                                                : currentValues.filter(v => v !== value);
-                                              field.onChange(newValues);
-                                            }}
-                                          />
-                                          <label 
-                                            htmlFor={`class-${classItem.id}`}
-                                            className="text-sm font-medium flex-1"
-                                          >
-                                            <div>{classItem.name}</div>
-                                            <div className="text-xs text-muted-foreground">
-                                              Disciplina: {classItem.subjectName}
-                                            </div>
-                                          </label>
+                                    <>
+                                      {/* Agrupar turmas por período */}
+                                      {Object.entries(
+                                        // Agrupamento por período
+                                        availableClasses.reduce((acc: any, classItem: any) => {
+                                          const period = classItem.period || "Período não definido";
+                                          if (!acc[period]) {
+                                            acc[period] = [];
+                                          }
+                                          acc[period].push(classItem);
+                                          return acc;
+                                        }, {})
+                                      ).map(([period, classes]: [string, any]) => (
+                                        <div key={period} className="mb-3">
+                                          <div className="text-sm font-semibold bg-muted p-2 rounded-t-md">
+                                            Período: {period}
+                                          </div>
+                                          <div className="space-y-1.5 border-x border-b rounded-b-md p-1">
+                                            {classes.map((classItem: any) => (
+                                              <div 
+                                                key={classItem.id} 
+                                                className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50"
+                                              >
+                                                <input
+                                                  type="checkbox"
+                                                  id={`class-${classItem.id}`}
+                                                  className="h-4 w-4 rounded border-gray-300"
+                                                  value={classItem.id}
+                                                  checked={(field.value || []).includes(classItem.id.toString())}
+                                                  onChange={(e) => {
+                                                    const value = classItem.id.toString();
+                                                    const currentValues = field.value || [];
+                                                    const newValues = e.target.checked
+                                                      ? [...currentValues, value]
+                                                      : currentValues.filter(v => v !== value);
+                                                    field.onChange(newValues);
+                                                  }}
+                                                />
+                                                <label 
+                                                  htmlFor={`class-${classItem.id}`}
+                                                  className="text-sm font-medium flex-1"
+                                                >
+                                                  <div>{classItem.name}</div>
+                                                  <div className="text-xs text-muted-foreground">
+                                                    Disciplina: {classItem.subjectName}
+                                                  </div>
+                                                </label>
+                                              </div>
+                                            ))}
+                                          </div>
                                         </div>
                                       ))}
-                                    </div>
+                                    </>
                                   )}
                                 </div>
                                 <FormDescription>
