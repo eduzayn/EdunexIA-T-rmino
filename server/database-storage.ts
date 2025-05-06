@@ -1093,13 +1093,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Gera um código único para a turma dentro de um tenant
-  private async generateUniqueClassCode(tenantId: number, subjectId: number): Promise<string> {
+  private async generateUniqueClassCode(tenantId: number, subjectId?: number | null): Promise<string> {
     try {
-      // Buscar a disciplina para usar seu título como base para o código
-      const [subject] = await db.select().from(subjects).where(eq(subjects.id, subjectId));
+      let prefix = 'XX'; // Prefixo padrão para quando não há disciplina
       
-      // Pegar as duas primeiras letras do título da disciplina (ou 'XX' se não existir)
-      const prefix = subject?.title ? subject.title.slice(0, 2).toUpperCase() : 'XX';
+      // Buscar a disciplina para usar seu título como base para o código (se houver subjectId)
+      if (subjectId) {
+        const [subject] = await db.select().from(subjects).where(eq(subjects.id, subjectId));
+        // Pegar as duas primeiras letras do título da disciplina (ou manter 'XX' se não existir)
+        if (subject?.title) {
+          prefix = subject.title.slice(0, 2).toUpperCase();
+        }
+      }
       
       // Buscar o maior número de sequência para esse prefixo
       const result = await db
@@ -1137,7 +1142,7 @@ export class DatabaseStorage implements IStorage {
   async createClass(classData: InsertClass): Promise<Class> {
     try {
       // Gerar um código único para a turma se não for fornecido
-      const classCode = classData.code || await this.generateUniqueClassCode(classData.tenantId, classData.subjectId);
+      const classCode = classData.code || await this.generateUniqueClassCode(classData.tenantId, classData.subjectId || null);
       
       const [newClass] = await db.insert(classes).values({
         ...classData,

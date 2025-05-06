@@ -834,14 +834,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tenantId: req.user.tenantId || 1
       });
 
-      // Verificar se a disciplina existe e pertence ao tenant
-      const subject = await storage.getSubjectById(classData.subjectId);
-      if (!subject) {
-        return res.status(404).json({ message: "Disciplina não encontrada" });
-      }
-      
-      if (subject.tenantId !== req.user.tenantId) {
-        return res.status(403).json({ message: "Você não tem permissão para criar turmas para esta disciplina" });
+      // Verificar se a disciplina existe e pertence ao tenant (se foi especificada)
+      if (classData.subjectId) {
+        const subject = await storage.getSubjectById(classData.subjectId);
+        if (!subject) {
+          return res.status(404).json({ message: "Disciplina não encontrada" });
+        }
+        
+        if (subject.tenantId !== req.user.tenantId) {
+          return res.status(403).json({ message: "Você não tem permissão para criar turmas para esta disciplina" });
+        }
       }
 
       const newClass = await storage.createClass(classData);
