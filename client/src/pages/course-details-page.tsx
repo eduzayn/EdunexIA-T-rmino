@@ -252,10 +252,9 @@ export default function CourseDetailsPage() {
             
             {/* Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="overview">Visão Geral</TabsTrigger>
                 <TabsTrigger value="disciplines">Disciplinas</TabsTrigger>
-                <TabsTrigger value="materials">Materiais</TabsTrigger>
               </TabsList>
               
               {/* Aba de Visão Geral */}
@@ -328,28 +327,6 @@ export default function CourseDetailsPage() {
               {/* Aba de Disciplinas */}
               <TabsContent value="disciplines" className="space-y-5 pt-4 px-1">
                 {courseId && <CourseDisciplinesList courseId={courseId} />}
-              </TabsContent>
-              
-              {/* Aba de Materiais */}
-              <TabsContent value="materials" className="pt-4 px-1">
-                <div className="text-center py-8 border rounded-lg">
-                  <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-                  <h3 className="font-medium mb-1">Nenhum material disponível</h3>
-                  <p className="text-muted-foreground mb-4">Adicione materiais complementares para este curso.</p>
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      toast({
-                        title: "Função em desenvolvimento",
-                        description: "A funcionalidade de adicionar materiais será disponibilizada em breve.",
-                        variant: "default"
-                      });
-                    }}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1.5" />
-                    Adicionar Material
-                  </Button>
-                </div>
               </TabsContent>
             </Tabs>
           </div>
