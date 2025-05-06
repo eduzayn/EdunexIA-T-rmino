@@ -25,9 +25,10 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Edit, File, Trash2, Video, BookOpen, Plus, Play } from 'lucide-react';
-// Importando componente de prévia de vídeo
+import { Edit, File, Trash2, Video, BookOpen, Plus, Play, ExternalLink } from 'lucide-react';
+// Importando componentes de prévia
 import { VideoPreview } from './video-preview';
+import { DocumentPreview } from './document-preview';
 // Vamos importar dinamicamente para evitar problemas de referência circular
 // Componente importado dinamicamente
 const LessonFormComponent = React.lazy(() => import('./lesson-form'));
@@ -44,6 +45,7 @@ export function LessonsList({ moduleId, subjectId }: LessonsListProps) {
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<string>('video');
   const [expandedVideoId, setExpandedVideoId] = useState<number | null>(null);
+  const [expandedDocumentId, setExpandedDocumentId] = useState<number | null>(null);
 
   // Buscar lições do módulo
   const { 
@@ -338,79 +340,111 @@ export function LessonsList({ moduleId, subjectId }: LessonsListProps) {
               ) : (
                 <div className="space-y-4">
                   {ebookLessons.map((lesson) => (
-                    <Card key={lesson.id} className="p-4">
-                      <div className="flex items-start gap-4">
-                        <div className="bg-primary/10 p-2 rounded">
-                          {lesson.materialType === 'ebook' ? (
-                            <BookOpen className="h-8 w-8 text-primary" />
-                          ) : (
-                            <File className="h-8 w-8 text-primary" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between">
-                            <div>
-                              <h4 className="font-medium">{lesson.title}</h4>
-                              {lesson.description && (
-                                <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
-                              )}
-                              <div className="flex gap-2 mt-2">
-                                <Badge variant="outline" className="capitalize">
-                                  {lesson.materialType === 'ebook' ? 'E-book' : 
-                                   lesson.materialType === 'pdf' ? 'PDF' : 
-                                   lesson.materialType === 'scorm' ? 'SCORM' : 
-                                   lesson.materialType}
-                                </Badge>
-                                {lesson.fileType && (
-                                  <Badge variant="outline">
-                                    {lesson.fileType}
-                                  </Badge>
+                    <Card key={lesson.id} className="overflow-hidden">
+                      <div className="p-4">
+                        <div className="flex items-start gap-4">
+                          <div className="bg-primary/10 p-2 rounded">
+                            {lesson.materialType === 'ebook' ? (
+                              <BookOpen className="h-8 w-8 text-primary" />
+                            ) : (
+                              <File className="h-8 w-8 text-primary" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between">
+                              <div>
+                                <h4 className="font-medium">{lesson.title}</h4>
+                                {lesson.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
                                 )}
+                                <div className="flex gap-2 mt-2">
+                                  <Badge variant="outline" className="capitalize">
+                                    {lesson.materialType === 'ebook' ? 'E-book' : 
+                                     lesson.materialType === 'pdf' ? 'PDF' : 
+                                     lesson.materialType === 'scorm' ? 'SCORM' : 
+                                     lesson.materialType}
+                                  </Badge>
+                                  {lesson.fileType && (
+                                    <Badge variant="outline">
+                                      {lesson.fileType}
+                                    </Badge>
+                                  )}
+                                  {lesson.duration && (
+                                    <Badge variant="outline">
+                                      {lesson.duration} min
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditLesson(lesson.id)}
-                              >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Editar
-                              </Button>
-                              
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Excluir
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Excluir Material</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Tem certeza que deseja excluir o material "{lesson.title}"?
-                                      Esta ação não pode ser desfeita.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleDeleteLesson(lesson.id)}
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (expandedDocumentId === lesson.id) {
+                                      setExpandedDocumentId(null);
+                                    } else {
+                                      setExpandedDocumentId(lesson.id);
+                                    }
+                                  }}
+                                >
+                                  {expandedDocumentId === lesson.id ? 'Ocultar' : 'Visualizar'}
+                                </Button>
+                                
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEditLesson(lesson.id)}
+                                >
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Editar
+                                </Button>
+                                
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
                                     >
+                                      <Trash2 className="h-4 w-4 mr-2" />
                                       Excluir
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Excluir Material</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Tem certeza que deseja excluir o material "{lesson.title}"?
+                                        Esta ação não pode ser desfeita.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => handleDeleteLesson(lesson.id)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        Excluir
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Visualização prévia do documento */}
+                      {expandedDocumentId === lesson.id && (lesson.fileUrl || lesson.fileUploadPath) && (
+                        <div className="mt-2">
+                          <DocumentPreview 
+                            url={lesson.fileUrl || lesson.fileUploadPath || ''} 
+                            title={lesson.title}
+                            fileType={lesson.fileType || lesson.materialType}
+                          />
+                        </div>
+                      )}
                     </Card>
                   ))}
                 </div>
