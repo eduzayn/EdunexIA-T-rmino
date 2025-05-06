@@ -10,6 +10,7 @@ import { usePortal } from '@/hooks/use-portal';
 import { Helmet } from 'react-helmet';
 import { AppShell } from '@/components/layout/app-shell';
 import { SubjectModulesList } from '@/components/subjects/subject-modules-list';
+import { QuizList } from '@/components/quizzes/quiz-list';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Subject } from '@shared/schema';
 
@@ -223,16 +224,7 @@ export function SubjectDetailsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* Substituir pela lista de simulados quando implementada */}
-                  <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <BookOpen className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                    <h3 className="text-lg font-medium mb-2">Nenhum simulado encontrado</h3>
-                    <p className="text-gray-500 mb-4">Esta disciplina ainda não possui simulados para prática.</p>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Criar simulado
-                    </Button>
-                  </div>
+                  <QuizList subjectId={parseInt(id)} quizType="practice" />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -249,16 +241,7 @@ export function SubjectDetailsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* Substituir pela lista de avaliações quando implementada */}
-                  <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <CheckCircle className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                    <h3 className="text-lg font-medium mb-2">Nenhuma avaliação encontrada</h3>
-                    <p className="text-gray-500 mb-4">Esta disciplina ainda não possui avaliações finais.</p>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Criar avaliação final
-                    </Button>
-                  </div>
+                  <QuizList subjectId={parseInt(id)} quizType="final" />
                 </CardContent>
               </Card>
             </TabsContent>
