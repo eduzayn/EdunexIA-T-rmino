@@ -57,28 +57,35 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'É necessário fornecer o ID da disciplina' });
     }
 
-    let query = db.select().from(quizzes);
-
+    // Construir condições de consulta
+    const conditions = [];
+    
     if (subjectId) {
-      // Verificar se quizzes realmente tem subjectId
-      if ('subjectId' in quizzes) {
-        query = query.where(eq(quizzes.subjectId, Number(subjectId)));
-      } else {
-        console.warn('Campo subjectId não encontrado em quizzes');
-      }
+      conditions.push(eq(quizzes.subjectId, Number(subjectId)));
     }
-
+    
     if (moduleId) {
-      query = query.where(eq(quizzes.moduleId, Number(moduleId)));
+      conditions.push(eq(quizzes.moduleId, Number(moduleId)));
     }
-
+    
     if (quizType) {
-      query = query.where(eq(quizzes.quizType, String(quizType) as 'practice' | 'final'));
+      conditions.push(eq(quizzes.quizType, String(quizType) as 'practice' | 'final'));
     }
-
-    query = query.orderBy(desc(quizzes.updatedAt));
-
-    const quizzesList = await query;
+    
+    // Executar a consulta com todas as condições
+    let quizzesList;
+    if (conditions.length > 0) {
+      quizzesList = await db
+        .select()
+        .from(quizzes)
+        .where(and(...conditions))
+        .orderBy(desc(quizzes.updatedAt));
+    } else {
+      quizzesList = await db
+        .select()
+        .from(quizzes)
+        .orderBy(desc(quizzes.updatedAt));
+    }
 
     // Para cada quiz, obter a contagem de questões
     const quizzesWithCounts = await Promise.all(

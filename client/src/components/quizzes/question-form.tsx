@@ -22,7 +22,6 @@ import {
   CardFooter
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, GripVertical, HelpCircle } from 'lucide-react';
@@ -198,16 +197,14 @@ export function QuestionForm({ defaultValues, onSubmit, onCancel, isSubmitting =
                           )}
                         />
                       ) : (
-                        <RadioGroup
-                          value={form.getValues().options.findIndex(o => o.isCorrect) === index ? 'true' : 'false'}
-                          onValueChange={(value) => {
-                            if (value === 'true') {
-                              handleSingleChoiceSelect(index);
-                            }
-                          }}
-                        >
-                          <RadioGroupItem value="true" id={`option-${index}`} />
-                        </RadioGroup>
+                        <div className="flex items-center h-6">
+                          <input
+                            type="radio"
+                            checked={form.getValues().options.findIndex(o => o.isCorrect) === index}
+                            onChange={() => handleSingleChoiceSelect(index)}
+                            className="h-4 w-4 cursor-pointer"
+                          />
+                        </div>
                       )}
                     </div>
                     
