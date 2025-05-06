@@ -35,9 +35,16 @@ export function ImageUpload({
       // Se a URL parece ser absoluta (começa com http ou /)
       if (previewUrl.startsWith('http') || previewUrl.startsWith('/')) {
         setLocalPreviewUrl(previewUrl);
+      } else if (previewUrl.startsWith('data:image/')) {
+        // Se é uma URL data de imagem
+        setLocalPreviewUrl(previewUrl);
+      } else if (previewUrl.trim() !== '') {
+        // Se não é uma URL absoluta mas existe conteúdo, tenta resolver como caminho relativo
+        const path = previewUrl.replace(/^\//, '');
+        setLocalPreviewUrl(`/${path}`);
       } else {
-        // Se não é uma URL absoluta mas existe conteúdo, tenta resolver
-        setLocalPreviewUrl(`/${previewUrl.replace(/^\//, '')}`);
+        // String vazia
+        setLocalPreviewUrl(undefined);
       }
     } else {
       setLocalPreviewUrl(undefined);
