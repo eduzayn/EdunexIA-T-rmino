@@ -478,7 +478,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Área</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -510,7 +510,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Categoria</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -541,7 +541,11 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                 <FormItem>
                   <FormLabel>Descrição Curta</FormLabel>
                   <FormControl>
-                    <Input placeholder="Uma breve descrição do curso (será exibida nas listagens)" {...field} />
+                    <Input 
+                      placeholder="Uma breve descrição do curso (será exibida nas listagens)" 
+                      {...field}
+                      value={field.value || ""} 
+                    />
                   </FormControl>
                   <FormDescription>
                     Máximo de 150 caracteres
@@ -605,7 +609,7 @@ export function CourseForm({ initialData, courseId }: CourseFormProps) {
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl>
                         <SelectTrigger>
