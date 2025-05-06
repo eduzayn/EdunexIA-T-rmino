@@ -288,9 +288,11 @@ export default function CourseDetailsPage() {
           </div>
           
           <div className="flex gap-1.5">
-            <Button size="sm" variant="outline" className="h-8">
-              <Globe className="h-4 w-4 mr-1.5" />
-              Visualizar
+            <Button size="sm" variant="outline" className="h-8" asChild>
+              <Link href={`/courses/${courseId}`} target="_blank">
+                <Globe className="h-4 w-4 mr-1.5" />
+                Visualizar
+              </Link>
             </Button>
             <Button size="sm" className="h-8" asChild>
               <Link href={`/admin/courses/${courseId}/edit`}>
@@ -448,7 +450,18 @@ export default function CourseDetailsPage() {
                   </Link>
                 </Button>
                 
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    const url = `${window.location.origin}/courses/${courseId}`;
+                    navigator.clipboard.writeText(url);
+                    toast({
+                      title: "Link copiado!",
+                      description: "URL do curso copiada para a área de transferência.",
+                    });
+                  }}
+                >
                   <Share className="h-4 w-4 mr-1.5" />
                   Compartilhar Curso
                 </Button>
