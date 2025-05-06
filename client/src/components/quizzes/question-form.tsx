@@ -122,7 +122,7 @@ export function QuestionForm({
   });
   
   // Manipular mudança no tipo de questão
-  const handleQuestionTypeChange = (value: 'multiple_choice' | 'true_false') => {
+  const handleQuestionTypeChange = (value: 'multiple_choice' | 'true_false' | 'essay') => {
     setQuestionType(value);
     form.setValue('questionType', value);
     
@@ -132,6 +132,11 @@ export function QuestionForm({
         { text: 'Verdadeiro', isCorrect: false },
         { text: 'Falso', isCorrect: false },
       ]);
+    }
+    
+    // Se mudar para questão discursiva, limpar opções
+    if (value === 'essay') {
+      form.setValue('options', []);
     }
   };
   
@@ -157,9 +162,9 @@ export function QuestionForm({
               <FormLabel>Tipo de Questão</FormLabel>
               <FormControl>
                 <RadioGroup
-                  onValueChange={(value) => handleQuestionTypeChange(value as 'multiple_choice' | 'true_false')}
+                  onValueChange={(value) => handleQuestionTypeChange(value as 'multiple_choice' | 'true_false' | 'essay')}
                   defaultValue={field.value}
-                  className="flex space-x-4"
+                  className="flex flex-wrap space-x-4"
                 >
                   <FormItem className="flex items-center space-x-2 space-y-0">
                     <FormControl>
@@ -172,6 +177,12 @@ export function QuestionForm({
                       <RadioGroupItem value="true_false" />
                     </FormControl>
                     <FormLabel className="font-normal cursor-pointer">Verdadeiro/Falso</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-2 space-y-0 mt-2">
+                    <FormControl>
+                      <RadioGroupItem value="essay" />
+                    </FormControl>
+                    <FormLabel className="font-normal cursor-pointer">Dissertativa</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
@@ -208,118 +219,134 @@ export function QuestionForm({
         <Separator />
         
         {/* Opções */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <FormLabel className="text-base">Opções de Resposta</FormLabel>
-            {questionType === 'multiple_choice' && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddOption}
-                disabled={fields.length >= 10}
-              >
-                <PlusCircle className="h-4 w-4 mr-1" />
-                Adicionar Opção
-              </Button>
+        {questionType !== 'essay' ? (
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <FormLabel className="text-base">Opções de Resposta</FormLabel>
+              {questionType === 'multiple_choice' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddOption}
+                  disabled={fields.length >= 10}
+                >
+                  <PlusCircle className="h-4 w-4 mr-1" />
+                  Adicionar Opção
+                </Button>
+              )}
+            </div>
+            
+            <FormDescription className="mb-4">
+              {questionType === 'multiple_choice'
+                ? 'Adicione as opções e marque qual(is) está(ão) correta(s).'
+                : 'Indique se a afirmação é verdadeira ou falsa.'}
+            </FormDescription>
+            
+            <div className="space-y-3">
+              {fields.map((field, index) => (
+                <Card key={field.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start gap-3">
+                      <div className="pt-2">
+                        <FormField
+                          control={form.control}
+                          name={`options.${index}.isCorrect`}
+                          render={({ field }) => (
+                            <FormItem className="space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <FormField
+                          control={form.control}
+                          name={`options.${index}.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  placeholder={`Opção ${index + 1}`}
+                                  {...field}
+                                  disabled={questionType === 'true_false'}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      {questionType === 'multiple_choice' && (
+                        <div className="flex space-x-1">
+                          {index > 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => move(index, index - 1)}
+                            >
+                              <MoveUp className="h-4 w-4" />
+                            </Button>
+                          )}
+                          
+                          {index < fields.length - 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => move(index, index + 1)}
+                            >
+                              <MoveDown className="h-4 w-4" />
+                            </Button>
+                          )}
+                          
+                          {fields.length > 2 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => remove(index)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            {form.formState.errors.options?.message && (
+              <p className="text-sm font-medium text-destructive mt-2">
+                {form.formState.errors.options.message}
+              </p>
             )}
           </div>
-          
-          <FormDescription className="mb-4">
-            {questionType === 'multiple_choice'
-              ? 'Adicione as opções e marque qual(is) está(ão) correta(s).'
-              : 'Indique se a afirmação é verdadeira ou falsa.'}
-          </FormDescription>
-          
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <Card key={field.id}>
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-3">
-                    <div className="pt-2">
-                      <FormField
-                        control={form.control}
-                        name={`options.${index}.isCorrect`}
-                        render={({ field }) => (
-                          <FormItem className="space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="flex-1">
-                      <FormField
-                        control={form.control}
-                        name={`options.${index}.text`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                placeholder={`Opção ${index + 1}`}
-                                {...field}
-                                disabled={questionType === 'true_false'}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    {questionType === 'multiple_choice' && (
-                      <div className="flex space-x-1">
-                        {index > 0 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => move(index, index - 1)}
-                          >
-                            <MoveUp className="h-4 w-4" />
-                          </Button>
-                        )}
-                        
-                        {index < fields.length - 1 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => move(index, index + 1)}
-                          >
-                            <MoveDown className="h-4 w-4" />
-                          </Button>
-                        )}
-                        
-                        {fields.length > 2 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => remove(index)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        ) : (
+          <div>
+            <FormLabel className="text-base">Resposta Dissertativa</FormLabel>
+            <Card className="p-4 mt-2">
+              <p className="text-sm text-muted-foreground mb-2">
+                Questões dissertativas serão respondidas pelos alunos em um campo de texto livre.
+                O professor avaliará manualmente as respostas após a conclusão da avaliação.
+              </p>
+              <div className="flex items-center justify-center border border-dashed border-gray-300 rounded-md p-6 bg-gray-50">
+                <AlignJustify className="h-10 w-10 text-gray-400 mr-2" />
+                <span className="text-sm text-gray-500">Texto livre para resposta do aluno</span>
+              </div>
+            </Card>
           </div>
-          
-          {form.formState.errors.options?.message && (
-            <p className="text-sm font-medium text-destructive mt-2">
-              {form.formState.errors.options.message}
-            </p>
-          )}
-        </div>
+        )}
         
         <Separator />
         
