@@ -60,7 +60,12 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     let query = db.select().from(quizzes);
 
     if (subjectId) {
-      query = query.where(eq(quizzes.subjectId, Number(subjectId)));
+      // Verificar se quizzes realmente tem subjectId
+      if ('subjectId' in quizzes) {
+        query = query.where(eq(quizzes.subjectId, Number(subjectId)));
+      } else {
+        console.warn('Campo subjectId não encontrado em quizzes');
+      }
     }
 
     if (moduleId) {
@@ -78,14 +83,14 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     // Para cada quiz, obter a contagem de questões
     const quizzesWithCounts = await Promise.all(
       quizzesList.map(async (quiz) => {
-        const questionCount = await db
-          .select({ count: db.fn.count() })
+        const quizQuestions = await db
+          .select()
           .from(questions)
           .where(eq(questions.quizId, quiz.id));
 
         return {
           ...quiz,
-          questionCount: Number(questionCount[0]?.count || 0),
+          questionCount: quizQuestions.length,
         };
       })
     );
@@ -133,12 +138,27 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const validatedData = quizSchema.parse(req.body);
 
+    if (!validatedData.moduleId && !validatedData.subjectId) {
+      return res.status(400).json({ error: 'É necessário informar pelo menos o moduleId ou o subjectId' });
+    }
+
     const [newQuiz] = await db
       .insert(quizzes)
       .values({
-        ...validatedData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        moduleId: validatedData.moduleId || 0, // Valor padrão temporário
+        subjectId: validatedData.subjectId,
+        title: validatedData.title,
+        description: validatedData.description,
+        instructions: validatedData.instructions,
+        timeLimit: validatedData.timeLimit,
+        passingScore: validatedData.passingScore,
+        isRequired: validatedData.isRequired,
+        isActive: validatedData.isActive,
+        allowRetake: validatedData.allowRetake,
+        maxAttempts: validatedData.maxAttempts,
+        shuffleQuestions: validatedData.shuffleQuestions,
+        showAnswers: validatedData.showAnswers,
+        quizType: validatedData.quizType,
       })
       .returning();
 
@@ -158,10 +178,27 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     const quizId = Number(req.params.id);
     const validatedData = quizSchema.parse(req.body);
 
+    if (!validatedData.moduleId && !validatedData.subjectId) {
+      return res.status(400).json({ error: 'É necessário informar pelo menos o moduleId ou o subjectId' });
+    }
+
     const [updatedQuiz] = await db
       .update(quizzes)
       .set({
-        ...validatedData,
+        moduleId: validatedData.moduleId || 0, // Valor padrão temporário
+        subjectId: validatedData.subjectId,
+        title: validatedData.title,
+        description: validatedData.description,
+        instructions: validatedData.instructions,
+        timeLimit: validatedData.timeLimit,
+        passingScore: validatedData.passingScore,
+        isRequired: validatedData.isRequired,
+        isActive: validatedData.isActive,
+        allowRetake: validatedData.allowRetake,
+        maxAttempts: validatedData.maxAttempts,
+        shuffleQuestions: validatedData.shuffleQuestions,
+        showAnswers: validatedData.showAnswers,
+        quizType: validatedData.quizType,
         updatedAt: new Date(),
       })
       .where(eq(quizzes.id, quizId))
@@ -230,10 +267,12 @@ router.post('/:quizId/questions', requireAuth, async (req: Request, res: Respons
     });
 
     // Determinar a ordem da nova questão (próxima na sequência)
-    const [{ count: questionCount }] = await db
-      .select({ count: db.fn.count() })
+    const questionsInQuiz = await db
+      .select()
       .from(questions)
       .where(eq(questions.quizId, quizId));
+    
+    const questionCount = questionsInQuiz.length;
 
     const order = validatedData.order || Number(questionCount) + 1;
 
