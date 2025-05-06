@@ -134,9 +134,7 @@ export function ClassForm({ defaultValues, onSubmit, isSubmitting }: ClassFormPr
                   defaultValue={field.value?.toString() || "0"}
                 >
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma disciplina (opcional)" />
-                    </SelectTrigger>
+                    <SelectValue placeholder="Selecione uma disciplina (opcional)" />
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="0">Nenhuma</SelectItem>
