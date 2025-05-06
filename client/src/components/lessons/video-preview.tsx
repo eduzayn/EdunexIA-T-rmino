@@ -22,24 +22,48 @@ export function VideoPreview({ url, provider, title, autoPlay = false }: VideoPr
 
   // Função para extrair o ID do vídeo do Vimeo da URL
   const getVimeoId = (url: string): string | null => {
-    const regExp = /vimeo\.com\/(?:video\/|channels\/\w+\/|groups\/[^\/]+\/videos\/|album\/\d+\/video\/|)(\d+)(?:$|\/|\?)/;
-    const match = url.match(regExp);
+    // Padrão para URLs regulares do Vimeo
+    const regExpStandard = /vimeo\.com\/(?:video\/|channels\/\w+\/|groups\/[^\/]+\/videos\/|album\/\d+\/video\/|)(\d+)(?:$|\/|\?)/;
+    let match = url.match(regExpStandard);
+    
+    if (match) {
+      return match[1];
+    }
+    
+    // Padrão para URLs de incorporação do Vimeo (player.vimeo.com)
+    const regExpEmbed = /player\.vimeo\.com\/video\/(\d+)(?:$|\/|\?|&)/;
+    match = url.match(regExpEmbed);
+    
+    // Se ainda não encontrou, tente encontrar qualquer número de ID no URL
+    if (!match) {
+      const anyNumberRegExp = /\/(\d+)(?:\?|&|$)/;
+      match = url.match(anyNumberRegExp);
+    }
+    
     return match ? match[1] : null;
   };
 
   // Função para gerar o ID apropriado com base no provedor
   const getVideoEmbedUrl = (): string => {
-    switch (provider) {
+    switch (provider.toLowerCase()) {
       case 'youtube':
         const youtubeId = getYouTubeId(url);
         return youtubeId 
           ? `https://www.youtube.com/embed/${youtubeId}?autoplay=${autoPlay ? 1 : 0}&rel=0` 
           : '';
       case 'vimeo':
-        const vimeoId = getVimeoId(url);
-        return vimeoId 
-          ? `https://player.vimeo.com/video/${vimeoId}?autoplay=${autoPlay ? 1 : 0}` 
-          : '';
+        // Para o Vimeo, verificamos se a URL já é uma URL de incorporação
+        if (url.includes('player.vimeo.com/video/')) {
+          // Se é uma URL de incorporação, limpamos parâmetros e adicionamos nossos próprios
+          const baseUrl = url.split('?')[0];
+          return `${baseUrl}?autoplay=${autoPlay ? 1 : 0}&title=0&byline=0&portrait=0`;
+        } else {
+          // Caso contrário, extraímos o ID e construímos a URL
+          const vimeoId = getVimeoId(url);
+          return vimeoId 
+            ? `https://player.vimeo.com/video/${vimeoId}?autoplay=${autoPlay ? 1 : 0}&title=0&byline=0&portrait=0` 
+            : '';
+        }
       case 'google_drive':
         // Para Google Drive, tentar extrair o ID do arquivo
         const driveId = url.match(/[-\w]{25,}/);
@@ -85,6 +109,9 @@ export function VideoPreview({ url, provider, title, autoPlay = false }: VideoPr
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
+              frameBorder="0"
+              loading="lazy"
+              referrerPolicy="no-referrer"
             />
           </div>
         </div>
