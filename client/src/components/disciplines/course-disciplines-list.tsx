@@ -308,13 +308,13 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                       </Button>
                       <div>
                         <CardTitle className="text-base font-medium flex items-center">
-                          {courseDiscipline.title}
+                          {courseDiscipline.subject?.title || `Disciplina ${courseDiscipline.id}`}
                           <Badge variant="outline" className="ml-2 text-xs">
-                            {courseDiscipline.code}
+                            {courseDiscipline.subject?.code || `ID: ${courseDiscipline.subjectId}`}
                           </Badge>
                         </CardTitle>
                         <CardDescription className="text-sm">
-                          {courseDiscipline.description || "Sem descrição"}
+                          {courseDiscipline.subject?.description || "Sem descrição"}
                         </CardDescription>
                       </div>
                     </div>
@@ -325,7 +325,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                         className="h-8 w-8"
                         asChild
                       >
-                        <Link href={`/admin/subjects/${courseDiscipline.subject.id}`}>
+                        <Link href={`/admin/subjects/${courseDiscipline.subject?.id || courseDiscipline.subjectId}`}>
                           <Edit className="h-4 w-4 text-muted-foreground" />
                         </Link>
                       </Button>
@@ -333,7 +333,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => handleRemoveDiscipline(courseDiscipline.id, courseDiscipline.subject.title)}
+                        onClick={() => handleRemoveDiscipline(courseDiscipline.id, courseDiscipline.subject?.title || `Disciplina ${courseDiscipline.subjectId}`)}
                         disabled={removeDisciplineMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -465,7 +465,7 @@ export function CourseDisciplinesList({ courseId }: CourseDisciplinesListProps) 
                           size="sm" 
                           asChild
                         >
-                          <Link href={`/admin/subjects/${courseDiscipline.subject.id}`}>
+                          <Link href={`/admin/subjects/${courseDiscipline.subject?.id || courseDiscipline.subjectId}`}>
                             Gerenciar Disciplina
                           </Link>
                         </Button>
